@@ -19,6 +19,11 @@ public static class DefaultAppSettingsFactory
             DefaultMode = ScreenshotMode.Region,
             CopyToClipboardAutomatically = true,
             ShowQuickActionsAfterCapture = true,
+            AfterCaptureActions =
+            [
+                AfterCaptureAction.CopyImageToClipboard,
+                AfterCaptureAction.ShowQuickActions
+            ],
             SaveDirectory = "screenshots"
         },
         Editor = new EditorSettings(),

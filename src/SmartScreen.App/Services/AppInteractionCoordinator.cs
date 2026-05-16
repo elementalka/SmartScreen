@@ -1,3 +1,4 @@
+using System.IO;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
@@ -7,6 +8,7 @@ namespace SmartScreen.App.Services;
 public sealed class AppInteractionCoordinator(
     IScreenshotService screenshotService,
     IClipboardService clipboardService,
+    IImageFileService imageFileService,
     ISettingsService settingsService,
     IWindowService windowService,
     ILoggingService loggingService)
@@ -109,19 +111,51 @@ public sealed class AppInteractionCoordinator(
 
     private async Task HandleScreenshotAsync(ScreenshotResult screenshot, CancellationToken cancellationToken)
     {
-        CurrentScreenshot = screenshot;
         var settings = await settingsService.LoadAsync(cancellationToken);
+        var actions = settings.Screenshots.AfterCaptureActions;
 
-        if (settings.Screenshots.CopyToClipboardAutomatically)
+        if (actions.Contains(AfterCaptureAction.OpenEditor))
         {
-            await clipboardService.CopyImageAsync(screenshot, cancellationToken);
+            var edited = await windowService.ShowEditorAsync(screenshot);
+            if (edited is not null)
+            {
+                screenshot = edited;
+            }
         }
 
-        SetStatus($"Скріншот готовий: {screenshot.Width}x{screenshot.Height}");
+        CurrentScreenshot = screenshot;
 
-        if (settings.Screenshots.ShowQuickActionsAfterCapture)
+        var completedActions = new List<string>();
+
+        if (actions.Contains(AfterCaptureAction.CopyImageToClipboard))
+        {
+            await clipboardService.CopyImageAsync(screenshot, cancellationToken);
+            completedActions.Add("буфер");
+        }
+
+        if (actions.Contains(AfterCaptureAction.SaveImageToFile))
+        {
+            var path = await imageFileService.SaveAsync(
+                screenshot,
+                settings.Screenshots.SaveDirectory,
+                settings.Screenshots.DefaultFormat,
+                settings.Screenshots.JpegQuality,
+                cancellationToken);
+            completedActions.Add($"файл {Path.GetFileName(path)}");
+        }
+
+        SetStatus(completedActions.Count == 0
+            ? $"Скріншот готовий: {screenshot.Width}x{screenshot.Height}"
+            : $"Скріншот готовий: {screenshot.Width}x{screenshot.Height}; {string.Join(", ", completedActions)}");
+
+        if (actions.Contains(AfterCaptureAction.ShowQuickActions))
         {
             await windowService.ShowQuickActionsAsync(screenshot);
+        }
+
+        if (actions.Contains(AfterCaptureAction.AskAi))
+        {
+            windowService.ShowAiResponse(screenshot);
         }
     }
 

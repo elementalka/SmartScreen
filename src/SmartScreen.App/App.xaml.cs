@@ -78,6 +78,7 @@ public partial class App : System.Windows.Application
         var coordinator = new AppInteractionCoordinator(
             screenshotService,
             clipboardService,
+            imageFileService,
             settingsService,
             windowService,
             loggingService);

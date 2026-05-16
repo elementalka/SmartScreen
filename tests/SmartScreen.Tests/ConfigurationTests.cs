@@ -1,4 +1,5 @@
 using SmartScreen.Domain.Models;
+using SmartScreen.Domain.Enums;
 using SmartScreen.Infrastructure.Configuration;
 using SmartScreen.Infrastructure.Logging;
 using SmartScreen.Infrastructure.Storage;
@@ -25,8 +26,64 @@ public sealed class ConfigurationTests
             Assert.AreEqual(
                 "gemini-flash-latest",
                 settings.Ai.Providers.First(provider => provider.Id == "gemini-flash").Model);
+            CollectionAssert.AreEqual(
+                new[] { AfterCaptureAction.CopyImageToClipboard, AfterCaptureAction.ShowQuickActions },
+                settings.Screenshots.AfterCaptureActions);
             Assert.IsTrue(File.Exists(Path.Combine(root, "config", "appsettings.json")));
             Assert.IsTrue(settings.Ai.Providers.Count >= 2);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public async Task SettingsServiceMigratesLegacyAfterCaptureFlags()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var storage = new StorageService(root);
+            var logger = new FileLoggingService(storage);
+            var service = new JsonSettingsService(storage, logger);
+
+            await storage.EnsureDirectoriesAsync();
+            await File.WriteAllTextAsync(
+                Path.Combine(root, "config", "appsettings.json"),
+                """
+                {
+                  "firstRunCompleted": false,
+                  "startMinimizedToTray": true,
+                  "minimizeToTrayOnClose": true,
+                  "screenshots": {
+                    "defaultFormat": "png",
+                    "jpegQuality": 90,
+                    "fileNameTemplate": "screenshot_{yyyy-MM-dd}_{HH-mm-ss}",
+                    "defaultMode": "region",
+                    "copyToClipboardAutomatically": true,
+                    "showQuickActionsAfterCapture": false,
+                    "delaySeconds": 0,
+                    "saveDirectory": "screenshots"
+                  },
+                  "editor": {},
+                  "ai": {
+                    "activeProviderId": "gemini-flash",
+                    "sendScreenshotsOnlyAfterConfirmation": true,
+                    "providers": []
+                  },
+                  "theme": {},
+                  "language": "uk-UA"
+                }
+                """);
+
+            var settings = await service.LoadAsync();
+
+            CollectionAssert.AreEqual(
+                new[] { AfterCaptureAction.CopyImageToClipboard },
+                settings.Screenshots.AfterCaptureActions);
+            Assert.IsTrue(settings.Screenshots.CopyToClipboardAutomatically);
+            Assert.IsFalse(settings.Screenshots.ShowQuickActionsAfterCapture);
         }
         finally
         {

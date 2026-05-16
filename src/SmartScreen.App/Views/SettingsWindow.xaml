@@ -68,6 +68,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
@@ -130,7 +131,32 @@
                                 Margin="14,22,0,0" />
                     </Grid>
 
-                    <StackPanel Grid.Row="4" Margin="0,18,0,0">
+                    <Border Grid.Row="4"
+                            Style="{StaticResource MetricPanel}"
+                            Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Pipeline після скріншоту" Style="{StaticResource FieldLabel}" />
+                            <UniformGrid Columns="3" Margin="0,4,0,0">
+                                <CheckBox Content="Буфер"
+                                          IsChecked="{Binding CopyAfterCapture}"
+                                          Margin="0,0,10,8" />
+                                <CheckBox Content="Файл"
+                                          IsChecked="{Binding SaveAfterCapture}"
+                                          Margin="0,0,10,8" />
+                                <CheckBox Content="Швидке меню"
+                                          IsChecked="{Binding QuickActionsAfterCapture}"
+                                          Margin="0,0,0,8" />
+                                <CheckBox Content="Редактор"
+                                          IsChecked="{Binding OpenEditorAfterCapture}"
+                                          Margin="0,0,10,0" />
+                                <CheckBox Content="AI-запит"
+                                          IsChecked="{Binding AskAiAfterCapture}"
+                                          Margin="0,0,10,0" />
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Grid.Row="5" Margin="0,18,0,0">
                         <TextBlock Text="System prompt" Style="{StaticResource FieldLabel}" />
                         <TextBox Text="{Binding SelectedProvider.SystemPrompt, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModernTextBox}"

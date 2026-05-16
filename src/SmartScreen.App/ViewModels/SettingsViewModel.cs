@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App.Commands;
+using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 
 namespace SmartScreen.App.ViewModels;
@@ -16,6 +17,11 @@ public sealed class SettingsViewModel : ObservableObject
     private AiProviderSettings? _selectedProvider;
     private string _apiKeyInput = string.Empty;
     private string _status = "Налаштування";
+    private bool _copyAfterCapture;
+    private bool _saveAfterCapture;
+    private bool _quickActionsAfterCapture;
+    private bool _openEditorAfterCapture;
+    private bool _askAiAfterCapture;
 
     public SettingsViewModel(
         ISettingsService settingsService,
@@ -78,6 +84,36 @@ public sealed class SettingsViewModel : ObservableObject
 
     public bool SelectedProviderHasKey => !string.IsNullOrWhiteSpace(SelectedProvider?.ApiKey);
 
+    public bool CopyAfterCapture
+    {
+        get => _copyAfterCapture;
+        set => SetProperty(ref _copyAfterCapture, value);
+    }
+
+    public bool SaveAfterCapture
+    {
+        get => _saveAfterCapture;
+        set => SetProperty(ref _saveAfterCapture, value);
+    }
+
+    public bool QuickActionsAfterCapture
+    {
+        get => _quickActionsAfterCapture;
+        set => SetProperty(ref _quickActionsAfterCapture, value);
+    }
+
+    public bool OpenEditorAfterCapture
+    {
+        get => _openEditorAfterCapture;
+        set => SetProperty(ref _openEditorAfterCapture, value);
+    }
+
+    public bool AskAiAfterCapture
+    {
+        get => _askAiAfterCapture;
+        set => SetProperty(ref _askAiAfterCapture, value);
+    }
+
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand TestAiCommand { get; }
@@ -95,6 +131,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         SelectedProvider = Providers.FirstOrDefault(provider => provider.Id == _settings.Ai.ActiveProviderId)
             ?? Providers.FirstOrDefault();
+        ApplyWorkflowToView(_settings.Screenshots.AfterCaptureActions);
         Status = "Налаштування завантажено";
     }
 
@@ -114,6 +151,8 @@ public sealed class SettingsViewModel : ObservableObject
         {
             _settings.Ai.ActiveProviderId = SelectedProvider.Id;
         }
+
+        ApplyWorkflowToSettings(_settings.Screenshots);
 
         foreach (var provider in Providers)
         {
@@ -140,5 +179,48 @@ public sealed class SettingsViewModel : ObservableObject
         Status = await _aiService.TestActiveProviderAsync(cancellationToken)
             ? "Підключення працює"
             : "Підключення не вдалося перевірити";
+    }
+
+    private void ApplyWorkflowToView(IReadOnlyCollection<AfterCaptureAction> actions)
+    {
+        CopyAfterCapture = actions.Contains(AfterCaptureAction.CopyImageToClipboard);
+        SaveAfterCapture = actions.Contains(AfterCaptureAction.SaveImageToFile);
+        QuickActionsAfterCapture = actions.Contains(AfterCaptureAction.ShowQuickActions);
+        OpenEditorAfterCapture = actions.Contains(AfterCaptureAction.OpenEditor);
+        AskAiAfterCapture = actions.Contains(AfterCaptureAction.AskAi);
+    }
+
+    private void ApplyWorkflowToSettings(ScreenshotSettings screenshots)
+    {
+        var actions = new List<AfterCaptureAction>();
+
+        if (OpenEditorAfterCapture)
+        {
+            actions.Add(AfterCaptureAction.OpenEditor);
+        }
+
+        if (CopyAfterCapture)
+        {
+            actions.Add(AfterCaptureAction.CopyImageToClipboard);
+        }
+
+        if (SaveAfterCapture)
+        {
+            actions.Add(AfterCaptureAction.SaveImageToFile);
+        }
+
+        if (QuickActionsAfterCapture)
+        {
+            actions.Add(AfterCaptureAction.ShowQuickActions);
+        }
+
+        if (AskAiAfterCapture)
+        {
+            actions.Add(AfterCaptureAction.AskAi);
+        }
+
+        screenshots.AfterCaptureActions = actions;
+        screenshots.CopyToClipboardAutomatically = actions.Contains(AfterCaptureAction.CopyImageToClipboard);
+        screenshots.ShowQuickActionsAfterCapture = actions.Contains(AfterCaptureAction.ShowQuickActions);
     }
 }

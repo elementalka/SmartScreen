@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.Application.Defaults;
+using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 
 namespace SmartScreen.Infrastructure.Configuration;
@@ -61,6 +62,7 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
 
         settings.StartMinimizedToTray = true;
         settings.MinimizeToTrayOnClose = true;
+        NormalizeScreenshotSettings(settings.Screenshots);
 
         foreach (var defaultProvider in defaults.Ai.Providers)
         {
@@ -90,5 +92,38 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
         {
             settings.Ai.ActiveProviderId = "gemini-pro";
         }
+    }
+
+    private static void NormalizeScreenshotSettings(ScreenshotSettings screenshots)
+    {
+        screenshots.AfterCaptureActions ??= [];
+
+        screenshots.SaveDirectory = string.IsNullOrWhiteSpace(screenshots.SaveDirectory)
+            ? "screenshots"
+            : screenshots.SaveDirectory;
+
+        screenshots.JpegQuality = Math.Clamp(screenshots.JpegQuality, 1, 100);
+
+        if (screenshots.AfterCaptureActions.Count == 0)
+        {
+            if (screenshots.CopyToClipboardAutomatically)
+            {
+                screenshots.AfterCaptureActions.Add(AfterCaptureAction.CopyImageToClipboard);
+            }
+
+            if (screenshots.ShowQuickActionsAfterCapture)
+            {
+                screenshots.AfterCaptureActions.Add(AfterCaptureAction.ShowQuickActions);
+            }
+        }
+
+        screenshots.AfterCaptureActions = screenshots.AfterCaptureActions
+            .Distinct()
+            .ToList();
+
+        screenshots.CopyToClipboardAutomatically =
+            screenshots.AfterCaptureActions.Contains(AfterCaptureAction.CopyImageToClipboard);
+        screenshots.ShowQuickActionsAfterCapture =
+            screenshots.AfterCaptureActions.Contains(AfterCaptureAction.ShowQuickActions);
     }
 }

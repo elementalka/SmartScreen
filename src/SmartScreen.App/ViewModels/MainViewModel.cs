@@ -5,6 +5,7 @@ using System.Windows.Input;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App.Commands;
 using SmartScreen.App.Services;
+using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 
 namespace SmartScreen.App.ViewModels;
@@ -207,13 +208,31 @@ public sealed class MainViewModel : ObservableObject
                 ? "screenshots"
                 : settings.Screenshots.SaveDirectory;
 
-            var copyPart = settings.Screenshots.CopyToClipboardAutomatically ? "clipboard" : "manual copy";
-            var menuPart = settings.Screenshots.ShowQuickActionsAfterCapture ? "quick menu" : "silent";
-            WorkflowSummary = $"Ctrl+Shift+S · {copyPart} · {menuPart}";
+            WorkflowSummary = $"Ctrl+Shift+S · {FormatWorkflow(settings.Screenshots.AfterCaptureActions)}";
         }
         catch (Exception exception)
         {
             _loggingService.Error(exception, "Could not load main window settings summary.");
         }
+    }
+
+    private static string FormatWorkflow(IReadOnlyCollection<AfterCaptureAction> actions)
+    {
+        if (actions.Count == 0)
+        {
+            return "manual";
+        }
+
+        var labels = actions.Select(action => action switch
+        {
+            AfterCaptureAction.CopyImageToClipboard => "clipboard",
+            AfterCaptureAction.SaveImageToFile => "file",
+            AfterCaptureAction.ShowQuickActions => "quick menu",
+            AfterCaptureAction.OpenEditor => "editor",
+            AfterCaptureAction.AskAi => "AI",
+            _ => action.ToString()
+        });
+
+        return string.Join(" · ", labels);
     }
 }

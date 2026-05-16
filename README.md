@@ -50,6 +50,7 @@ dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 - Copy screenshot to clipboard
 - Save PNG/JPG
 - Quick actions popup
+- Configurable after-capture pipeline
 - Basic screenshot editor with pen/highlighter/undo
 - Gemini provider
 - OpenAI-compatible provider for NVIDIA NIM, OpenRouter, local endpoints, and similar APIs

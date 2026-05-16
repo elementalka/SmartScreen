@@ -10,7 +10,8 @@ public sealed class ScreenshotSettings
     public ScreenshotMode DefaultMode { get; set; } = ScreenshotMode.Region;
     public bool CopyToClipboardAutomatically { get; set; } = true;
     public bool ShowQuickActionsAfterCapture { get; set; } = true;
+    public List<AfterCaptureAction> AfterCaptureActions { get; set; } = [];
+
     public int DelaySeconds { get; set; }
     public string SaveDirectory { get; set; } = "screenshots";
 }
-
