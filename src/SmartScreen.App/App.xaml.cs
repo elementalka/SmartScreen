@@ -84,7 +84,7 @@ public partial class App : System.Windows.Application
 
         var mainWindow = new MainWindow
         {
-            DataContext = new MainViewModel(coordinator)
+            DataContext = new MainViewModel(coordinator, settingsService, storageService, loggingService)
         };
 
         MainWindow = mainWindow;

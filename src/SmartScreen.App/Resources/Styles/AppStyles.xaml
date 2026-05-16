@@ -1,17 +1,25 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Color x:Key="AppBackgroundColor">#F6F7FB</Color>
+    <Color x:Key="AppBackgroundColor">#F4F6FA</Color>
     <Color x:Key="SurfaceColor">#FFFFFF</Color>
-    <Color x:Key="TextColor">#1E2430</Color>
-    <Color x:Key="MutedTextColor">#657084</Color>
-    <Color x:Key="AccentColor">#2F7DFF</Color>
-    <Color x:Key="BorderColor">#DDE3EE</Color>
+    <Color x:Key="PanelColor">#FBFCFE</Color>
+    <Color x:Key="TextColor">#172033</Color>
+    <Color x:Key="MutedTextColor">#637083</Color>
+    <Color x:Key="AccentColor">#2563EB</Color>
+    <Color x:Key="AccentSoftColor">#EAF1FF</Color>
+    <Color x:Key="SuccessColor">#14966D</Color>
+    <Color x:Key="WarningColor">#D97706</Color>
+    <Color x:Key="BorderColor">#D9E1EC</Color>
 
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource PanelColor}" />
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}" />
     <SolidColorBrush x:Key="MutedTextBrush" Color="{StaticResource MutedTextColor}" />
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoftColor}" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
 
     <Style TargetType="Window">
@@ -21,7 +29,7 @@
     </Style>
 
     <Style x:Key="TitleText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
@@ -43,6 +51,25 @@
         <Setter Property="Padding" Value="20" />
     </Style>
 
+    <Style x:Key="WorkspacePanel" TargetType="Border" BasedOn="{StaticResource PanelBorder}">
+        <Setter Property="Padding" Value="18" />
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+    </Style>
+
+    <Style x:Key="SideRail" TargetType="Border">
+        <Setter Property="Background" Value="#101827" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <Style x:Key="MetricPanel" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="14" />
+    </Style>
+
     <Style x:Key="FloatingPanelBorder" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
         <Setter Property="BorderBrush" Value="#CAD3E2" />
@@ -61,8 +88,8 @@
     </Style>
 
     <Style x:Key="StatusBadge" TargetType="Border">
-        <Setter Property="Background" Value="#EAF2FF" />
-        <Setter Property="BorderBrush" Value="#B8D2FF" />
+        <Setter Property="Background" Value="#E8F7F1" />
+        <Setter Property="BorderBrush" Value="#BCE6D5" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="10,4" />
@@ -80,13 +107,46 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}"
+                                          RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#C8D4E4" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.86" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.48" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="ActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="Margin" Value="0,0,0,12" />
-        <Setter Property="FontSize" Value="16" />
-        <Setter Property="MinHeight" Value="52" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="MinHeight" Value="46" />
+        <Setter Property="Background" Value="#F7F9FC" />
     </Style>
 
     <Style x:Key="PrimaryActionButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
@@ -100,12 +160,66 @@
         <Setter Property="MinWidth" Value="130" />
     </Style>
 
+    <Style x:Key="RailButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="MinHeight" Value="44" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Background" Value="#182235" />
+        <Setter Property="BorderBrush" Value="#253148" />
+        <Setter Property="Foreground" Value="#F8FAFC" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
     <Style x:Key="FloatingActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="0,0,8,0" />
         <Setter Property="MinHeight" Value="36" />
         <Setter Property="Padding" Value="10,7" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Background" Value="#F7F9FC" />
+    </Style>
+
+    <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Padding" Value="12,6" />
+    </Style>
+
+    <Style x:Key="HistoryListBox" TargetType="ListBox">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+    </Style>
+
+    <Style x:Key="HistoryListBoxItem" TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="ItemChrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="#C8D4E4" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                            <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="CloseGlyphButton" TargetType="Button">
