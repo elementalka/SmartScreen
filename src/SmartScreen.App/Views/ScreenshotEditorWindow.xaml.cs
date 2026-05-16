@@ -13,6 +13,7 @@ using Brushes = System.Windows.Media.Brushes;
 using MediaColor = System.Windows.Media.Color;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 using RectangleShape = System.Windows.Shapes.Rectangle;
 using TextBox = System.Windows.Controls.TextBox;
@@ -22,6 +23,9 @@ namespace SmartScreen.App.Views;
 public partial class ScreenshotEditorWindow : Window
 {
     private const double MinimumCropSize = 8;
+    private const double MinimumEffectSize = 6;
+    private const int BlurRadius = 7;
+    private const int PixelateBlockSize = 12;
 
     private readonly ScreenshotResult _originalScreenshot;
     private readonly Stack<IEditorHistoryAction> _undoStack = new();
@@ -66,6 +70,10 @@ public partial class ScreenshotEditorWindow : Window
     private void TextButton_OnClick(object sender, RoutedEventArgs e) => SetTool(EditorTool.Text);
 
     private void CropButton_OnClick(object sender, RoutedEventArgs e) => SetTool(EditorTool.Crop);
+
+    private void BlurButton_OnClick(object sender, RoutedEventArgs e) => SetTool(EditorTool.Blur);
+
+    private void PixelateButton_OnClick(object sender, RoutedEventArgs e) => SetTool(EditorTool.Pixelate);
 
     private void UndoButton_OnClick(object sender, RoutedEventArgs e) => UndoLastAction();
 
@@ -138,6 +146,14 @@ public partial class ScreenshotEditorWindow : Window
                 break;
             case Key.C:
                 SetTool(EditorTool.Crop);
+                e.Handled = true;
+                break;
+            case Key.B:
+                SetTool(EditorTool.Blur);
+                e.Handled = true;
+                break;
+            case Key.X:
+                SetTool(EditorTool.Pixelate);
                 e.Handled = true;
                 break;
             case Key.Escape:
@@ -235,6 +251,20 @@ public partial class ScreenshotEditorWindow : Window
             return;
         }
 
+        if (_activeTool is EditorTool.Blur or EditorTool.Pixelate)
+        {
+            var effectRect = CreateNormalizedRect(_startPoint, endPoint);
+            AnnotationCanvas.Children.Remove(element);
+
+            if (effectRect.Width < MinimumEffectSize || effectRect.Height < MinimumEffectSize)
+            {
+                return;
+            }
+
+            ApplyPrivacyEffect(effectRect, _activeTool);
+            return;
+        }
+
         AddHistory(new EditorHistoryAction(
             undo: () => RemoveElement(element),
             redo: () => AddElement(element)));
@@ -249,6 +279,8 @@ public partial class ScreenshotEditorWindow : Window
             EditorTool.Rectangle => CreateRectangle(start, end),
             EditorTool.Ellipse => CreateEllipse(start, end),
             EditorTool.Crop => CreateCropRectangle(start, end),
+            EditorTool.Blur => CreateEffectRectangle(start, end),
+            EditorTool.Pixelate => CreateEffectRectangle(start, end),
             _ => CreateRectangle(start, end)
         };
     }
@@ -317,6 +349,19 @@ public partial class ScreenshotEditorWindow : Window
             StrokeThickness = 2,
             StrokeDashArray = [7, 4],
             Fill = new SolidColorBrush(MediaColor.FromArgb(34, 37, 99, 235))
+        };
+        PositionShape(rectangle, start, end);
+        return rectangle;
+    }
+
+    private static RectangleShape CreateEffectRectangle(Point start, Point end)
+    {
+        var rectangle = new RectangleShape
+        {
+            Stroke = new SolidColorBrush(MediaColor.FromRgb(217, 119, 6)),
+            StrokeThickness = 2,
+            StrokeDashArray = [5, 3],
+            Fill = new SolidColorBrush(MediaColor.FromArgb(38, 217, 119, 6))
         };
         PositionShape(rectangle, start, end);
         return rectangle;
@@ -438,6 +483,38 @@ public partial class ScreenshotEditorWindow : Window
             }));
     }
 
+    private void ApplyPrivacyEffect(Rect effectRect, EditorTool effectTool)
+    {
+        var surfaceBitmap = RenderSurfaceBitmap(hideCropOverlay: true);
+        var sourceRect = ToPixelRect(effectRect, surfaceBitmap.PixelWidth, surfaceBitmap.PixelHeight);
+        var cropped = new CroppedBitmap(surfaceBitmap, sourceRect);
+        BitmapSource processed = effectTool == EditorTool.Blur
+            ? ApplyBoxBlur(cropped, BlurRadius)
+            : ApplyPixelate(cropped, PixelateBlockSize);
+
+        if (processed.CanFreeze)
+        {
+            processed.Freeze();
+        }
+
+        var effectImage = new Image
+        {
+            Source = processed,
+            Width = effectRect.Width,
+            Height = effectRect.Height,
+            Stretch = Stretch.Fill,
+            SnapsToDevicePixels = true
+        };
+
+        Canvas.SetLeft(effectImage, effectRect.Left);
+        Canvas.SetTop(effectImage, effectRect.Top);
+        AddElement(effectImage);
+
+        AddHistory(new EditorHistoryAction(
+            undo: () => RemoveElement(effectImage),
+            redo: () => AddElement(effectImage)));
+    }
+
     private void SetPen(MediaColor color, double width, bool highlighter)
     {
         InkCanvas.DefaultDrawingAttributes = new DrawingAttributes
@@ -521,36 +598,7 @@ public partial class ScreenshotEditorWindow : Window
 
     private ScreenshotResult RenderEditedScreenshot()
     {
-        EditingSurface.Measure(new System.Windows.Size(_originalScreenshot.Width, _originalScreenshot.Height));
-        EditingSurface.Arrange(new Rect(0, 0, _originalScreenshot.Width, _originalScreenshot.Height));
-        EditingSurface.UpdateLayout();
-
-        var previousCropOverlayVisibility = _cropOverlay?.Visibility;
-        if (_cropOverlay is not null)
-        {
-            _cropOverlay.Visibility = Visibility.Hidden;
-            EditingSurface.UpdateLayout();
-        }
-
-        var renderedBitmap = new RenderTargetBitmap(
-            _originalScreenshot.Width,
-            _originalScreenshot.Height,
-            96,
-            96,
-            PixelFormats.Pbgra32);
-
-        try
-        {
-            renderedBitmap.Render(EditingSurface);
-        }
-        finally
-        {
-            if (_cropOverlay is not null && previousCropOverlayVisibility is not null)
-            {
-                _cropOverlay.Visibility = previousCropOverlayVisibility.Value;
-            }
-        }
-
+        var renderedBitmap = RenderSurfaceBitmap(hideCropOverlay: true);
         var finalBitmap = ApplyCropIfNeeded(renderedBitmap);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(finalBitmap));
@@ -571,6 +619,41 @@ public partial class ScreenshotEditorWindow : Window
         };
     }
 
+    private RenderTargetBitmap RenderSurfaceBitmap(bool hideCropOverlay)
+    {
+        EditingSurface.Measure(new System.Windows.Size(_originalScreenshot.Width, _originalScreenshot.Height));
+        EditingSurface.Arrange(new Rect(0, 0, _originalScreenshot.Width, _originalScreenshot.Height));
+        EditingSurface.UpdateLayout();
+
+        var previousCropOverlayVisibility = _cropOverlay?.Visibility;
+        if (hideCropOverlay && _cropOverlay is not null)
+        {
+            _cropOverlay.Visibility = Visibility.Hidden;
+            EditingSurface.UpdateLayout();
+        }
+
+        var renderedBitmap = new RenderTargetBitmap(
+            _originalScreenshot.Width,
+            _originalScreenshot.Height,
+            96,
+            96,
+            PixelFormats.Pbgra32);
+
+        try
+        {
+            renderedBitmap.Render(EditingSurface);
+        }
+        finally
+        {
+            if (hideCropOverlay && _cropOverlay is not null && previousCropOverlayVisibility is not null)
+            {
+                _cropOverlay.Visibility = previousCropOverlayVisibility.Value;
+            }
+        }
+
+        return renderedBitmap;
+    }
+
     private BitmapSource ApplyCropIfNeeded(BitmapSource source)
     {
         if (_cropRect is null || _cropRect.Value.Width < MinimumCropSize || _cropRect.Value.Height < MinimumCropSize)
@@ -580,6 +663,167 @@ public partial class ScreenshotEditorWindow : Window
 
         return new CroppedBitmap(source, ToPixelRect(_cropRect.Value, source.PixelWidth, source.PixelHeight));
     }
+
+    private static BitmapSource ApplyPixelate(BitmapSource source, int blockSize)
+    {
+        var (pixels, width, height, stride) = CopyBgra32Pixels(source);
+        var safeBlockSize = Math.Max(2, blockSize);
+
+        for (var y = 0; y < height; y += safeBlockSize)
+        {
+            for (var x = 0; x < width; x += safeBlockSize)
+            {
+                var blockWidth = Math.Min(safeBlockSize, width - x);
+                var blockHeight = Math.Min(safeBlockSize, height - y);
+                AverageBlock(pixels, stride, x, y, blockWidth, blockHeight, out var b, out var g, out var r, out var a);
+
+                for (var blockY = y; blockY < y + blockHeight; blockY++)
+                {
+                    for (var blockX = x; blockX < x + blockWidth; blockX++)
+                    {
+                        var offset = blockY * stride + blockX * 4;
+                        pixels[offset] = b;
+                        pixels[offset + 1] = g;
+                        pixels[offset + 2] = r;
+                        pixels[offset + 3] = a;
+                    }
+                }
+            }
+        }
+
+        return CreateBgra32Bitmap(width, height, pixels, stride);
+    }
+
+    private static BitmapSource ApplyBoxBlur(BitmapSource source, int radius)
+    {
+        var (sourcePixels, width, height, stride) = CopyBgra32Pixels(source);
+        var safeRadius = Math.Max(1, radius);
+        var horizontal = new byte[sourcePixels.Length];
+        var result = new byte[sourcePixels.Length];
+
+        BlurHorizontal(sourcePixels, horizontal, width, height, stride, safeRadius);
+        BlurVertical(horizontal, result, width, height, stride, safeRadius);
+
+        return CreateBgra32Bitmap(width, height, result, stride);
+    }
+
+    private static void BlurHorizontal(byte[] source, byte[] target, int width, int height, int stride, int radius)
+    {
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var startX = Math.Max(0, x - radius);
+                var endX = Math.Min(width - 1, x + radius);
+                var count = endX - startX + 1;
+                var sumB = 0;
+                var sumG = 0;
+                var sumR = 0;
+                var sumA = 0;
+
+                for (var sourceX = startX; sourceX <= endX; sourceX++)
+                {
+                    var sourceOffset = y * stride + sourceX * 4;
+                    sumB += source[sourceOffset];
+                    sumG += source[sourceOffset + 1];
+                    sumR += source[sourceOffset + 2];
+                    sumA += source[sourceOffset + 3];
+                }
+
+                var targetOffset = y * stride + x * 4;
+                target[targetOffset] = (byte)(sumB / count);
+                target[targetOffset + 1] = (byte)(sumG / count);
+                target[targetOffset + 2] = (byte)(sumR / count);
+                target[targetOffset + 3] = (byte)(sumA / count);
+            }
+        }
+    }
+
+    private static void BlurVertical(byte[] source, byte[] target, int width, int height, int stride, int radius)
+    {
+        for (var y = 0; y < height; y++)
+        {
+            var startY = Math.Max(0, y - radius);
+            var endY = Math.Min(height - 1, y + radius);
+            var count = endY - startY + 1;
+
+            for (var x = 0; x < width; x++)
+            {
+                var sumB = 0;
+                var sumG = 0;
+                var sumR = 0;
+                var sumA = 0;
+
+                for (var sourceY = startY; sourceY <= endY; sourceY++)
+                {
+                    var sourceOffset = sourceY * stride + x * 4;
+                    sumB += source[sourceOffset];
+                    sumG += source[sourceOffset + 1];
+                    sumR += source[sourceOffset + 2];
+                    sumA += source[sourceOffset + 3];
+                }
+
+                var targetOffset = y * stride + x * 4;
+                target[targetOffset] = (byte)(sumB / count);
+                target[targetOffset + 1] = (byte)(sumG / count);
+                target[targetOffset + 2] = (byte)(sumR / count);
+                target[targetOffset + 3] = (byte)(sumA / count);
+            }
+        }
+    }
+
+    private static void AverageBlock(
+        byte[] pixels,
+        int stride,
+        int x,
+        int y,
+        int width,
+        int height,
+        out byte b,
+        out byte g,
+        out byte r,
+        out byte a)
+    {
+        var count = width * height;
+        var sumB = 0L;
+        var sumG = 0L;
+        var sumR = 0L;
+        var sumA = 0L;
+
+        for (var blockY = y; blockY < y + height; blockY++)
+        {
+            for (var blockX = x; blockX < x + width; blockX++)
+            {
+                var offset = blockY * stride + blockX * 4;
+                sumB += pixels[offset];
+                sumG += pixels[offset + 1];
+                sumR += pixels[offset + 2];
+                sumA += pixels[offset + 3];
+            }
+        }
+
+        b = (byte)(sumB / count);
+        g = (byte)(sumG / count);
+        r = (byte)(sumR / count);
+        a = (byte)(sumA / count);
+    }
+
+    private static (byte[] Pixels, int Width, int Height, int Stride) CopyBgra32Pixels(BitmapSource source)
+    {
+        BitmapSource normalized = source.Format == PixelFormats.Bgra32
+            ? source
+            : new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
+
+        var width = normalized.PixelWidth;
+        var height = normalized.PixelHeight;
+        var stride = width * 4;
+        var pixels = new byte[stride * height];
+        normalized.CopyPixels(pixels, stride, 0);
+        return (pixels, width, height, stride);
+    }
+
+    private static BitmapSource CreateBgra32Bitmap(int width, int height, byte[] pixels, int stride) =>
+        BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, stride);
 
     private Int32Rect ToPixelRect(Rect rect, int sourceWidth, int sourceHeight)
     {
