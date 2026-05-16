@@ -1,0 +1,9 @@
+{
+  "app.title": "SmartScreen",
+  "action.captureRegion": "Скріншот області",
+  "action.captureFullScreen": "Скріншот всього екрана",
+  "action.captureActiveWindow": "Скріншот активного вікна",
+  "action.askAi": "Запитати AI",
+  "status.ready": "Готово до роботи"
+}
+

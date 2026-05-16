@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+*.log
+logs/*
+!logs/.gitkeep
+screenshots/*
+!screenshots/.gitkeep
+config/*.broken-*
+

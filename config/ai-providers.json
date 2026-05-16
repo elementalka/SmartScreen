@@ -1,0 +1,29 @@
+{
+  "providers": [
+    {
+      "id": "gemini",
+      "displayName": "Google Gemini",
+      "kind": "gemini",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta",
+      "model": "gemini-2.5-flash",
+      "timeoutSeconds": 60
+    },
+    {
+      "id": "nvidia",
+      "displayName": "NVIDIA NIM",
+      "kind": "openAiCompatible",
+      "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+      "model": "meta/llama-3.2-11b-vision-instruct",
+      "timeoutSeconds": 60
+    },
+    {
+      "id": "openrouter",
+      "displayName": "OpenRouter",
+      "kind": "openAiCompatible",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "model": "google/gemini-2.5-flash",
+      "timeoutSeconds": 60
+    }
+  ]
+}
+

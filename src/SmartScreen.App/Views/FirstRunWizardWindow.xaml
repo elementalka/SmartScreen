@@ -1,0 +1,18 @@
+<Window x:Class="SmartScreen.App.Views.FirstRunWizardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Перший запуск SmartScreen" Width="640" Height="420"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource AppBackgroundBrush}">
+    <Grid Margin="24">
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="SmartScreen" Style="{StaticResource TitleText}" />
+            <TextBlock Text="Майстер першого запуску підготовлено як окреме вікно. На наступному етапі сюди підключимо вибір мови, теми, папки, hotkeys і AI-провайдера."
+                       TextWrapping="Wrap"
+                       Margin="0,14,0,20"
+                       Style="{StaticResource MutedText}" />
+            <Button Content="Швидкий старт" IsDefault="True" Click="CloseButton_OnClick" />
+        </StackPanel>
+    </Grid>
+</Window>
+

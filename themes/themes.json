@@ -1,0 +1,21 @@
+{
+  "themes": [
+    {
+      "id": "light",
+      "name": "Light",
+      "background": "#F6F7FB",
+      "surface": "#FFFFFF",
+      "text": "#1E2430",
+      "accent": "#2F7DFF"
+    },
+    {
+      "id": "dark",
+      "name": "Dark",
+      "background": "#12151C",
+      "surface": "#1B202A",
+      "text": "#F4F7FB",
+      "accent": "#6EA3FF"
+    }
+  ]
+}
+

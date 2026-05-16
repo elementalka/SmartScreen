@@ -1,0 +1,9 @@
+{
+  "app.title": "SmartScreen",
+  "action.captureRegion": "Capture region",
+  "action.captureFullScreen": "Capture full screen",
+  "action.captureActiveWindow": "Capture active window",
+  "action.askAi": "Ask AI",
+  "status.ready": "Ready"
+}
+

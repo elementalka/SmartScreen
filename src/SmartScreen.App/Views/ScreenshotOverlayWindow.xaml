@@ -1,0 +1,25 @@
+<Window x:Class="SmartScreen.App.Views.ScreenshotOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        Topmost="True"
+        ShowInTaskbar="False"
+        Background="#33000000"
+        Cursor="Cross">
+    <Canvas x:Name="OverlayCanvas"
+            Background="Transparent"
+            MouseLeftButtonDown="OverlayCanvas_OnMouseLeftButtonDown"
+            MouseMove="OverlayCanvas_OnMouseMove"
+            MouseLeftButtonUp="OverlayCanvas_OnMouseLeftButtonUp"
+            KeyDown="OverlayCanvas_OnKeyDown"
+            Focusable="True">
+        <Rectangle x:Name="SelectionRectangle"
+                   Stroke="#2F7DFF"
+                   StrokeThickness="2"
+                   Fill="#332F7DFF"
+                   Visibility="Collapsed" />
+    </Canvas>
+</Window>
+

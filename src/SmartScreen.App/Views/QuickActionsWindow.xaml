@@ -1,0 +1,30 @@
+<Window x:Class="SmartScreen.App.Views.QuickActionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Швидкі дії" Width="560" Height="500"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource AppBackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource PanelBorder}" Padding="0" ClipToBounds="True">
+            <Image Source="{Binding PreviewImage}" Stretch="Uniform" />
+        </Border>
+
+        <UniformGrid Grid.Row="1" Columns="3" Margin="0,16,0,10">
+            <Button Content="Зберегти" Command="{Binding SaveCommand}" Margin="0,0,8,8" />
+            <Button Content="Скопіювати" Command="{Binding CopyCommand}" Margin="0,0,8,8" />
+            <Button Content="Редагувати" Command="{Binding EditCommand}" Margin="0,0,0,8" />
+            <Button Content="Запитати AI" Command="{Binding AskAiCommand}" Margin="0,0,8,0" />
+            <Button Content="Папка" Command="{Binding OpenFolderCommand}" Margin="0,0,8,0" />
+            <Button Content="Закрити" Click="CloseButton_OnClick" />
+        </UniformGrid>
+
+        <TextBlock Grid.Row="2" Text="{Binding Status}" Style="{StaticResource MutedText}" />
+    </Grid>
+</Window>
+

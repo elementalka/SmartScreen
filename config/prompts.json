@@ -1,0 +1,49 @@
+{
+  "categories": [
+    {
+      "id": "general",
+      "name": "Загальні",
+      "isSystem": true,
+      "order": 0
+    },
+    {
+      "id": "text",
+      "name": "Текст",
+      "isSystem": true,
+      "order": 1
+    },
+    {
+      "id": "errors",
+      "name": "Помилки",
+      "isSystem": true,
+      "order": 2
+    }
+  ],
+  "templates": [
+    {
+      "id": "describe",
+      "categoryId": "general",
+      "title": "Що зображено?",
+      "prompt": "Опиши, що зображено на скріншоті. Відповідай структуровано і коротко.",
+      "isSystem": true,
+      "order": 0
+    },
+    {
+      "id": "ocr",
+      "categoryId": "text",
+      "title": "Розпізнай текст",
+      "prompt": "Розпізнай увесь видимий текст на скріншоті. Збережи структуру, якщо вона важлива.",
+      "isSystem": true,
+      "order": 1
+    },
+    {
+      "id": "explain-error",
+      "categoryId": "errors",
+      "title": "Поясни помилку",
+      "prompt": "Поясни помилку на скріншоті простою мовою. Додай ймовірну причину та конкретні кроки виправлення.",
+      "isSystem": true,
+      "order": 2
+    }
+  ]
+}
+

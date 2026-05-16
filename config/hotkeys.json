@@ -1,0 +1,29 @@
+{
+  "bindings": [
+    {
+      "action": "captureRegion",
+      "gesture": "Ctrl+Shift+S",
+      "isEnabled": true,
+      "promptTemplateId": null
+    },
+    {
+      "action": "captureFullScreen",
+      "gesture": "Ctrl+Shift+F",
+      "isEnabled": true,
+      "promptTemplateId": null
+    },
+    {
+      "action": "captureActiveWindow",
+      "gesture": "Ctrl+Shift+W",
+      "isEnabled": true,
+      "promptTemplateId": null
+    },
+    {
+      "action": "askAiForCurrentScreenshot",
+      "gesture": "Ctrl+Shift+A",
+      "isEnabled": true,
+      "promptTemplateId": null
+    }
+  ]
+}
+
