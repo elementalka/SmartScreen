@@ -3,20 +3,23 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Редактор скріншота" Width="1180" Height="780"
         WindowStartupLocation="CenterOwner"
+        PreviewKeyDown="Window_OnPreviewKeyDown"
         Background="{StaticResource AppBackgroundBrush}">
     <DockPanel>
         <Border DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <DockPanel Margin="14,10">
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="Pen" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" />
-                    <Button Content="Marker" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" />
-                    <Button Content="Line" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" />
-                    <Button Content="Arrow" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" />
-                    <Button Content="Rect" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" />
-                    <Button Content="Ellipse" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" />
-                    <Button Content="Text" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Pen" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="P" />
+                    <Button Content="Marker" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="M" />
+                    <Button Content="Line" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="L" />
+                    <Button Content="Arrow" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="A" />
+                    <Button Content="Rect" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="R" />
+                    <Button Content="Ellipse" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="E" />
+                    <Button Content="Text" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="T" />
+                    <Button Content="Crop" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="C" />
                     <Separator Margin="8,0" />
-                    <Button Content="Undo" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Undo" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Ctrl+Z" />
+                    <Button Content="Redo" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Ctrl+Y" />
                     <Button Content="Clear" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" />
                 </StackPanel>
 

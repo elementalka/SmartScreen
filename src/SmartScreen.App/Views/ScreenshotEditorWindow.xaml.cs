@@ -11,6 +11,7 @@ using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 using Brushes = System.Windows.Media.Brushes;
 using MediaColor = System.Windows.Media.Color;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Point = System.Windows.Point;
 using RectangleShape = System.Windows.Shapes.Rectangle;
@@ -20,11 +21,16 @@ namespace SmartScreen.App.Views;
 
 public partial class ScreenshotEditorWindow : Window
 {
+    private const double MinimumCropSize = 8;
+
     private readonly ScreenshotResult _originalScreenshot;
-    private readonly Stack<Action> _undoStack = new();
+    private readonly Stack<IEditorHistoryAction> _undoStack = new();
+    private readonly Stack<IEditorHistoryAction> _redoStack = new();
     private Point _startPoint;
     private UIElement? _previewElement;
     private EditorTool _activeTool = EditorTool.Pen;
+    private Rect? _cropRect;
+    private RectangleShape? _cropOverlay;
 
     public ScreenshotEditorWindow(ScreenshotResult screenshot)
     {
@@ -59,31 +65,89 @@ public partial class ScreenshotEditorWindow : Window
 
     private void TextButton_OnClick(object sender, RoutedEventArgs e) => SetTool(EditorTool.Text);
 
-    private void UndoButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (_undoStack.Count > 0)
-        {
-            _undoStack.Pop().Invoke();
-        }
-    }
+    private void CropButton_OnClick(object sender, RoutedEventArgs e) => SetTool(EditorTool.Crop);
 
-    private void ClearButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        InkCanvas.Strokes.Clear();
-        AnnotationCanvas.Children.Clear();
-        _undoStack.Clear();
-    }
+    private void UndoButton_OnClick(object sender, RoutedEventArgs e) => UndoLastAction();
 
-    private void DoneButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        EditedScreenshot = RenderEditedScreenshot();
-        DialogResult = true;
-    }
+    private void RedoButton_OnClick(object sender, RoutedEventArgs e) => RedoLastAction();
+
+    private void ClearButton_OnClick(object sender, RoutedEventArgs e) => ClearAnnotations();
+
+    private void DoneButton_OnClick(object sender, RoutedEventArgs e) => FinishEditing();
 
     private void CancelButton_OnClick(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
     }
+
+    private void Window_OnPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (Keyboard.Modifiers == ModifierKeys.Control && !IsTextInputFocused())
+        {
+            switch (e.Key)
+            {
+                case Key.Z:
+                    UndoLastAction();
+                    e.Handled = true;
+                    return;
+                case Key.Y:
+                    RedoLastAction();
+                    e.Handled = true;
+                    return;
+                case Key.S:
+                    FinishEditing();
+                    e.Handled = true;
+                    return;
+            }
+        }
+
+        if (Keyboard.Modifiers != ModifierKeys.None || IsTextInputFocused())
+        {
+            return;
+        }
+
+        switch (e.Key)
+        {
+            case Key.P:
+                SetTool(EditorTool.Pen);
+                e.Handled = true;
+                break;
+            case Key.M:
+                SetTool(EditorTool.Highlighter);
+                e.Handled = true;
+                break;
+            case Key.L:
+                SetTool(EditorTool.Line);
+                e.Handled = true;
+                break;
+            case Key.A:
+                SetTool(EditorTool.Arrow);
+                e.Handled = true;
+                break;
+            case Key.R:
+                SetTool(EditorTool.Rectangle);
+                e.Handled = true;
+                break;
+            case Key.E:
+                SetTool(EditorTool.Ellipse);
+                e.Handled = true;
+                break;
+            case Key.T:
+                SetTool(EditorTool.Text);
+                e.Handled = true;
+                break;
+            case Key.C:
+                SetTool(EditorTool.Crop);
+                e.Handled = true;
+                break;
+            case Key.Escape:
+                DialogResult = false;
+                e.Handled = true;
+                break;
+        }
+    }
+
+    private static bool IsTextInputFocused() => Keyboard.FocusedElement is TextBox;
 
     private void SetTool(EditorTool tool)
     {
@@ -109,7 +173,9 @@ public partial class ScreenshotEditorWindow : Window
     private void InkCanvas_OnStrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e)
     {
         var stroke = e.Stroke;
-        _undoStack.Push(() => InkCanvas.Strokes.Remove(stroke));
+        AddHistory(new EditorHistoryAction(
+            undo: () => RemoveStroke(stroke),
+            redo: () => AddStroke(stroke)));
     }
 
     private void AnnotationCanvas_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -119,7 +185,7 @@ public partial class ScreenshotEditorWindow : Window
             return;
         }
 
-        _startPoint = e.GetPosition(AnnotationCanvas);
+        _startPoint = ClampToCanvas(e.GetPosition(AnnotationCanvas));
         AnnotationCanvas.CaptureMouse();
 
         if (_activeTool == EditorTool.Text)
@@ -140,7 +206,7 @@ public partial class ScreenshotEditorWindow : Window
             return;
         }
 
-        var currentPoint = e.GetPosition(AnnotationCanvas);
+        var currentPoint = ClampToCanvas(e.GetPosition(AnnotationCanvas));
         UpdateElement(_previewElement, _startPoint, currentPoint);
     }
 
@@ -152,9 +218,26 @@ public partial class ScreenshotEditorWindow : Window
         }
 
         var element = _previewElement;
+        var endPoint = ClampToCanvas(e.GetPosition(AnnotationCanvas));
         _previewElement = null;
         AnnotationCanvas.ReleaseMouseCapture();
-        _undoStack.Push(() => AnnotationCanvas.Children.Remove(element));
+
+        if (_activeTool == EditorTool.Crop && element is RectangleShape cropOverlay)
+        {
+            var cropRect = CreateNormalizedRect(_startPoint, endPoint);
+            if (cropRect.Width < MinimumCropSize || cropRect.Height < MinimumCropSize)
+            {
+                AnnotationCanvas.Children.Remove(cropOverlay);
+                return;
+            }
+
+            ApplyCropSelection(cropRect, cropOverlay);
+            return;
+        }
+
+        AddHistory(new EditorHistoryAction(
+            undo: () => RemoveElement(element),
+            redo: () => AddElement(element)));
     }
 
     private UIElement CreateElement(Point start, Point end)
@@ -165,6 +248,7 @@ public partial class ScreenshotEditorWindow : Window
             EditorTool.Arrow => CreateArrow(start, end),
             EditorTool.Rectangle => CreateRectangle(start, end),
             EditorTool.Ellipse => CreateEllipse(start, end),
+            EditorTool.Crop => CreateCropRectangle(start, end),
             _ => CreateRectangle(start, end)
         };
     }
@@ -225,6 +309,19 @@ public partial class ScreenshotEditorWindow : Window
         return rectangle;
     }
 
+    private static RectangleShape CreateCropRectangle(Point start, Point end)
+    {
+        var rectangle = new RectangleShape
+        {
+            Stroke = new SolidColorBrush(MediaColor.FromRgb(37, 99, 235)),
+            StrokeThickness = 2,
+            StrokeDashArray = [7, 4],
+            Fill = new SolidColorBrush(MediaColor.FromArgb(34, 37, 99, 235))
+        };
+        PositionShape(rectangle, start, end);
+        return rectangle;
+    }
+
     private static Ellipse CreateEllipse(Point start, Point end)
     {
         var ellipse = new Ellipse
@@ -254,10 +351,13 @@ public partial class ScreenshotEditorWindow : Window
 
         Canvas.SetLeft(textBox, point.X);
         Canvas.SetTop(textBox, point.Y);
-        AnnotationCanvas.Children.Add(textBox);
+        AddElement(textBox);
         textBox.Focus();
         textBox.SelectAll();
-        _undoStack.Push(() => AnnotationCanvas.Children.Remove(textBox));
+
+        AddHistory(new EditorHistoryAction(
+            undo: () => RemoveElement(textBox),
+            redo: () => AddElement(textBox)));
     }
 
     private static void PositionShape(Shape shape, Point start, Point end)
@@ -299,6 +399,45 @@ public partial class ScreenshotEditorWindow : Window
         head.Points = [end, point1, point2];
     }
 
+    private void ApplyCropSelection(Rect cropRect, RectangleShape cropOverlay)
+    {
+        var previousCropRect = _cropRect;
+        var previousCropOverlay = _cropOverlay;
+
+        if (previousCropOverlay is not null)
+        {
+            RemoveElement(previousCropOverlay);
+        }
+
+        AddElement(cropOverlay);
+        _cropRect = cropRect;
+        _cropOverlay = cropOverlay;
+
+        AddHistory(new EditorHistoryAction(
+            undo: () =>
+            {
+                RemoveElement(cropOverlay);
+                if (previousCropOverlay is not null)
+                {
+                    AddElement(previousCropOverlay);
+                }
+
+                _cropRect = previousCropRect;
+                _cropOverlay = previousCropOverlay;
+            },
+            redo: () =>
+            {
+                if (previousCropOverlay is not null)
+                {
+                    RemoveElement(previousCropOverlay);
+                }
+
+                AddElement(cropOverlay);
+                _cropRect = cropRect;
+                _cropOverlay = cropOverlay;
+            }));
+    }
+
     private void SetPen(MediaColor color, double width, bool highlighter)
     {
         InkCanvas.DefaultDrawingAttributes = new DrawingAttributes
@@ -311,22 +450,110 @@ public partial class ScreenshotEditorWindow : Window
         };
     }
 
+    private void AddHistory(IEditorHistoryAction action)
+    {
+        _undoStack.Push(action);
+        _redoStack.Clear();
+    }
+
+    private void UndoLastAction()
+    {
+        if (_undoStack.Count == 0)
+        {
+            return;
+        }
+
+        var action = _undoStack.Pop();
+        action.Undo();
+        _redoStack.Push(action);
+    }
+
+    private void RedoLastAction()
+    {
+        if (_redoStack.Count == 0)
+        {
+            return;
+        }
+
+        var action = _redoStack.Pop();
+        action.Redo();
+        _undoStack.Push(action);
+    }
+
+    private void ClearAnnotations()
+    {
+        if (InkCanvas.Strokes.Count == 0 && AnnotationCanvas.Children.Count == 0 && _cropRect is null)
+        {
+            return;
+        }
+
+        var previousStrokes = CloneStrokes(InkCanvas.Strokes);
+        var previousElements = AnnotationCanvas.Children.Cast<UIElement>().ToList();
+        var previousCropRect = _cropRect;
+        var previousCropOverlay = _cropOverlay;
+
+        ClearAllAnnotations();
+
+        AddHistory(new EditorHistoryAction(
+            undo: () =>
+            {
+                RestoreStrokes(previousStrokes);
+                RestoreElements(previousElements);
+                _cropRect = previousCropRect;
+                _cropOverlay = previousCropOverlay;
+            },
+            redo: ClearAllAnnotations));
+    }
+
+    private void ClearAllAnnotations()
+    {
+        InkCanvas.Strokes.Clear();
+        AnnotationCanvas.Children.Clear();
+        _cropRect = null;
+        _cropOverlay = null;
+    }
+
+    private void FinishEditing()
+    {
+        EditedScreenshot = RenderEditedScreenshot();
+        DialogResult = true;
+    }
+
     private ScreenshotResult RenderEditedScreenshot()
     {
         EditingSurface.Measure(new System.Windows.Size(_originalScreenshot.Width, _originalScreenshot.Height));
         EditingSurface.Arrange(new Rect(0, 0, _originalScreenshot.Width, _originalScreenshot.Height));
         EditingSurface.UpdateLayout();
 
-        var bitmap = new RenderTargetBitmap(
+        var previousCropOverlayVisibility = _cropOverlay?.Visibility;
+        if (_cropOverlay is not null)
+        {
+            _cropOverlay.Visibility = Visibility.Hidden;
+            EditingSurface.UpdateLayout();
+        }
+
+        var renderedBitmap = new RenderTargetBitmap(
             _originalScreenshot.Width,
             _originalScreenshot.Height,
             96,
             96,
             PixelFormats.Pbgra32);
-        bitmap.Render(EditingSurface);
 
+        try
+        {
+            renderedBitmap.Render(EditingSurface);
+        }
+        finally
+        {
+            if (_cropOverlay is not null && previousCropOverlayVisibility is not null)
+            {
+                _cropOverlay.Visibility = previousCropOverlayVisibility.Value;
+            }
+        }
+
+        var finalBitmap = ApplyCropIfNeeded(renderedBitmap);
         var encoder = new PngBitmapEncoder();
-        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        encoder.Frames.Add(BitmapFrame.Create(finalBitmap));
 
         using var stream = new MemoryStream();
         encoder.Save(stream);
@@ -336,11 +563,119 @@ public partial class ScreenshotEditorWindow : Window
         {
             ImageBytes = stream.ToArray(),
             MimeType = "image/png",
-            Width = _originalScreenshot.Width,
-            Height = _originalScreenshot.Height,
+            Width = finalBitmap.PixelWidth,
+            Height = finalBitmap.PixelHeight,
             CreatedAt = now,
             SuggestedFileName = $"screenshot_{now:yyyy-MM-dd_HH-mm-ss}.png",
-            SourceName = "Edited screenshot"
+            SourceName = _cropRect is null ? "Edited screenshot" : "Edited cropped screenshot"
         };
+    }
+
+    private BitmapSource ApplyCropIfNeeded(BitmapSource source)
+    {
+        if (_cropRect is null || _cropRect.Value.Width < MinimumCropSize || _cropRect.Value.Height < MinimumCropSize)
+        {
+            return source;
+        }
+
+        return new CroppedBitmap(source, ToPixelRect(_cropRect.Value, source.PixelWidth, source.PixelHeight));
+    }
+
+    private Int32Rect ToPixelRect(Rect rect, int sourceWidth, int sourceHeight)
+    {
+        var left = (int)Math.Clamp(Math.Floor(rect.Left), 0, sourceWidth - 1);
+        var top = (int)Math.Clamp(Math.Floor(rect.Top), 0, sourceHeight - 1);
+        var right = (int)Math.Clamp(Math.Ceiling(rect.Right), left + 1, sourceWidth);
+        var bottom = (int)Math.Clamp(Math.Ceiling(rect.Bottom), top + 1, sourceHeight);
+        return new Int32Rect(left, top, right - left, bottom - top);
+    }
+
+    private Rect CreateNormalizedRect(Point start, Point end)
+    {
+        var left = Math.Clamp(Math.Min(start.X, end.X), 0, _originalScreenshot.Width);
+        var top = Math.Clamp(Math.Min(start.Y, end.Y), 0, _originalScreenshot.Height);
+        var right = Math.Clamp(Math.Max(start.X, end.X), 0, _originalScreenshot.Width);
+        var bottom = Math.Clamp(Math.Max(start.Y, end.Y), 0, _originalScreenshot.Height);
+        return new Rect(left, top, Math.Max(0, right - left), Math.Max(0, bottom - top));
+    }
+
+    private Point ClampToCanvas(Point point) => new(
+        Math.Clamp(point.X, 0, _originalScreenshot.Width),
+        Math.Clamp(point.Y, 0, _originalScreenshot.Height));
+
+    private void AddElement(UIElement element)
+    {
+        if (!AnnotationCanvas.Children.Contains(element))
+        {
+            AnnotationCanvas.Children.Add(element);
+        }
+    }
+
+    private void RemoveElement(UIElement element)
+    {
+        if (AnnotationCanvas.Children.Contains(element))
+        {
+            AnnotationCanvas.Children.Remove(element);
+        }
+    }
+
+    private void AddStroke(Stroke stroke)
+    {
+        if (!InkCanvas.Strokes.Contains(stroke))
+        {
+            InkCanvas.Strokes.Add(stroke);
+        }
+    }
+
+    private void RemoveStroke(Stroke stroke)
+    {
+        if (InkCanvas.Strokes.Contains(stroke))
+        {
+            InkCanvas.Strokes.Remove(stroke);
+        }
+    }
+
+    private static StrokeCollection CloneStrokes(StrokeCollection strokes)
+    {
+        var clone = new StrokeCollection();
+
+        foreach (var stroke in strokes)
+        {
+            clone.Add(stroke.Clone());
+        }
+
+        return clone;
+    }
+
+    private void RestoreStrokes(StrokeCollection strokes)
+    {
+        InkCanvas.Strokes.Clear();
+
+        foreach (var stroke in strokes)
+        {
+            InkCanvas.Strokes.Add(stroke.Clone());
+        }
+    }
+
+    private void RestoreElements(IReadOnlyCollection<UIElement> elements)
+    {
+        AnnotationCanvas.Children.Clear();
+
+        foreach (var element in elements)
+        {
+            AnnotationCanvas.Children.Add(element);
+        }
+    }
+
+    private interface IEditorHistoryAction
+    {
+        void Undo();
+        void Redo();
+    }
+
+    private sealed class EditorHistoryAction(Action undo, Action redo) : IEditorHistoryAction
+    {
+        public void Undo() => undo();
+        public void Redo() => redo();
     }
 }
