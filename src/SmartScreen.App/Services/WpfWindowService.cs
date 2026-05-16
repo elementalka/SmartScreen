@@ -22,10 +22,8 @@ public sealed class WpfWindowService(
 {
     public Task<ScreenRegion?> SelectRegionAsync()
     {
-        var overlay = new ScreenshotOverlayWindow
-        {
-            Owner = System.Windows.Application.Current.MainWindow
-        };
+        var overlay = new ScreenshotOverlayWindow();
+        AssignVisibleOwner(overlay);
 
         var result = overlay.ShowDialog();
         return Task.FromResult(result == true ? overlay.SelectedRegion : null);
@@ -42,10 +40,8 @@ public sealed class WpfWindowService(
             this,
             loggingService);
 
-        var window = new QuickActionsWindow(viewModel)
-        {
-            Owner = System.Windows.Application.Current.MainWindow
-        };
+        var window = new QuickActionsWindow(viewModel);
+        AssignVisibleOwner(window);
 
         window.Opacity = 0;
         window.Show();
@@ -58,10 +54,8 @@ public sealed class WpfWindowService(
 
     public Task<ScreenshotResult?> ShowEditorAsync(ScreenshotResult screenshot)
     {
-        var editor = new ScreenshotEditorWindow(screenshot)
-        {
-            Owner = System.Windows.Application.Current.MainWindow
-        };
+        var editor = new ScreenshotEditorWindow(screenshot);
+        AssignVisibleOwner(editor);
 
         var result = editor.ShowDialog();
         return Task.FromResult(result == true ? editor.EditedScreenshot : null);
@@ -70,10 +64,8 @@ public sealed class WpfWindowService(
     public void ShowAiResponse(ScreenshotResult screenshot)
     {
         var viewModel = new AiResponseViewModel(screenshot, aiService, clipboardService, promptTemplateService);
-        var window = new AiResponseWindow(viewModel)
-        {
-            Owner = System.Windows.Application.Current.MainWindow
-        };
+        var window = new AiResponseWindow(viewModel);
+        AssignVisibleOwner(window);
 
         window.Show();
     }
@@ -81,12 +73,26 @@ public sealed class WpfWindowService(
     public void ShowSettings()
     {
         var viewModel = new SettingsViewModel(settingsService, storageService, aiService, aiSecretService);
-        var window = new SettingsWindow(viewModel)
-        {
-            Owner = System.Windows.Application.Current.MainWindow
-        };
+        var window = new SettingsWindow(viewModel);
+        AssignVisibleOwner(window);
 
         window.ShowDialog();
+    }
+
+    private static void AssignVisibleOwner(System.Windows.Window window)
+    {
+        var owner = System.Windows.Application.Current.MainWindow;
+        if (owner is null || ReferenceEquals(owner, window) || !owner.IsVisible)
+        {
+            if (window.WindowStartupLocation == System.Windows.WindowStartupLocation.CenterOwner)
+            {
+                window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            }
+
+            return;
+        }
+
+        window.Owner = owner;
     }
 
     private static void PositionNearCursor(System.Windows.Window window)

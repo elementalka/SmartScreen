@@ -26,6 +26,7 @@ public sealed class WpfHotkeyService(ILoggingService loggingService) : IHotkeySe
         cancellationToken.ThrowIfCancellationRequested();
         EnsureMessageHook();
         UnregisterAllAsync(cancellationToken).GetAwaiter().GetResult();
+        var registeredCount = 0;
 
         foreach (var binding in settings.Bindings.Where(binding => binding.IsEnabled))
         {
@@ -39,11 +40,18 @@ public sealed class WpfHotkeyService(ILoggingService loggingService) : IHotkeySe
             if (RegisterHotKey(IntPtr.Zero, id, modifiers | ModNoRepeat, virtualKey))
             {
                 _registeredHotkeys[id] = binding.Action;
+                registeredCount++;
+                loggingService.Info($"Hotkey registered: {binding.Gesture} -> {binding.Action}");
                 continue;
             }
 
             var error = Marshal.GetLastWin32Error();
             loggingService.Warning($"Hotkey '{binding.Gesture}' could not be registered. Win32 error: {error}");
+        }
+
+        if (registeredCount == 0)
+        {
+            loggingService.Warning("No global hotkeys were registered.");
         }
 
         return Task.CompletedTask;
@@ -151,4 +159,3 @@ public sealed class WpfHotkeyService(ILoggingService loggingService) : IHotkeySe
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 }
-
