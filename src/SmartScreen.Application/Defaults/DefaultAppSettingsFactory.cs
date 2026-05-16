@@ -29,26 +29,44 @@ public static class DefaultAppSettingsFactory
         },
         Ai = new AiSettings
         {
-            ActiveProviderId = "gemini",
+            ActiveProviderId = "gemini-pro",
             SendScreenshotsOnlyAfterConfirmation = true,
             Providers =
             [
                 new AiProviderSettings
                 {
-                    Id = "gemini",
-                    DisplayName = "Google Gemini",
+                    Id = "gemini-pro",
+                    DisplayName = "Google Gemini Pro",
                     Kind = AiProviderKind.Gemini,
                     Endpoint = "https://generativelanguage.googleapis.com/v1beta",
-                    Model = "gemini-2.5-flash",
+                    Model = "gemini-3-pro-preview",
+                    TimeoutSeconds = 90
+                },
+                new AiProviderSettings
+                {
+                    Id = "gemini-flash",
+                    DisplayName = "Google Gemini Flash",
+                    Kind = AiProviderKind.Gemini,
+                    Endpoint = "https://generativelanguage.googleapis.com/v1beta",
+                    Model = "gemini-3-flash-preview",
                     TimeoutSeconds = 60
                 },
                 new AiProviderSettings
                 {
                     Id = "nvidia",
-                    DisplayName = "NVIDIA NIM",
+                    DisplayName = "NVIDIA NIM Vision",
                     Kind = AiProviderKind.OpenAiCompatible,
                     Endpoint = "https://integrate.api.nvidia.com/v1/chat/completions",
-                    Model = "meta/llama-3.2-11b-vision-instruct",
+                    Model = "meta/llama-3.2-90b-vision-instruct",
+                    TimeoutSeconds = 60
+                },
+                new AiProviderSettings
+                {
+                    Id = "nvidia-nano-vl",
+                    DisplayName = "NVIDIA Nemotron Nano VL",
+                    Kind = AiProviderKind.OpenAiCompatible,
+                    Endpoint = "https://integrate.api.nvidia.com/v1/chat/completions",
+                    Model = "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
                     TimeoutSeconds = 60
                 },
                 new AiProviderSettings

@@ -3,6 +3,7 @@ using SmartScreen.Application.Abstractions;
 using SmartScreen.App.ViewModels;
 using SmartScreen.App.Views;
 using SmartScreen.Domain.Models;
+using Forms = System.Windows.Forms;
 
 namespace SmartScreen.App.Services;
 
@@ -42,6 +43,7 @@ public sealed class WpfWindowService(
             Owner = System.Windows.Application.Current.MainWindow
         };
 
+        PositionNearCursor(window);
         window.Show();
         return Task.CompletedTask;
     }
@@ -77,5 +79,26 @@ public sealed class WpfWindowService(
         };
 
         window.ShowDialog();
+    }
+
+    private static void PositionNearCursor(System.Windows.Window window)
+    {
+        var cursor = Forms.Cursor.Position;
+        var screen = Forms.Screen.FromPoint(cursor);
+        var workArea = screen.WorkingArea;
+
+        window.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
+        window.Left = Math.Min(cursor.X + 18, workArea.Right - window.Width - 18);
+        window.Top = Math.Min(cursor.Y + 18, workArea.Bottom - 180);
+
+        if (window.Left < workArea.Left)
+        {
+            window.Left = workArea.Left + 18;
+        }
+
+        if (window.Top < workArea.Top)
+        {
+            window.Top = workArea.Top + 18;
+        }
     }
 }

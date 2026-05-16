@@ -15,11 +15,37 @@
             MouseLeftButtonUp="OverlayCanvas_OnMouseLeftButtonUp"
             KeyDown="OverlayCanvas_OnKeyDown"
             Focusable="True">
+        <Border x:Name="HintPanel"
+                Canvas.Top="28"
+                Background="#F5FFFFFF"
+                BorderBrush="#80FFFFFF"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="18,10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="SmartScreen" FontWeight="SemiBold" Foreground="#1E2430" />
+                <TextBlock Text="  Виділи область мишкою. Esc — скасувати."
+                           Foreground="#657084" />
+            </StackPanel>
+        </Border>
+
         <Rectangle x:Name="SelectionRectangle"
                    Stroke="#2F7DFF"
                    StrokeThickness="2"
                    Fill="#332F7DFF"
                    Visibility="Collapsed" />
+
+        <Border x:Name="SizeBadge"
+                Background="#F5FFFFFF"
+                BorderBrush="#80FFFFFF"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="10,5"
+                Visibility="Collapsed">
+            <TextBlock x:Name="SizeBadgeText"
+                       Foreground="#1E2430"
+                       FontWeight="SemiBold"
+                       FontSize="12" />
+        </Border>
     </Canvas>
 </Window>
-

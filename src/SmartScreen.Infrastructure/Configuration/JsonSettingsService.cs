@@ -70,7 +70,37 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
 
     private static void Normalize(AppSettings settings)
     {
+        var defaults = DefaultAppSettingsFactory.Create();
+
         settings.StartMinimizedToTray = true;
         settings.MinimizeToTrayOnClose = true;
+
+        foreach (var defaultProvider in defaults.Ai.Providers)
+        {
+            var existing = settings.Ai.Providers.FirstOrDefault(provider => provider.Id == defaultProvider.Id);
+
+            if (existing is null)
+            {
+                settings.Ai.Providers.Add(defaultProvider);
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(existing.Endpoint))
+            {
+                existing.Endpoint = defaultProvider.Endpoint;
+            }
+
+            if (string.IsNullOrWhiteSpace(existing.Model) ||
+                existing.Model.Equals("gemini-2.5-flash", StringComparison.OrdinalIgnoreCase) ||
+                existing.Model.Equals("meta/llama-3.2-11b-vision-instruct", StringComparison.OrdinalIgnoreCase))
+            {
+                existing.Model = defaultProvider.Model;
+            }
+        }
+
+        if (settings.Ai.ActiveProviderId.Equals("gemini", StringComparison.OrdinalIgnoreCase))
+        {
+            settings.Ai.ActiveProviderId = "gemini-pro";
+        }
     }
 }

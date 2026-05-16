@@ -1,19 +1,35 @@
 {
   "providers": [
     {
-      "id": "gemini",
-      "displayName": "Google Gemini",
+      "id": "gemini-pro",
+      "displayName": "Google Gemini Pro",
       "kind": "gemini",
       "endpoint": "https://generativelanguage.googleapis.com/v1beta",
-      "model": "gemini-2.5-flash",
+      "model": "gemini-3-pro-preview",
+      "timeoutSeconds": 90
+    },
+    {
+      "id": "gemini-flash",
+      "displayName": "Google Gemini Flash",
+      "kind": "gemini",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta",
+      "model": "gemini-3-flash-preview",
       "timeoutSeconds": 60
     },
     {
       "id": "nvidia",
-      "displayName": "NVIDIA NIM",
+      "displayName": "NVIDIA NIM Vision",
       "kind": "openAiCompatible",
       "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
-      "model": "meta/llama-3.2-11b-vision-instruct",
+      "model": "meta/llama-3.2-90b-vision-instruct",
+      "timeoutSeconds": 60
+    },
+    {
+      "id": "nvidia-nano-vl",
+      "displayName": "NVIDIA Nemotron Nano VL",
+      "kind": "openAiCompatible",
+      "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+      "model": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
       "timeoutSeconds": 60
     },
     {
@@ -26,4 +42,3 @@
     }
   ]
 }
-

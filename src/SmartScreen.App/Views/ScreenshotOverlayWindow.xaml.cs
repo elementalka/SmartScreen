@@ -28,6 +28,7 @@ public partial class ScreenshotOverlayWindow : Window
         Top = SystemParameters.VirtualScreenTop;
         Width = SystemParameters.VirtualScreenWidth;
         Height = SystemParameters.VirtualScreenHeight;
+        Canvas.SetLeft(HintPanel, Math.Max(28, (Width - HintPanel.ActualWidth) / 2));
         OverlayCanvas.Focus();
     }
 
@@ -60,6 +61,11 @@ public partial class ScreenshotOverlayWindow : Window
         Canvas.SetTop(SelectionRectangle, y);
         SelectionRectangle.Width = width;
         SelectionRectangle.Height = height;
+
+        SizeBadge.Visibility = Visibility.Visible;
+        SizeBadgeText.Text = $"{Math.Round(width)} × {Math.Round(height)}";
+        Canvas.SetLeft(SizeBadge, x);
+        Canvas.SetTop(SizeBadge, Math.Max(8, y - 34));
     }
 
     private void OverlayCanvas_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

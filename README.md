@@ -53,11 +53,15 @@ AI requests are sent only after an explicit user action.
 
 Open settings and fill in an API key for one of the configured providers:
 
-- Google Gemini: `https://generativelanguage.googleapis.com/v1beta`
-- NVIDIA NIM: `https://integrate.api.nvidia.com/v1/chat/completions`
+- Google Gemini Pro: `gemini-3-pro-preview`
+- Google Gemini Flash: `gemini-3-flash-preview`
+- NVIDIA NIM Vision: `meta/llama-3.2-90b-vision-instruct`
+- NVIDIA Nemotron Nano VL: `nvidia/llama-3.1-nemotron-nano-vl-8b-v1`
 - OpenRouter or custom OpenAI-compatible endpoints can be added later through the same provider shape.
 
 The app still works as a normal screenshot tool without an API key.
+
+Provider presets are based on the public Gemini API model list, Gemini image understanding documentation, and NVIDIA NIM OpenAI-compatible chat completion documentation.
 
 ## Portable Mode
 
@@ -74,4 +78,3 @@ Course documents are stored in `docs/`:
 - `ТЗ.md`
 - `Інструкція для Codex.md`
 - `План звіту.md`
-
