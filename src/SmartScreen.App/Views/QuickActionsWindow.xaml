@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SmartScreen actions"
-        Width="650"
+        Width="760"
         SizeToContent="Height"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -13,24 +13,34 @@
     <Border Style="{StaticResource FloatingPanelBorder}" Margin="18">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="148" />
+                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Border Width="132" Height="86" CornerRadius="8" ClipToBounds="True" Background="#EEF2F8">
+            <Border Width="132"
+                    Height="112"
+                    CornerRadius="8"
+                    ClipToBounds="True"
+                    Background="#EEF2F8">
                 <Image Source="{Binding PreviewImage}" Stretch="UniformToFill" />
             </Border>
 
-            <StackPanel Grid.Column="1" Margin="16,0,14,0">
+            <Grid Grid.Column="1" Margin="16,0,14,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
                 <DockPanel>
                     <StackPanel>
-                        <TextBlock Text="Скріншот готовий" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock Text="Скріншот готовий" FontWeight="SemiBold" FontSize="16" />
                         <TextBlock Text="{Binding Status}" Style="{StaticResource MutedText}" FontSize="12" />
                     </StackPanel>
                 </DockPanel>
 
-                <UniformGrid Columns="5" Margin="0,14,0,0">
+                <UniformGrid Grid.Row="1" Columns="5" Margin="0,14,0,12">
                     <Button Style="{StaticResource FloatingActionButton}"
                             Command="{Binding SaveCommand}"
                             Content="Зберегти"
@@ -44,15 +54,41 @@
                             Content="Редактор"
                             ToolTip="Відкрити редактор" />
                     <Button Style="{StaticResource FloatingActionButton}"
-                            Command="{Binding AskAiCommand}"
-                            Content="AI"
-                            ToolTip="Запитати AI" />
-                    <Button Style="{StaticResource FloatingActionButton}"
                             Command="{Binding OpenFolderCommand}"
                             Content="Папка"
                             ToolTip="Відкрити папку скріншотів" />
+                    <Button Style="{StaticResource FloatingActionButton}"
+                            Command="{Binding AskAiCommand}"
+                            Content="AI"
+                            ToolTip="Запустити AI-запит із вибраним prompt" />
                 </UniformGrid>
-            </StackPanel>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="AI-дія" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding Prompts}"
+                                  SelectedItem="{Binding SelectedPrompt}"
+                                  DisplayMemberPath="Title"
+                                  MinHeight="34" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Prompt" Style="{StaticResource FieldLabel}" />
+                        <TextBox Text="{Binding CustomPrompt, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBox}"
+                                 MinHeight="34"
+                                 MaxHeight="70"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
 
             <Button Grid.Column="2"
                     Style="{StaticResource CloseGlyphButton}"

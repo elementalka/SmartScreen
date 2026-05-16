@@ -10,7 +10,7 @@ public sealed class WpfHotkeyService(ILoggingService loggingService) : IHotkeySe
 {
     private const int WmHotkey = 0x0312;
 
-    private readonly Dictionary<int, HotkeyAction> _registeredHotkeys = [];
+    private readonly Dictionary<int, HotkeyBinding> _registeredHotkeys = [];
     private int _nextId = 100;
     private bool _isHooked;
 
@@ -34,7 +34,7 @@ public sealed class WpfHotkeyService(ILoggingService loggingService) : IHotkeySe
             var id = _nextId++;
             if (RegisterHotKey(IntPtr.Zero, id, parsed.Modifiers | HotkeyGestureParser.ModNoRepeat, parsed.VirtualKey))
             {
-                _registeredHotkeys[id] = binding.Action;
+                _registeredHotkeys[id] = binding;
                 registeredCount++;
                 loggingService.Info($"Hotkey registered: {parsed.NormalizedGesture} -> {binding.Action}");
                 continue;
@@ -95,9 +95,9 @@ public sealed class WpfHotkeyService(ILoggingService loggingService) : IHotkeySe
         }
 
         var id = msg.wParam.ToInt32();
-        if (_registeredHotkeys.TryGetValue(id, out var action))
+        if (_registeredHotkeys.TryGetValue(id, out var binding))
         {
-            HotkeyPressed?.Invoke(this, new HotkeyPressedEventArgs(action));
+            HotkeyPressed?.Invoke(this, new HotkeyPressedEventArgs(binding.Action, binding.PromptTemplateId));
             handled = true;
         }
     }

@@ -13,6 +13,7 @@ public partial class QuickActionsWindow : Window
         _viewModel = viewModel;
         DataContext = viewModel;
         _viewModel.CloseRequested += Close;
+        Loaded += (_, _) => viewModel.LoadCommand.Execute(null);
     }
 
     private void CloseButton_OnClick(object sender, RoutedEventArgs e) => Close();
@@ -23,4 +24,3 @@ public partial class QuickActionsWindow : Window
         base.OnClosed(e);
     }
 }
-

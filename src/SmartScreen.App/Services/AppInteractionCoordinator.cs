@@ -56,7 +56,7 @@ public sealed class AppInteractionCoordinator(
         await HandleScreenshotAsync(await screenshotService.CaptureActiveWindowAsync(cancellationToken), cancellationToken);
     }
 
-    public void AskAiForCurrentScreenshot()
+    public void AskAiForCurrentScreenshot(string? promptTemplateId = null)
     {
         if (CurrentScreenshot is null)
         {
@@ -64,12 +64,12 @@ public sealed class AppInteractionCoordinator(
             return;
         }
 
-        windowService.ShowAiResponse(CurrentScreenshot);
+        windowService.ShowAiResponse(CurrentScreenshot, promptTemplateId, startImmediately: promptTemplateId is not null);
     }
 
     public void ShowSettings() => windowService.ShowSettings();
 
-    public void HandleHotkey(HotkeyAction action)
+    public void HandleHotkey(HotkeyAction action, string? promptTemplateId = null)
     {
         _ = action switch
         {
@@ -78,7 +78,7 @@ public sealed class AppInteractionCoordinator(
             HotkeyAction.CaptureActiveWindow => CaptureActiveWindowSafelyAsync(),
             HotkeyAction.AskAiForCurrentScreenshot => RunSafelyAsync(_ =>
             {
-                AskAiForCurrentScreenshot();
+                AskAiForCurrentScreenshot(promptTemplateId);
                 return Task.CompletedTask;
             }),
             HotkeyAction.OpenSettings => RunSafelyAsync(_ =>

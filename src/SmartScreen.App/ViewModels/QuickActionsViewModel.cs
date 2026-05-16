@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Media;
 using SmartScreen.Application.Abstractions;
@@ -16,8 +17,11 @@ public sealed class QuickActionsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
     private readonly IWindowService _windowService;
+    private readonly IPromptTemplateService _promptTemplateService;
     private readonly ILoggingService _loggingService;
     private ScreenshotResult _screenshot;
+    private AiPromptTemplate? _selectedPrompt;
+    private string _customPrompt = string.Empty;
     private string _status = "Вибери дію";
 
     public QuickActionsViewModel(
@@ -27,6 +31,7 @@ public sealed class QuickActionsViewModel : ObservableObject
         ISettingsService settingsService,
         IStorageService storageService,
         IWindowService windowService,
+        IPromptTemplateService promptTemplateService,
         ILoggingService loggingService)
     {
         _screenshot = screenshot;
@@ -35,17 +40,20 @@ public sealed class QuickActionsViewModel : ObservableObject
         _settingsService = settingsService;
         _storageService = storageService;
         _windowService = windowService;
+        _promptTemplateService = promptTemplateService;
         _loggingService = loggingService;
         PreviewImage = BitmapSourceFactory.FromScreenshot(screenshot);
 
+        LoadCommand = new AsyncRelayCommand(LoadAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         CopyCommand = new AsyncRelayCommand(CopyAsync);
         EditCommand = new AsyncRelayCommand(EditAsync);
-        AskAiCommand = new RelayCommand(() => _windowService.ShowAiResponse(Screenshot));
+        AskAiCommand = new RelayCommand(AskAi);
         OpenFolderCommand = new RelayCommand(OpenFolder);
     }
 
     public event Action? CloseRequested;
+    public ObservableCollection<AiPromptTemplate> Prompts { get; } = [];
 
     public ScreenshotResult Screenshot
     {
@@ -61,12 +69,31 @@ public sealed class QuickActionsViewModel : ObservableObject
 
     public ImageSource PreviewImage { get; private set; }
 
+    public AiPromptTemplate? SelectedPrompt
+    {
+        get => _selectedPrompt;
+        set
+        {
+            if (SetProperty(ref _selectedPrompt, value) && value is not null && string.IsNullOrWhiteSpace(CustomPrompt))
+            {
+                CustomPrompt = value.Prompt;
+            }
+        }
+    }
+
+    public string CustomPrompt
+    {
+        get => _customPrompt;
+        set => SetProperty(ref _customPrompt, value);
+    }
+
     public string Status
     {
         get => _status;
         private set => SetProperty(ref _status, value);
     }
 
+    public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand CopyCommand { get; }
     public ICommand EditCommand { get; }
@@ -74,6 +101,26 @@ public sealed class QuickActionsViewModel : ObservableObject
     public ICommand OpenFolderCommand { get; }
 
     public void Close() => CloseRequested?.Invoke();
+
+    private async Task LoadAsync(CancellationToken cancellationToken)
+    {
+        if (Prompts.Count > 0)
+        {
+            return;
+        }
+
+        var library = await _promptTemplateService.LoadAsync(cancellationToken);
+        foreach (var prompt in library.Templates.OrderBy(prompt => prompt.Order))
+        {
+            Prompts.Add(prompt);
+        }
+
+        SelectedPrompt = Prompts.FirstOrDefault(prompt => prompt.Id == "describe") ?? Prompts.FirstOrDefault();
+        if (SelectedPrompt is not null)
+        {
+            CustomPrompt = SelectedPrompt.Prompt;
+        }
+    }
 
     private async Task SaveAsync(CancellationToken cancellationToken)
     {
@@ -108,6 +155,23 @@ public sealed class QuickActionsViewModel : ObservableObject
         OnPropertyChanged(nameof(PreviewImage));
         await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
         Status = "Відредаговано і скопійовано";
+    }
+
+    private void AskAi()
+    {
+        var prompt = string.IsNullOrWhiteSpace(CustomPrompt)
+            ? SelectedPrompt?.Prompt
+            : CustomPrompt;
+
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            Status = "Вибери AI-дію або введи prompt";
+            return;
+        }
+
+        Status = "Передаю скріншот до AI...";
+        _windowService.ShowAiResponse(Screenshot, SelectedPrompt?.Id, prompt, startImmediately: true);
+        CloseRequested?.Invoke();
     }
 
     private void OpenFolder()

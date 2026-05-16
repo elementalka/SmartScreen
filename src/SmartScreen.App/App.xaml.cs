@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App.Services;
 using SmartScreen.App.ViewModels;
+using SmartScreen.App.Views;
 using SmartScreen.Infrastructure.Ai;
 using SmartScreen.Infrastructure.Configuration;
 using SmartScreen.Infrastructure.Imaging;
@@ -93,6 +94,15 @@ public partial class App : System.Windows.Application
         };
 
         MainWindow = mainWindow;
+        var firstRunShown = false;
+        if (!settings.FirstRunCompleted)
+        {
+            firstRunShown = true;
+            var firstRunWizard = new FirstRunWizardWindow(new FirstRunWizardViewModel(settingsService));
+            firstRunWizard.ShowDialog();
+            settings = await settingsService.LoadAsync();
+        }
+
         mainWindow.Closing += (_, args) =>
         {
             if (_exitRequested || !settings.MinimizeToTrayOnClose)
@@ -119,10 +129,12 @@ public partial class App : System.Windows.Application
             Shutdown();
         };
 
-        hotkeyService.HotkeyPressed += (_, args) => coordinator.HandleHotkey(args.Action);
+        hotkeyService.HotkeyPressed += (_, args) => coordinator.HandleHotkey(args.Action, args.PromptTemplateId);
         await hotkeyService.RegisterAsync(hotkeySettings);
 
-        if (settings.StartMinimizedToTray && !e.Args.Contains("--show", StringComparer.OrdinalIgnoreCase))
+        if (settings.StartMinimizedToTray &&
+            !firstRunShown &&
+            !e.Args.Contains("--show", StringComparer.OrdinalIgnoreCase))
         {
             trayService.ShowReadyNotification();
             return;

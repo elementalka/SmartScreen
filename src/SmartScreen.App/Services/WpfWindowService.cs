@@ -40,6 +40,7 @@ public sealed class WpfWindowService(
             settingsService,
             storageService,
             this,
+            promptTemplateService,
             loggingService);
 
         var window = new QuickActionsWindow(viewModel);
@@ -63,9 +64,22 @@ public sealed class WpfWindowService(
         return Task.FromResult(result == true ? editor.EditedScreenshot : null);
     }
 
-    public void ShowAiResponse(ScreenshotResult screenshot)
+    public void ShowAiResponse(
+        ScreenshotResult screenshot,
+        string? promptTemplateId = null,
+        string? customPrompt = null,
+        bool startImmediately = false)
     {
-        var viewModel = new AiResponseViewModel(screenshot, aiService, clipboardService, promptTemplateService);
+        var viewModel = new AiResponseViewModel(
+            screenshot,
+            aiService,
+            clipboardService,
+            promptTemplateService,
+            storageService,
+            this,
+            promptTemplateId,
+            customPrompt,
+            startImmediately);
         var window = new AiResponseWindow(viewModel);
         AssignVisibleOwner(window);
 
