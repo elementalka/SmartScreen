@@ -13,6 +13,7 @@ public sealed class WpfWindowService(
     ISettingsService settingsService,
     IStorageService storageService,
     IAiService aiService,
+    IAiSecretService aiSecretService,
     IPromptTemplateService promptTemplateService,
     ILoggingService loggingService) : IWindowService
 {
@@ -72,7 +73,7 @@ public sealed class WpfWindowService(
 
     public void ShowSettings()
     {
-        var viewModel = new SettingsViewModel(settingsService, storageService, aiService);
+        var viewModel = new SettingsViewModel(settingsService, storageService, aiService, aiSecretService);
         var window = new SettingsWindow(viewModel)
         {
             Owner = System.Windows.Application.Current.MainWindow

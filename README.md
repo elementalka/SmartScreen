@@ -63,6 +63,20 @@ The app still works as a normal screenshot tool without an API key.
 
 Provider presets are based on the public Gemini API model list, Gemini image understanding documentation, and NVIDIA NIM OpenAI-compatible chat completion documentation.
 
+API keys are not stored in `appsettings.json`. When entered from the settings window, keys are written to a local ignored file:
+
+```text
+config/secrets.local.json
+```
+
+You can also set provider-specific environment variables, for example:
+
+```text
+SMARTSCREEN_GEMINI_PRO_API_KEY
+SMARTSCREEN_NVIDIA_API_KEY
+SMARTSCREEN_OPENROUTER_API_KEY
+```
+
 ## Portable Mode
 
 Configuration, logs, localization files, themes, and screenshots live next to the executable. If the executable folder is not writable, screenshots fall back to:

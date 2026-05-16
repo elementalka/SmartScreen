@@ -5,6 +5,7 @@ namespace SmartScreen.Infrastructure.Ai;
 
 public sealed class AiService(
     ISettingsService settingsService,
+    IAiSecretService aiSecretService,
     IAiProviderFactory providerFactory,
     ILoggingService loggingService) : IAiService
 {
@@ -22,9 +23,12 @@ public sealed class AiService(
             return AiResponse.Fail("AI-провайдера не налаштовано.", TimeSpan.Zero);
         }
 
+        await aiSecretService.ApplySecretsAsync(providerSettings, cancellationToken);
+
         if (string.IsNullOrWhiteSpace(providerSettings.ApiKey))
         {
-            return AiResponse.Fail("API-ключ не вказано. Скріншотер працює локально, але AI-запит недоступний.", TimeSpan.Zero);
+            var envName = aiSecretService.GetEnvironmentVariableName(providerSettings.Id);
+            return AiResponse.Fail($"API-ключ для {providerSettings.DisplayName} не вказано. Додай ключ у Налаштуваннях або через {envName}.", TimeSpan.Zero);
         }
 
         using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(Math.Max(5, providerSettings.TimeoutSeconds)));
@@ -64,10 +68,17 @@ public sealed class AiService(
 
         if (providerSettings is null || string.IsNullOrWhiteSpace(providerSettings.ApiKey))
         {
+            if (providerSettings is not null)
+            {
+                await aiSecretService.ApplySecretsAsync(providerSettings, cancellationToken);
+            }
+        }
+
+        if (providerSettings is null || string.IsNullOrWhiteSpace(providerSettings.ApiKey))
+        {
             return false;
         }
 
         return await providerFactory.Create(providerSettings).TestConnectionAsync(providerSettings, cancellationToken);
     }
 }
-

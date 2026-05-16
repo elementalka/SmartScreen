@@ -119,4 +119,46 @@
         <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
+
+    <Style x:Key="PrimarySmallButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="MinWidth" Value="110" />
+        <Setter Property="MinHeight" Value="38" />
+    </Style>
+
+    <Style x:Key="ModernTextBox" TargetType="TextBox">
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="#FBFCFE" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="FieldLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <Style x:Key="ProviderListItem" TargetType="Border">
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Background" Value="#F7F9FC" />
+        <Setter Property="BorderBrush" Value="#E4E9F2" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style x:Key="EditorToolButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="MinWidth" Value="72" />
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Margin" Value="0,0,8,0" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="Background" Value="#F7F9FC" />
+    </Style>
 </ResourceDictionary>

@@ -1,24 +1,40 @@
 <Window x:Class="SmartScreen.App.Views.ScreenshotEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Редактор скріншота" Width="1100" Height="760"
+        Title="Редактор скріншота" Width="1180" Height="780"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource AppBackgroundBrush}">
     <DockPanel>
-        <ToolBar DockPanel.Dock="Top">
-            <Button Content="Олівець" Click="PenButton_OnClick" />
-            <Button Content="Маркер" Click="HighlighterButton_OnClick" />
-            <Separator />
-            <Button Content="Undo" Click="UndoButton_OnClick" />
-            <Button Content="Очистити" Click="ClearButton_OnClick" />
-            <Separator />
-            <Button Content="Готово" Click="DoneButton_OnClick" />
-            <Button Content="Скасувати" Click="CancelButton_OnClick" />
-        </ToolBar>
+        <Border DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <DockPanel Margin="14,10">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Pen" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Marker" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Line" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Arrow" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Rect" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Ellipse" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Text" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Separator Margin="8,0" />
+                    <Button Content="Undo" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                    <Button Content="Clear" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                </StackPanel>
 
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Готово" Click="DoneButton_OnClick" Style="{StaticResource PrimarySmallButton}" />
+                    <Button Content="Скасувати" Click="CancelButton_OnClick" Style="{StaticResource EditorToolButton}" Margin="8,0,0,0" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#DDE3EE">
             <Grid x:Name="EditingSurface" Background="Transparent">
                 <Image x:Name="ScreenshotImage" Stretch="Fill" />
+                <Canvas x:Name="AnnotationCanvas"
+                        Background="Transparent"
+                        MouseLeftButtonDown="AnnotationCanvas_OnMouseLeftButtonDown"
+                        MouseMove="AnnotationCanvas_OnMouseMove"
+                        MouseLeftButtonUp="AnnotationCanvas_OnMouseLeftButtonUp" />
                 <InkCanvas x:Name="InkCanvas"
                            Background="Transparent"
                            EditingMode="Ink" />
@@ -26,4 +42,3 @@
         </ScrollViewer>
     </DockPanel>
 </Window>
-

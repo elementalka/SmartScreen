@@ -11,15 +11,22 @@ public sealed class SettingsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
     private readonly IAiService _aiService;
+    private readonly IAiSecretService _aiSecretService;
     private AppSettings? _settings;
     private AiProviderSettings? _selectedProvider;
+    private string _apiKeyInput = string.Empty;
     private string _status = "Налаштування";
 
-    public SettingsViewModel(ISettingsService settingsService, IStorageService storageService, IAiService aiService)
+    public SettingsViewModel(
+        ISettingsService settingsService,
+        IStorageService storageService,
+        IAiService aiService,
+        IAiSecretService aiSecretService)
     {
         _settingsService = settingsService;
         _storageService = storageService;
         _aiService = aiService;
+        _aiSecretService = aiSecretService;
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         TestAiCommand = new AsyncRelayCommand(TestAiAsync);
@@ -30,7 +37,32 @@ public sealed class SettingsViewModel : ObservableObject
     public AiProviderSettings? SelectedProvider
     {
         get => _selectedProvider;
-        set => SetProperty(ref _selectedProvider, value);
+        set
+        {
+            if (SetProperty(ref _selectedProvider, value))
+            {
+                ApiKeyInput = value?.ApiKey ?? string.Empty;
+                OnPropertyChanged(nameof(SelectedProviderEnvironmentVariable));
+                OnPropertyChanged(nameof(SelectedProviderHasKey));
+            }
+        }
+    }
+
+    public string ApiKeyInput
+    {
+        get => _apiKeyInput;
+        set
+        {
+            if (SetProperty(ref _apiKeyInput, value))
+            {
+                if (SelectedProvider is not null)
+                {
+                    SelectedProvider.ApiKey = value;
+                }
+
+                OnPropertyChanged(nameof(SelectedProviderHasKey));
+            }
+        }
     }
 
     public string Status
@@ -40,6 +72,11 @@ public sealed class SettingsViewModel : ObservableObject
     }
 
     public string ConfigDirectory => _storageService.Paths.ConfigDirectory;
+
+    public string SelectedProviderEnvironmentVariable =>
+        SelectedProvider is null ? string.Empty : _aiSecretService.GetEnvironmentVariableName(SelectedProvider.Id);
+
+    public bool SelectedProviderHasKey => !string.IsNullOrWhiteSpace(SelectedProvider?.ApiKey);
 
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
@@ -52,6 +89,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         foreach (var provider in _settings.Ai.Providers)
         {
+            await _aiSecretService.ApplySecretsAsync(provider, cancellationToken);
             Providers.Add(provider);
         }
 
@@ -77,9 +115,22 @@ public sealed class SettingsViewModel : ObservableObject
             _settings.Ai.ActiveProviderId = SelectedProvider.Id;
         }
 
+        foreach (var provider in Providers)
+        {
+            if (!string.IsNullOrWhiteSpace(provider.ApiKey))
+            {
+                await _aiSecretService.SaveApiKeyAsync(provider.Id, provider.ApiKey, cancellationToken);
+            }
+        }
+
         _settings.Ai.Providers = [.. Providers];
+        foreach (var provider in _settings.Ai.Providers)
+        {
+            provider.ApiKey = string.Empty;
+        }
+
         await _settingsService.SaveAsync(_settings, cancellationToken);
-        Status = "Налаштування збережено";
+        Status = "Налаштування збережено. API-ключі записано локально в secrets.local.json";
     }
 
     private async Task TestAiAsync(CancellationToken cancellationToken)
@@ -91,4 +142,3 @@ public sealed class SettingsViewModel : ObservableObject
             : "Підключення не вдалося перевірити";
     }
 }
-

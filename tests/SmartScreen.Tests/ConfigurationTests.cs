@@ -1,3 +1,4 @@
+using SmartScreen.Domain.Models;
 using SmartScreen.Infrastructure.Configuration;
 using SmartScreen.Infrastructure.Logging;
 using SmartScreen.Infrastructure.Storage;
@@ -73,6 +74,33 @@ public sealed class ConfigurationTests
         }
     }
 
+    [TestMethod]
+    public async Task LocalAiSecretServiceStoresKeysOutsideAppSettings()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var storage = new StorageService(root);
+            var logger = new FileLoggingService(storage);
+            var service = new LocalAiSecretService(storage, logger);
+            var settings = new AiProviderSettings
+            {
+                Id = "gemini-pro",
+                DisplayName = "Google Gemini Pro"
+            };
+
+            await service.SaveApiKeyAsync(settings.Id, "secret-test-key");
+            await service.ApplySecretsAsync(settings);
+
+            Assert.AreEqual("secret-test-key", settings.ApiKey);
+            Assert.IsTrue(File.Exists(Path.Combine(root, "config", "secrets.local.json")));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "SmartScreen.Tests", Guid.NewGuid().ToString("N"));
@@ -80,4 +108,3 @@ public sealed class ConfigurationTests
         return path;
     }
 }
-

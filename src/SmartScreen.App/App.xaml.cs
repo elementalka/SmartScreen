@@ -35,6 +35,7 @@ public partial class App : System.Windows.Application
 
         var settingsService = new JsonSettingsService(storageService, loggingService);
         var hotkeySettingsService = new JsonHotkeySettingsService(storageService, loggingService);
+        var aiSecretService = new LocalAiSecretService(storageService, loggingService);
         var promptTemplateService = new PromptTemplateService(storageService, loggingService);
         var settings = await settingsService.LoadAsync();
         var hotkeySettings = await hotkeySettingsService.LoadAsync();
@@ -46,7 +47,7 @@ public partial class App : System.Windows.Application
 
         _httpClient = new HttpClient();
         var providerFactory = new AiProviderFactory(_httpClient);
-        var aiService = new AiService(settingsService, providerFactory, loggingService);
+        var aiService = new AiService(settingsService, aiSecretService, providerFactory, loggingService);
 
         var windowService = new WpfWindowService(
             clipboardService,
@@ -54,6 +55,7 @@ public partial class App : System.Windows.Application
             settingsService,
             storageService,
             aiService,
+            aiSecretService,
             promptTemplateService,
             loggingService);
 
