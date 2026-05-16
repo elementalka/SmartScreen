@@ -1,10 +1,47 @@
 <Window x:Class="SmartScreen.App.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Налаштування SmartScreen" Width="980" Height="680"
-        MinWidth="900" MinHeight="600"
+        Title="Налаштування SmartScreen"
+        Width="1120"
+        Height="760"
+        MinWidth="980"
+        MinHeight="680"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource AppBackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="SettingsNavItem" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="12">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#F7F9FC" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#C7D7FE" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -15,7 +52,7 @@
         <DockPanel>
             <StackPanel>
                 <TextBlock Text="Налаштування" Style="{StaticResource TitleText}" />
-                <TextBlock Text="AI-провайдери, ключі, endpoint-и та локальні portable-конфіги"
+                <TextBlock Text="Керування скріншотами, AI-маршрутами, prompt-шаблонами та глобальними клавішами"
                            Style="{StaticResource MutedText}" />
             </StackPanel>
             <Button DockPanel.Dock="Right"
@@ -24,155 +61,654 @@
                     Style="{StaticResource PrimarySmallButton}" />
         </DockPanel>
 
-        <Grid Grid.Row="1" Margin="0,24,0,18">
+        <Grid Grid.Row="1" Margin="0,22,0,18">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="270" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Border Style="{StaticResource PanelBorder}" Margin="0,0,18,0">
                 <DockPanel>
-                    <StackPanel DockPanel.Dock="Top">
-                        <TextBlock Text="Провайдери" Style="{StaticResource SectionTitleText}" />
-                        <TextBlock Text="Вибери активний AI-маршрут"
+                    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+                        <TextBlock Text="Розділи" Style="{StaticResource SectionTitleText}" />
+                        <TextBlock Text="Усе важливе без ручного JSON"
                                    Style="{StaticResource MutedText}"
-                                   Margin="0,6,0,14" />
+                                   Margin="0,4,0,0" />
                     </StackPanel>
 
-                    <ListBox ItemsSource="{Binding Providers}"
-                             SelectedItem="{Binding SelectedProvider}"
+                    <ListBox ItemsSource="{Binding Sections}"
+                             SelectedItem="{Binding SelectedSection}"
+                             ItemContainerStyle="{StaticResource SettingsNavItem}"
                              BorderThickness="0"
                              Background="Transparent"
                              ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ProviderListItem}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Model}"
-                                                   Style="{StaticResource MutedText}"
-                                                   FontSize="12"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Description}"
+                                               Style="{StaticResource MutedText}"
+                                               FontSize="12"
+                                               Margin="0,3,0,0" />
+                                </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </DockPanel>
             </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource PanelBorder}">
+            <ScrollViewer Grid.Column="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                    <StackPanel Visibility="{Binding GeneralSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Загальні" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="SmartScreen залишається tray-first утилітою: головне вікно відкривається тоді, коли треба щось налаштувати."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18"
+                                           TextWrapping="Wrap" />
 
-                    <DockPanel>
-                        <StackPanel>
-                            <TextBlock Text="{Binding SelectedProvider.DisplayName, TargetNullValue=AI provider}"
-                                       FontSize="22"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding SelectedProvider.Kind}"
-                                       Style="{StaticResource MutedText}" />
-                        </StackPanel>
-                        <CheckBox DockPanel.Dock="Right"
-                                  Content="Увімкнено"
-                                  VerticalAlignment="Center"
-                                  IsChecked="{Binding SelectedProvider.IsEnabled}" />
-                    </DockPanel>
-
-                    <Grid Grid.Row="1" Margin="0,22,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="220" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="Endpoint" Style="{StaticResource FieldLabel}" />
-                            <TextBox Text="{Binding SelectedProvider.Endpoint, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBox}" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                            <TextBlock Text="Timeout, sec" Style="{StaticResource FieldLabel}" />
-                            <TextBox Text="{Binding SelectedProvider.TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBox}" />
-                        </StackPanel>
-                    </Grid>
-
-                    <StackPanel Grid.Row="2" Margin="0,16,0,0">
-                        <TextBlock Text="Model" Style="{StaticResource FieldLabel}" />
-                        <TextBox Text="{Binding SelectedProvider.Model, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource ModernTextBox}" />
+                                <UniformGrid Columns="2">
+                                    <Border Style="{StaticResource MetricPanel}" Margin="0,0,10,0">
+                                        <StackPanel>
+                                            <CheckBox Content="Запускати згорнуто в трей"
+                                                      IsChecked="{Binding Settings.StartMinimizedToTray}" />
+                                            <CheckBox Content="Закривати вікно в трей"
+                                                      IsChecked="{Binding Settings.MinimizeToTrayOnClose}"
+                                                      Margin="0,12,0,0" />
+                                            <CheckBox Content="Перший запуск завершено"
+                                                      IsChecked="{Binding Settings.FirstRunCompleted}"
+                                                      Margin="0,12,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Style="{StaticResource MetricPanel}" Margin="10,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Portable storage" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{Binding ConfigDirectory}"
+                                                       TextWrapping="Wrap"
+                                                       FontWeight="SemiBold" />
+                                            <Button Content="Відкрити config"
+                                                    Command="{Binding OpenConfigFolderCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    HorizontalAlignment="Left"
+                                                    Margin="0,14,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
 
-                    <Grid Grid.Row="3" Margin="0,16,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="API key" Style="{StaticResource FieldLabel}" />
-                            <TextBox Text="{Binding ApiKeyInput, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBox}"
-                                     ToolTip="Ключ зберігається локально в config/secrets.local.json і не потрапляє в git." />
-                            <TextBlock Text="{Binding SelectedProviderEnvironmentVariable, StringFormat=Env var: {0}}"
-                                       Style="{StaticResource MutedText}"
-                                       FontSize="12"
-                                       Margin="0,6,0,0" />
-                        </StackPanel>
-                        <Button Grid.Column="1"
-                                Content="Тест"
-                                Command="{Binding TestAiCommand}"
-                                Style="{StaticResource PrimarySmallButton}"
-                                Margin="14,22,0,0" />
-                    </Grid>
+                    <StackPanel Visibility="{Binding ScreenshotsSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Скріншоти" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="Формат, папка, назва файлу та дії після захоплення."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18" />
 
-                    <Border Grid.Row="4"
-                            Style="{StaticResource MetricPanel}"
-                            Margin="0,18,0,0">
-                        <StackPanel>
-                            <TextBlock Text="Pipeline після скріншоту" Style="{StaticResource FieldLabel}" />
-                            <UniformGrid Columns="3" Margin="0,4,0,0">
-                                <CheckBox Content="Буфер"
-                                          IsChecked="{Binding CopyAfterCapture}"
-                                          Margin="0,0,10,8" />
-                                <CheckBox Content="Файл"
-                                          IsChecked="{Binding SaveAfterCapture}"
-                                          Margin="0,0,10,8" />
-                                <CheckBox Content="Швидке меню"
-                                          IsChecked="{Binding QuickActionsAfterCapture}"
-                                          Margin="0,0,0,8" />
-                                <CheckBox Content="Редактор"
-                                          IsChecked="{Binding OpenEditorAfterCapture}"
-                                          Margin="0,0,10,0" />
-                                <CheckBox Content="AI-запит"
-                                          IsChecked="{Binding AskAiAfterCapture}"
-                                          Margin="0,0,10,0" />
-                            </UniformGrid>
-                        </StackPanel>
-                    </Border>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Text="Режим за замовчуванням" Style="{StaticResource FieldLabel}" />
+                                        <ComboBox ItemsSource="{Binding ScreenshotModeOptions}"
+                                                  SelectedValue="{Binding Settings.Screenshots.DefaultMode}"
+                                                  SelectedValuePath="Value"
+                                                  DisplayMemberPath="Label"
+                                                  MinHeight="38" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="Формат" Style="{StaticResource FieldLabel}" />
+                                        <ComboBox ItemsSource="{Binding ImageFormatOptions}"
+                                                  SelectedValue="{Binding Settings.Screenshots.DefaultFormat}"
+                                                  SelectedValuePath="Value"
+                                                  DisplayMemberPath="Label"
+                                                  MinHeight="38" />
+                                    </StackPanel>
+                                </Grid>
 
-                    <StackPanel Grid.Row="5" Margin="0,18,0,0">
-                        <TextBlock Text="System prompt" Style="{StaticResource FieldLabel}" />
-                        <TextBox Text="{Binding SelectedProvider.SystemPrompt, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource ModernTextBox}"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 MinHeight="94"
-                                 VerticalScrollBarVisibility="Auto" />
+                                <Grid Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="180" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Папка збереження" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Screenshots.SaveDirectory, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                        <TextBlock Text="JPG якість" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Screenshots.JpegQuality, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="14,0,0,0">
+                                        <TextBlock Text="Затримка, сек" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Screenshots.DelaySeconds, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Margin="0,16,0,0">
+                                    <TextBlock Text="Шаблон імені файлу" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding Settings.Screenshots.FileNameTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ModernTextBox}" />
+                                </StackPanel>
+
+                                <Border Style="{StaticResource MetricPanel}" Margin="0,18,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Pipeline після скріншоту" Style="{StaticResource FieldLabel}" />
+                                        <UniformGrid Columns="3">
+                                            <CheckBox Content="Буфер обміну"
+                                                      IsChecked="{Binding CopyAfterCapture}"
+                                                      Margin="0,0,10,10" />
+                                            <CheckBox Content="Зберегти файл"
+                                                      IsChecked="{Binding SaveAfterCapture}"
+                                                      Margin="0,0,10,10" />
+                                            <CheckBox Content="Швидке меню"
+                                                      IsChecked="{Binding QuickActionsAfterCapture}"
+                                                      Margin="0,0,0,10" />
+                                            <CheckBox Content="Відкрити редактор"
+                                                      IsChecked="{Binding OpenEditorAfterCapture}"
+                                                      Margin="0,0,10,0" />
+                                            <CheckBox Content="Запитати AI"
+                                                      IsChecked="{Binding AskAiAfterCapture}"
+                                                      Margin="0,0,10,0" />
+                                        </UniformGrid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding EditorSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Редактор" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="Базові параметри інструментів для позначок на скріншоті."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18" />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="180" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Колір" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Editor.DefaultColor, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                        <TextBlock Text="Товщина" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Editor.DefaultStrokeThickness, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="14,0,0,0">
+                                        <TextBlock Text="Розмір тексту" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Editor.DefaultTextSize, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3" Margin="14,0,0,0">
+                                        <TextBlock Text="Маркер opacity" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Editor.HighlighterOpacity, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding AiSectionVisibility}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="300" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,18,0">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                        <TextBlock Text="AI-провайдери" Style="{StaticResource SectionTitleText}" />
+                                        <TextBlock Text="Активний маршрут для AI-відповідей"
+                                                   Style="{StaticResource MutedText}"
+                                                   Margin="0,4,0,0" />
+                                    </StackPanel>
+
+                                    <ListBox ItemsSource="{Binding Providers}"
+                                             SelectedItem="{Binding SelectedProvider}"
+                                             BorderThickness="0"
+                                             Background="Transparent">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource ProviderListItem}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding Model}"
+                                                                   Style="{StaticResource MutedText}"
+                                                                   FontSize="12"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </DockPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource WorkspacePanel}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding SelectedProvider.DisplayName, TargetNullValue=AI provider}"
+                                                       FontSize="22"
+                                                       FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding SelectedProvider.Kind}"
+                                                       Style="{StaticResource MutedText}" />
+                                        </StackPanel>
+                                        <CheckBox DockPanel.Dock="Right"
+                                                  Content="Увімкнено"
+                                                  VerticalAlignment="Center"
+                                                  IsChecked="{Binding SelectedProvider.IsEnabled}" />
+                                    </DockPanel>
+
+                                    <Grid Margin="0,22,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="220" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Endpoint" Style="{StaticResource FieldLabel}" />
+                                            <TextBox Text="{Binding SelectedProvider.Endpoint, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBox}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                            <TextBlock Text="Timeout, sec" Style="{StaticResource FieldLabel}" />
+                                            <TextBox Text="{Binding SelectedProvider.TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBox}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <StackPanel Margin="0,16,0,0">
+                                        <TextBlock Text="Model" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding SelectedProvider.Model, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+
+                                    <Grid Margin="0,16,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="API key" Style="{StaticResource FieldLabel}" />
+                                            <TextBox Text="{Binding ApiKeyInput, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBox}" />
+                                            <TextBlock Text="{Binding SelectedProviderEnvironmentVariable, StringFormat=Env var: {0}}"
+                                                       Style="{StaticResource MutedText}"
+                                                       FontSize="12"
+                                                       Margin="0,6,0,0" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Content="Тест"
+                                                Command="{Binding TestAiCommand}"
+                                                Style="{StaticResource PrimarySmallButton}"
+                                                Margin="14,22,0,0" />
+                                    </Grid>
+
+                                    <StackPanel Margin="0,18,0,0">
+                                        <TextBlock Text="System prompt" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding SelectedProvider.SystemPrompt, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="Wrap"
+                                                 MinHeight="110"
+                                                 VerticalScrollBarVisibility="Auto" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding PromptsSectionVisibility}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="310" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,18,0">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                        <TextBlock Text="Prompt-шаблони" Style="{StaticResource SectionTitleText}" />
+                                        <TextBlock Text="{Binding PromptTemplateCount, StringFormat={}{0} шаблонів}"
+                                                   Style="{StaticResource MutedText}"
+                                                   Margin="0,4,0,0" />
+                                    </StackPanel>
+
+                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Button Content="Додати"
+                                                Command="{Binding AddPromptCommand}"
+                                                Style="{StaticResource GhostButton}"
+                                                Margin="0,0,8,0" />
+                                        <Button Content="Видалити"
+                                                Command="{Binding DeletePromptCommand}"
+                                                Style="{StaticResource GhostButton}" />
+                                    </StackPanel>
+
+                                    <ListBox ItemsSource="{Binding PromptTemplates}"
+                                             SelectedItem="{Binding SelectedPromptTemplate}"
+                                             BorderThickness="0"
+                                             Background="Transparent">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource ProviderListItem}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding Prompt}"
+                                                                   Style="{StaticResource MutedText}"
+                                                                   FontSize="12"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </DockPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource WorkspacePanel}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Редагування prompt" Style="{StaticResource SectionTitleText}" />
+                                            <TextBlock Text="Зміни зберігаються у config/prompts.json"
+                                                       Style="{StaticResource MutedText}"
+                                                       Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                Content="Відновити"
+                                                Command="{Binding ResetPromptsCommand}"
+                                                Style="{StaticResource GhostButton}" />
+                                    </DockPanel>
+
+                                    <Grid Margin="0,18,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="220" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Назва" Style="{StaticResource FieldLabel}" />
+                                            <TextBox Text="{Binding SelectedPromptTemplate.Title, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBox}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                            <TextBlock Text="Категорія" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox ItemsSource="{Binding PromptCategories}"
+                                                      SelectedValue="{Binding SelectedPromptTemplate.CategoryId}"
+                                                      SelectedValuePath="Id"
+                                                      DisplayMemberPath="Name"
+                                                      MinHeight="38" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <StackPanel Margin="0,16,0,0">
+                                        <TextBlock Text="Prompt" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding SelectedPromptTemplate.Prompt, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}"
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="Wrap"
+                                                 MinHeight="260"
+                                                 VerticalScrollBarVisibility="Auto" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding HotkeysSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Top">
+                                    <DockPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Гарячі клавіші" Style="{StaticResource SectionTitleText}" />
+                                            <TextBlock Text="{Binding EnabledHotkeyCount, StringFormat={}{0} активних комбінацій}"
+                                                       Style="{StaticResource MutedText}"
+                                                       Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                            <Button Content="Перевірити"
+                                                    Command="{Binding ValidateHotkeysCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    Margin="0,0,8,0" />
+                                            <Button Content="Defaults"
+                                                    Command="{Binding RestoreDefaultHotkeysCommand}"
+                                                    Style="{StaticResource GhostButton}" />
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <Border Style="{StaticResource MetricPanel}"
+                                            Visibility="{Binding ValidationMessagesVisibility}"
+                                            Margin="0,16,0,0">
+                                        <ItemsControl ItemsSource="{Binding ValidationMessages}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"
+                                                               Foreground="{StaticResource WarningBrush}"
+                                                               TextWrapping="Wrap"
+                                                               Margin="0,0,0,6" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Border>
+                                </StackPanel>
+
+                                <ListBox ItemsSource="{Binding Hotkeys}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         Margin="0,18,0,0">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource MetricPanel}" Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="34" />
+                                                        <ColumnDefinition Width="1.2*" />
+                                                        <ColumnDefinition Width="220" />
+                                                        <ColumnDefinition Width="260" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <CheckBox IsChecked="{Binding IsEnabled}"
+                                                              VerticalAlignment="Center" />
+
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding ActionDisplayName}"
+                                                                   FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding Description}"
+                                                                   Style="{StaticResource MutedText}"
+                                                                   FontSize="12"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,3,0,0" />
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2" Margin="16,0,0,0">
+                                                        <TextBlock Text="Комбінація" Style="{StaticResource FieldLabel}" />
+                                                        <TextBox Text="{Binding Gesture, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Style="{StaticResource ModernTextBox}" />
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="3" Margin="16,0,0,0">
+                                                        <TextBlock Text="AI prompt для швидкої дії" Style="{StaticResource FieldLabel}" />
+                                                        <ComboBox ItemsSource="{Binding DataContext.PromptTemplates, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                  SelectedValue="{Binding PromptTemplateId}"
+                                                                  SelectedValuePath="Id"
+                                                                  DisplayMemberPath="Title"
+                                                                  MinHeight="38" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding InterfaceSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Інтерфейс" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="Тема, accent color і поведінка вікон."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18" />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="220" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Тема" Style="{StaticResource FieldLabel}" />
+                                        <ComboBox ItemsSource="{Binding ThemeModeOptions}"
+                                                  SelectedValue="{Binding Settings.Theme.Mode}"
+                                                  SelectedValuePath="Value"
+                                                  DisplayMemberPath="Label"
+                                                  MinHeight="38" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                        <TextBlock Text="Accent color" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Settings.Theme.AccentColor, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource ModernTextBox}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding LanguagesSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Мови" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="Файли локалізації лежать поруч із застосунком, тому нові мови можна додавати через JSON."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18"
+                                           TextWrapping="Wrap" />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="280" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Мова UI" Style="{StaticResource FieldLabel}" />
+                                        <ComboBox ItemsSource="{Binding LanguageOptions}"
+                                                  SelectedValue="{Binding Settings.Language}"
+                                                  SelectedValuePath="Value"
+                                                  DisplayMemberPath="Label"
+                                                  MinHeight="38" />
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Style="{StaticResource MetricPanel}" Margin="18,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Папка локалізації" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{Binding LocalizationDirectory}"
+                                                       TextWrapping="Wrap"
+                                                       FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding SecuritySectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Безпека" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="AI-запит виконується тільки після явної дії користувача, ключі зберігаються окремо від git-конфігів."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18"
+                                           TextWrapping="Wrap" />
+
+                                <Border Style="{StaticResource MetricPanel}">
+                                    <StackPanel>
+                                        <CheckBox Content="Надсилати скріншоти до AI тільки після підтвердження користувача"
+                                                  IsChecked="{Binding Settings.Ai.SendScreenshotsOnlyAfterConfirmation}" />
+                                        <TextBlock Text="{Binding SecretsFilePath, StringFormat=Secrets: {0}}"
+                                                   Style="{StaticResource MutedText}"
+                                                   Margin="0,12,0,0"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding LogsSectionVisibility}">
+                        <Border Style="{StaticResource WorkspacePanel}">
+                            <StackPanel>
+                                <TextBlock Text="Логи та файли" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="Швидкий доступ до portable-директорій для діагностики."
+                                           Style="{StaticResource MutedText}"
+                                           Margin="0,6,0,18" />
+
+                                <UniformGrid Columns="3">
+                                    <Border Style="{StaticResource MetricPanel}" Margin="0,0,10,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Logs" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{Binding LogDirectory}"
+                                                       TextWrapping="Wrap"
+                                                       FontWeight="SemiBold" />
+                                            <Button Content="Відкрити"
+                                                    Command="{Binding OpenLogsFolderCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    HorizontalAlignment="Left"
+                                                    Margin="0,14,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Style="{StaticResource MetricPanel}" Margin="10,0,10,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Screenshots" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{Binding ScreenshotsDirectory}"
+                                                       TextWrapping="Wrap"
+                                                       FontWeight="SemiBold" />
+                                            <Button Content="Відкрити"
+                                                    Command="{Binding OpenScreenshotsFolderCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    HorizontalAlignment="Left"
+                                                    Margin="0,14,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Style="{StaticResource MetricPanel}" Margin="10,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Themes" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{Binding ThemesDirectory}"
+                                                       TextWrapping="Wrap"
+                                                       FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Border>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Grid>
-            </Border>
+            </ScrollViewer>
         </Grid>
 
         <DockPanel Grid.Row="2">
             <TextBlock Text="{Binding ConfigDirectory, StringFormat=Config: {0}}"
                        Style="{StaticResource MutedText}"
-                       VerticalAlignment="Center" />
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" />
             <TextBlock DockPanel.Dock="Right"
                        Text="{Binding Status}"
                        Style="{StaticResource MutedText}"

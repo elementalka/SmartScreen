@@ -64,11 +64,15 @@ public partial class App : System.Windows.Application
         _httpClient = new HttpClient();
         var providerFactory = new AiProviderFactory(_httpClient);
         var aiService = new AiService(settingsService, aiSecretService, providerFactory, loggingService);
+        var hotkeyService = new WpfHotkeyService(loggingService);
+        _hotkeyService = hotkeyService;
 
         var windowService = new WpfWindowService(
             clipboardService,
             imageFileService,
             settingsService,
+            hotkeySettingsService,
+            hotkeyService,
             storageService,
             aiService,
             aiSecretService,
@@ -115,8 +119,6 @@ public partial class App : System.Windows.Application
             Shutdown();
         };
 
-        var hotkeyService = new WpfHotkeyService(loggingService);
-        _hotkeyService = hotkeyService;
         hotkeyService.HotkeyPressed += (_, args) => coordinator.HandleHotkey(args.Action);
         await hotkeyService.RegisterAsync(hotkeySettings);
 

@@ -14,6 +14,8 @@ public sealed class WpfWindowService(
     IClipboardService clipboardService,
     IImageFileService imageFileService,
     ISettingsService settingsService,
+    IHotkeySettingsService hotkeySettingsService,
+    IHotkeyService hotkeyService,
     IStorageService storageService,
     IAiService aiService,
     IAiSecretService aiSecretService,
@@ -72,7 +74,15 @@ public sealed class WpfWindowService(
 
     public void ShowSettings()
     {
-        var viewModel = new SettingsViewModel(settingsService, storageService, aiService, aiSecretService);
+        var viewModel = new SettingsViewModel(
+            settingsService,
+            hotkeySettingsService,
+            hotkeyService,
+            storageService,
+            aiService,
+            aiSecretService,
+            promptTemplateService,
+            loggingService);
         var window = new SettingsWindow(viewModel);
         AssignVisibleOwner(window);
 
