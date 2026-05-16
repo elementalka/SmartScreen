@@ -9,6 +9,7 @@ public static class DefaultHotkeySettingsFactory
     {
         Bindings =
         [
+            new HotkeyBinding { Action = HotkeyAction.CaptureRegion, Gesture = "PrintScreen" },
             new HotkeyBinding { Action = HotkeyAction.CaptureRegion, Gesture = "Ctrl+Shift+S" },
             new HotkeyBinding { Action = HotkeyAction.CaptureFullScreen, Gesture = "Ctrl+Shift+F" },
             new HotkeyBinding { Action = HotkeyAction.CaptureActiveWindow, Gesture = "Ctrl+Shift+W" },
@@ -16,4 +17,3 @@ public static class DefaultHotkeySettingsFactory
         ]
     };
 }
-

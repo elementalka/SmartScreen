@@ -8,7 +8,7 @@ public static class DefaultAppSettingsFactory
     public static AppSettings Create() => new()
     {
         FirstRunCompleted = false,
-        StartMinimizedToTray = false,
+        StartMinimizedToTray = true,
         MinimizeToTrayOnClose = true,
         Language = "uk-UA",
         Screenshots = new ScreenshotSettings
@@ -74,4 +74,3 @@ public static class DefaultAppSettingsFactory
         }
     };
 }
-

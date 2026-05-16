@@ -25,8 +25,11 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
         try
         {
             await using var stream = File.OpenRead(path);
-            var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, _jsonOptions, cancellationToken);
-            return settings ?? DefaultAppSettingsFactory.Create();
+            var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, _jsonOptions, cancellationToken)
+                ?? DefaultAppSettingsFactory.Create();
+            Normalize(settings);
+            await SaveAsync(settings, cancellationToken);
+            return settings;
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
         {
@@ -64,5 +67,10 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
         var brokenPath = $"{path}.broken-{DateTimeOffset.Now:yyyyMMddHHmmss}";
         File.Move(path, brokenPath, overwrite: true);
     }
-}
 
+    private static void Normalize(AppSettings settings)
+    {
+        settings.StartMinimizedToTray = true;
+        settings.MinimizeToTrayOnClose = true;
+    }
+}

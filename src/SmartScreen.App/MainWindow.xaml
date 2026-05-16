@@ -14,8 +14,14 @@
 
         <DockPanel Grid.Row="0" LastChildFill="True">
             <StackPanel>
-                <TextBlock Text="SmartScreen" Style="{StaticResource TitleText}" />
-                <TextBlock Text="Скріншоти, редагування й AI-аналіз екрана" Style="{StaticResource MutedText}" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="SmartScreen" Style="{StaticResource TitleText}" />
+                    <Border Style="{StaticResource StatusBadge}" Margin="14,6,0,0">
+                        <TextBlock Text="працює у фоні" FontSize="12" />
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="Центр керування скріншотером, hotkeys, AI-провайдерами та portable-налаштуваннями"
+                           Style="{StaticResource MutedText}" />
             </StackPanel>
             <Button DockPanel.Dock="Right"
                     Style="{StaticResource SecondaryButton}"
@@ -25,40 +31,65 @@
 
         <Grid Grid.Row="1" Margin="0,28,0,24">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1.25*" />
+                <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <Button Style="{StaticResource PrimaryActionButton}"
-                        Command="{Binding CaptureRegionCommand}"
-                        Content="Скріншот області" />
-                <Button Style="{StaticResource ActionButton}"
-                        Command="{Binding CaptureFullScreenCommand}"
-                        Content="Скріншот всього екрана" />
-                <Button Style="{StaticResource ActionButton}"
-                        Command="{Binding CaptureActiveWindowCommand}"
-                        Content="Скріншот активного вікна" />
-                <Button Style="{StaticResource ActionButton}"
-                        Command="{Binding AskAiCommand}"
-                        Content="Запитати AI про поточний скріншот" />
-            </StackPanel>
-
-            <Border Grid.Column="1" Style="{StaticResource PanelBorder}">
+            <Border Grid.Column="0" Style="{StaticResource PanelBorder}" Margin="0,0,18,0">
                 <StackPanel>
-                    <TextBlock Text="Статус" Style="{StaticResource SectionTitleText}" />
-                    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,10,0,0" />
-                    <Separator Margin="0,18" />
-                    <TextBlock Text="Базовий сценарій працює без AI-ключа. AI-запит надсилається тільки після твоєї явної дії."
+                    <TextBlock Text="Основний сценарій" Style="{StaticResource SectionTitleText}" />
+                    <TextBlock Text="Натисни PrintScreen, виділи область, отримай компактне меню біля поточного контексту."
                                Style="{StaticResource MutedText}"
-                               TextWrapping="Wrap" />
+                               TextWrapping="Wrap"
+                               Margin="0,8,0,18" />
+
+                    <Button Style="{StaticResource PrimaryActionButton}"
+                            Command="{Binding CaptureRegionCommand}"
+                            Content="Скріншот області" />
+                    <Button Style="{StaticResource ActionButton}"
+                            Command="{Binding CaptureFullScreenCommand}"
+                            Content="Скріншот всього екрана" />
+                    <Button Style="{StaticResource ActionButton}"
+                            Command="{Binding CaptureActiveWindowCommand}"
+                            Content="Скріншот активного вікна" />
+                    <Button Style="{StaticResource ActionButton}"
+                            Command="{Binding AskAiCommand}"
+                            Content="Запитати AI про поточний скріншот" />
                 </StackPanel>
             </Border>
+
+            <StackPanel Grid.Column="1">
+                <Border Style="{StaticResource PanelBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Статус" Style="{StaticResource SectionTitleText}" />
+                        <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource PanelBorder}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Фонове керування" Style="{StaticResource SectionTitleText}" />
+                        <Separator Margin="0,12" />
+                        <TextBlock Text="PrintScreen — виділення області" Style="{StaticResource CompactLine}" />
+                        <TextBlock Text="Tray menu — швидкі дії" Style="{StaticResource CompactLine}" />
+                        <TextBlock Text="Settings — AI, hotkeys, теми" Style="{StaticResource CompactLine}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource PanelBorder}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="AI-провайдери" Style="{StaticResource SectionTitleText}" />
+                        <TextBlock Text="Gemini, NVIDIA NIM, OpenRouter та custom OpenAI-compatible endpoint-и закладені в архітектуру."
+                                   Style="{StaticResource MutedText}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Grid>
 
         <TextBlock Grid.Row="2"
-                   Text="HotkeyService і tray підключимо наступним шаром поверх уже робочого ядра."
+                   Text="Головне вікно потрібне для налаштувань і діагностики. Основна робота відбувається через PrintScreen, tray і контекстні вікна."
                    Style="{StaticResource MutedText}" />
     </Grid>
 </Window>
-
