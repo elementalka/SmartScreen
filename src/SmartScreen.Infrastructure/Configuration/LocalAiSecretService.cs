@@ -60,8 +60,7 @@ public sealed class LocalAiSecretService(IStorageService storageService, ILoggin
 
         try
         {
-            await using var stream = File.OpenRead(path);
-            return await JsonSerializer.DeserializeAsync<AiSecrets>(stream, _jsonOptions, cancellationToken)
+            return await JsonFileStore.ReadAsync<AiSecrets>(path, _jsonOptions, cancellationToken)
                 ?? new AiSecrets();
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
@@ -74,8 +73,6 @@ public sealed class LocalAiSecretService(IStorageService storageService, ILoggin
     private async Task SaveAsync(AiSecrets secrets, CancellationToken cancellationToken)
     {
         await storageService.EnsureDirectoriesAsync(cancellationToken);
-        await using var stream = File.Create(storageService.GetConfigFilePath(FileName));
-        await JsonSerializer.SerializeAsync(stream, secrets, _jsonOptions, cancellationToken);
+        await JsonFileStore.WriteAsync(storageService.GetConfigFilePath(FileName), secrets, _jsonOptions, cancellationToken);
     }
 }
-

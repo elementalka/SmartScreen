@@ -2,12 +2,6 @@
   "bindings": [
     {
       "action": "captureRegion",
-      "gesture": "PrintScreen",
-      "isEnabled": true,
-      "promptTemplateId": null
-    },
-    {
-      "action": "captureRegion",
       "gesture": "Ctrl+Shift+S",
       "isEnabled": true,
       "promptTemplateId": null

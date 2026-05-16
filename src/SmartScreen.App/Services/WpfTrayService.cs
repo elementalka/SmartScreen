@@ -47,7 +47,7 @@ public sealed class WpfTrayService : ITrayService
         _notifyIcon?.ShowBalloonTip(
             2500,
             "SmartScreen працює",
-            "Натисни PrintScreen або відкрий меню іконки в треї.",
+            "Натисни Ctrl+Shift+S або відкрий меню іконки в треї.",
             Forms.ToolTipIcon.Info);
     }
 
@@ -63,4 +63,3 @@ public sealed class WpfTrayService : ITrayService
         _notifyIcon = null;
     }
 }
-

@@ -14,15 +14,31 @@ namespace SmartScreen.App;
 
 public partial class App : System.Windows.Application
 {
+    private const string SingleInstanceMutexName = @"Local\SmartScreen.Elementalka.CourseWork";
+
     private HttpClient? _httpClient;
     private ILoggingService? _loggingService;
     private ITrayService? _trayService;
     private IHotkeyService? _hotkeyService;
+    private Mutex? _singleInstanceMutex;
+    private bool _ownsSingleInstanceMutex;
     private bool _exitRequested;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        _singleInstanceMutex = new Mutex(initiallyOwned: true, SingleInstanceMutexName, out _ownsSingleInstanceMutex);
+        if (!_ownsSingleInstanceMutex)
+        {
+            System.Windows.MessageBox.Show(
+                "SmartScreen вже запущено. Перевір іконку в системному треї або закрий попередній екземпляр.",
+                "SmartScreen",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            Shutdown();
+            return;
+        }
 
         var storageService = new StorageService();
         var loggingService = new FileLoggingService(storageService);
@@ -117,6 +133,7 @@ public partial class App : System.Windows.Application
         _trayService?.Dispose();
         _hotkeyService?.Dispose();
         _httpClient?.Dispose();
+        ReleaseSingleInstanceMutex();
         base.OnExit(e);
     }
 
@@ -151,6 +168,32 @@ public partial class App : System.Windows.Application
         if (e.ExceptionObject is Exception exception)
         {
             _loggingService?.Error(exception, "Unhandled application exception.");
+        }
+    }
+
+    private void ReleaseSingleInstanceMutex()
+    {
+        if (_singleInstanceMutex is null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_ownsSingleInstanceMutex)
+            {
+                _singleInstanceMutex.ReleaseMutex();
+            }
+        }
+        catch (ApplicationException)
+        {
+            // The process is already exiting; mutex release must not hide the real shutdown path.
+        }
+        finally
+        {
+            _singleInstanceMutex.Dispose();
+            _singleInstanceMutex = null;
+            _ownsSingleInstanceMutex = false;
         }
     }
 }

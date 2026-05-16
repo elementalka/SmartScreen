@@ -11,19 +11,19 @@ SmartScreen is a portable Windows desktop application for screenshots, quick edi
 
 ```text
 SmartScreen/
-├── docs/
-├── src/
-│   ├── SmartScreen.Domain/
-│   ├── SmartScreen.Application/
-│   ├── SmartScreen.Infrastructure/
-│   └── SmartScreen.App/
-├── tests/
-│   └── SmartScreen.Tests/
-├── config/
-├── localization/
-├── themes/
-├── screenshots/
-└── logs/
+|-- docs/
+|-- src/
+|   |-- SmartScreen.Domain/
+|   |-- SmartScreen.Application/
+|   |-- SmartScreen.Infrastructure/
+|   `-- SmartScreen.App/
+|-- tests/
+|   `-- SmartScreen.Tests/
+|-- config/
+|-- localization/
+|-- themes/
+|-- screenshots/
+`-- logs/
 ```
 
 ## Run
@@ -32,6 +32,15 @@ SmartScreen/
 dotnet build
 dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 ```
+
+## Default Hotkeys
+
+- `Ctrl+Shift+S` - capture selected region
+- `Ctrl+Shift+F` - capture full screen
+- `Ctrl+Shift+W` - capture active window
+- `Ctrl+Shift+A` - ask AI about the current screenshot
+
+`PrintScreen` is not registered by default to avoid conflicts with Windows Snipping Tool. It can be added later through the hotkey settings workflow.
 
 ## Current Capabilities
 
@@ -54,7 +63,7 @@ AI requests are sent only after an explicit user action.
 Open settings and fill in an API key for one of the configured providers:
 
 - Google Gemini Pro: `gemini-3-pro-preview`
-- Google Gemini Flash: `gemini-3-flash-preview`
+- Google Gemini Flash: `gemini-flash-latest`
 - NVIDIA NIM Vision: `meta/llama-3.2-90b-vision-instruct`
 - NVIDIA Nemotron Nano VL: `nvidia/llama-3.1-nemotron-nano-vl-8b-v1`
 - OpenRouter or custom OpenAI-compatible endpoints can be added later through the same provider shape.

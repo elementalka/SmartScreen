@@ -29,7 +29,9 @@ public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvide
 
         if (!response.IsSuccessStatusCode)
         {
-            return AiResponse.Fail($"AI-провайдер повернув помилку: {(int)response.StatusCode}.", stopwatch.Elapsed);
+            return AiResponse.Fail(
+                AiProviderErrorFormatter.Format(settings.DisplayName, response.StatusCode, body),
+                stopwatch.Elapsed);
         }
 
         var text = ExtractText(body);
@@ -128,4 +130,3 @@ public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvide
         return string.Empty;
     }
 }
-

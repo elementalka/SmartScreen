@@ -38,7 +38,7 @@
             <Border Grid.Column="0" Style="{StaticResource PanelBorder}" Margin="0,0,18,0">
                 <StackPanel>
                     <TextBlock Text="Основний сценарій" Style="{StaticResource SectionTitleText}" />
-                    <TextBlock Text="Натисни PrintScreen, виділи область, отримай компактне меню біля поточного контексту."
+                    <TextBlock Text="Натисни Ctrl+Shift+S, виділи область, отримай компактне меню біля поточного контексту."
                                Style="{StaticResource MutedText}"
                                TextWrapping="Wrap"
                                Margin="0,8,0,18" />
@@ -70,7 +70,7 @@
                     <StackPanel>
                         <TextBlock Text="Фонове керування" Style="{StaticResource SectionTitleText}" />
                         <Separator Margin="0,12" />
-                        <TextBlock Text="PrintScreen — виділення області" Style="{StaticResource CompactLine}" />
+                        <TextBlock Text="Ctrl+Shift+S — виділення області" Style="{StaticResource CompactLine}" />
                         <TextBlock Text="Tray menu — швидкі дії" Style="{StaticResource CompactLine}" />
                         <TextBlock Text="Settings — AI, hotkeys, теми" Style="{StaticResource CompactLine}" />
                     </StackPanel>
@@ -89,7 +89,7 @@
         </Grid>
 
         <TextBlock Grid.Row="2"
-                   Text="Головне вікно потрібне для налаштувань і діагностики. Основна робота відбувається через PrintScreen, tray і контекстні вікна."
+                   Text="Головне вікно потрібне для налаштувань і діагностики. Основна робота відбувається через hotkeys, tray і контекстні вікна."
                    Style="{StaticResource MutedText}" />
     </Grid>
 </Window>

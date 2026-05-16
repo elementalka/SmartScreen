@@ -1,9 +1,12 @@
 using System.Windows;
+using System.Windows.Media;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App.ViewModels;
 using SmartScreen.App.Views;
 using SmartScreen.Domain.Models;
 using Forms = System.Windows.Forms;
+using Point = System.Windows.Point;
+using Rect = System.Windows.Rect;
 
 namespace SmartScreen.App.Services;
 
@@ -44,8 +47,12 @@ public sealed class WpfWindowService(
             Owner = System.Windows.Application.Current.MainWindow
         };
 
-        PositionNearCursor(window);
+        window.Opacity = 0;
         window.Show();
+        window.UpdateLayout();
+        PositionNearCursor(window);
+        window.Opacity = 1;
+        window.Activate();
         return Task.CompletedTask;
     }
 
@@ -86,20 +93,29 @@ public sealed class WpfWindowService(
     {
         var cursor = Forms.Cursor.Position;
         var screen = Forms.Screen.FromPoint(cursor);
+        var transform = PresentationSource.FromVisual(window)?.CompositionTarget?.TransformFromDevice ?? Matrix.Identity;
+
+        var cursorDip = transform.Transform(new Point(cursor.X, cursor.Y));
         var workArea = screen.WorkingArea;
+        var workAreaDipTopLeft = transform.Transform(new Point(workArea.Left, workArea.Top));
+        var workAreaDipBottomRight = transform.Transform(new Point(workArea.Right, workArea.Bottom));
+        var workAreaDip = new Rect(workAreaDipTopLeft, workAreaDipBottomRight);
+
+        var width = window.ActualWidth > 0 ? window.ActualWidth : window.Width;
+        var height = window.ActualHeight > 0 ? window.ActualHeight : 160;
 
         window.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
-        window.Left = Math.Min(cursor.X + 18, workArea.Right - window.Width - 18);
-        window.Top = Math.Min(cursor.Y + 18, workArea.Bottom - 180);
+        window.Left = Math.Min(cursorDip.X + 18, workAreaDip.Right - width - 18);
+        window.Top = Math.Min(cursorDip.Y + 18, workAreaDip.Bottom - height - 18);
 
-        if (window.Left < workArea.Left)
+        if (window.Left < workAreaDip.Left)
         {
-            window.Left = workArea.Left + 18;
+            window.Left = workAreaDip.Left + 18;
         }
 
-        if (window.Top < workArea.Top)
+        if (window.Top < workAreaDip.Top)
         {
-            window.Top = workArea.Top + 18;
+            window.Top = workAreaDip.Top + 18;
         }
     }
 }

@@ -21,6 +21,10 @@ public sealed class ConfigurationTests
             var settings = await service.LoadAsync();
 
             Assert.AreEqual("uk-UA", settings.Language);
+            Assert.AreEqual("gemini-flash", settings.Ai.ActiveProviderId);
+            Assert.AreEqual(
+                "gemini-flash-latest",
+                settings.Ai.Providers.First(provider => provider.Id == "gemini-flash").Model);
             Assert.IsTrue(File.Exists(Path.Combine(root, "config", "appsettings.json")));
             Assert.IsTrue(settings.Ai.Providers.Count >= 2);
         }
@@ -94,6 +98,52 @@ public sealed class ConfigurationTests
 
             Assert.AreEqual("secret-test-key", settings.ApiKey);
             Assert.IsTrue(File.Exists(Path.Combine(root, "config", "secrets.local.json")));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public async Task HotkeyServiceRemovesLegacyPrintScreenDefault()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var storage = new StorageService(root);
+            var logger = new FileLoggingService(storage);
+            var service = new JsonHotkeySettingsService(storage, logger);
+
+            await storage.EnsureDirectoriesAsync();
+            await File.WriteAllTextAsync(
+                Path.Combine(root, "config", "hotkeys.json"),
+                """
+                {
+                  "bindings": [
+                    {
+                      "action": "captureRegion",
+                      "gesture": "PrintScreen",
+                      "isEnabled": true,
+                      "promptTemplateId": null
+                    },
+                    {
+                      "action": "captureFullScreen",
+                      "gesture": "Ctrl+Shift+F",
+                      "isEnabled": true,
+                      "promptTemplateId": null
+                    }
+                  ]
+                }
+                """);
+
+            var settings = await service.LoadAsync();
+
+            Assert.IsFalse(settings.Bindings.Any(binding =>
+                binding.Gesture.Equals("PrintScreen", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(settings.Bindings.Any(binding =>
+                binding.Action == Domain.Enums.HotkeyAction.CaptureRegion &&
+                binding.Gesture.Equals("Ctrl+Shift+S", StringComparison.OrdinalIgnoreCase)));
         }
         finally
         {

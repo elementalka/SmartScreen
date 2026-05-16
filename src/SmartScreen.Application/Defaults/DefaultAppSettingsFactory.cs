@@ -29,7 +29,7 @@ public static class DefaultAppSettingsFactory
         },
         Ai = new AiSettings
         {
-            ActiveProviderId = "gemini-pro",
+            ActiveProviderId = "gemini-flash",
             SendScreenshotsOnlyAfterConfirmation = true,
             Providers =
             [
@@ -48,7 +48,7 @@ public static class DefaultAppSettingsFactory
                     DisplayName = "Google Gemini Flash",
                     Kind = AiProviderKind.Gemini,
                     Endpoint = "https://generativelanguage.googleapis.com/v1beta",
-                    Model = "gemini-3-flash-preview",
+                    Model = "gemini-flash-latest",
                     TimeoutSeconds = 60
                 },
                 new AiProviderSettings

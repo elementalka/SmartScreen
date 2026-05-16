@@ -25,8 +25,7 @@ public sealed class JsonHotkeySettingsService(IStorageService storageService, IL
 
         try
         {
-            await using var stream = File.OpenRead(path);
-            var settings = await JsonSerializer.DeserializeAsync<HotkeySettings>(stream, _jsonOptions, cancellationToken)
+            var settings = await JsonFileStore.ReadAsync<HotkeySettings>(path, _jsonOptions, cancellationToken)
                 ?? DefaultHotkeySettingsFactory.Create();
             Normalize(settings);
             await SaveAsync(settings, cancellationToken);
@@ -35,7 +34,7 @@ public sealed class JsonHotkeySettingsService(IStorageService storageService, IL
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
         {
             loggingService.Error(exception, "Hotkey settings could not be loaded. Defaults will be restored.");
-            File.Move(path, $"{path}.broken-{DateTimeOffset.Now:yyyyMMddHHmmss}", overwrite: true);
+            JsonFileStore.MoveBrokenFile(path);
 
             var defaults = DefaultHotkeySettingsFactory.Create();
             await SaveAsync(defaults, cancellationToken);
@@ -46,19 +45,21 @@ public sealed class JsonHotkeySettingsService(IStorageService storageService, IL
     public async Task SaveAsync(HotkeySettings settings, CancellationToken cancellationToken = default)
     {
         await storageService.EnsureDirectoriesAsync(cancellationToken);
-        await using var stream = File.Create(storageService.GetConfigFilePath(FileName));
-        await JsonSerializer.SerializeAsync(stream, settings, _jsonOptions, cancellationToken);
+        await JsonFileStore.WriteAsync(storageService.GetConfigFilePath(FileName), settings, _jsonOptions, cancellationToken);
     }
 
     private static void Normalize(HotkeySettings settings)
     {
+        settings.Bindings.RemoveAll(binding =>
+            string.Equals(binding.Gesture, "PrintScreen", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(binding.Gesture, "PrtSc", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(binding.Gesture, "PrtScr", StringComparison.OrdinalIgnoreCase));
+
         var defaults = DefaultHotkeySettingsFactory.Create();
 
         foreach (var defaultBinding in defaults.Bindings)
         {
-            var alreadyExists = settings.Bindings.Any(binding =>
-                binding.Action == defaultBinding.Action &&
-                binding.Gesture.Equals(defaultBinding.Gesture, StringComparison.OrdinalIgnoreCase));
+            var alreadyExists = settings.Bindings.Any(binding => binding.Action == defaultBinding.Action);
 
             if (!alreadyExists)
             {

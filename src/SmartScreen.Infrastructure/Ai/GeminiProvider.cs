@@ -29,7 +29,9 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
 
         if (!response.IsSuccessStatusCode)
         {
-            return AiResponse.Fail($"Gemini повернув помилку: {(int)response.StatusCode}.", stopwatch.Elapsed);
+            return AiResponse.Fail(
+                AiProviderErrorFormatter.Format("Gemini", response.StatusCode, body),
+                stopwatch.Elapsed);
         }
 
         var text = ExtractText(body);
@@ -134,4 +136,3 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         return string.Join(Environment.NewLine, texts);
     }
 }
-

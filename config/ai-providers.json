@@ -13,7 +13,7 @@
       "displayName": "Google Gemini Flash",
       "kind": "gemini",
       "endpoint": "https://generativelanguage.googleapis.com/v1beta",
-      "model": "gemini-3-flash-preview",
+      "model": "gemini-flash-latest",
       "timeoutSeconds": 60
     },
     {
