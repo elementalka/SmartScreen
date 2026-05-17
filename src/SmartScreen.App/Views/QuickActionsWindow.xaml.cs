@@ -42,6 +42,7 @@ public partial class QuickActionsWindow : Window
     private Rect? _cropRect;
     private RectangleShape? _cropOverlay;
     private MediaColor _activeColor = Colors.Red;
+    private bool _useShapeFill;
     private bool _isEditMode;
     private bool _isEditorChromeVisible = true;
     private bool _isCompletingFinalAction;
@@ -242,6 +243,7 @@ public partial class QuickActionsWindow : Window
     private void UndoButton_OnClick(object sender, RoutedEventArgs e) => UndoLastAction();
     private void RedoButton_OnClick(object sender, RoutedEventArgs e) => RedoLastAction();
     private void ClearButton_OnClick(object sender, RoutedEventArgs e) => ClearAnnotations();
+    private void ShapeFillButton_OnClick(object sender, RoutedEventArgs e) => ToggleShapeFill();
 
     private void ToggleEditorChromeButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -264,6 +266,12 @@ public partial class QuickActionsWindow : Window
             SetTool(_activeTool);
             UpdateColorButtonStates();
         }
+    }
+
+    private void ToggleShapeFill()
+    {
+        _useShapeFill = !_useShapeFill;
+        UpdateShapeFillButtonState();
     }
 
     private void EditorSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -414,6 +422,10 @@ public partial class QuickActionsWindow : Window
                 SetTool(EditorTool.Pixelate);
                 e.Handled = true;
                 break;
+            case Key.F:
+                ToggleShapeFill();
+                e.Handled = true;
+                break;
             case Key.H:
                 SetEditorChromeVisibility(!_isEditorChromeVisible);
                 e.Handled = true;
@@ -435,8 +447,9 @@ public partial class QuickActionsWindow : Window
             InkCanvas.IsHitTestVisible = _isEditMode;
             AnnotationCanvas.IsHitTestVisible = false;
             InkCanvas.EditingMode = InkCanvasEditingMode.Ink;
+            var markerColor = MediaColor.FromArgb(ToAlpha(_viewModel.EditorHighlighterOpacity), _activeColor.R, _activeColor.G, _activeColor.B);
             SetPen(
-                tool == EditorTool.Pen ? _activeColor : MediaColor.FromArgb(ToAlpha(_viewModel.EditorHighlighterOpacity), 255, 214, 10),
+                tool == EditorTool.Pen ? _activeColor : markerColor,
                 tool == EditorTool.Pen ? ActiveStrokeThickness : Math.Max(14, ActiveStrokeThickness * 4),
                 tool == EditorTool.Highlighter);
             return;
@@ -457,6 +470,7 @@ public partial class QuickActionsWindow : Window
         StrokeSlider.Value = Math.Clamp(_viewModel.EditorDefaultStrokeThickness, StrokeSlider.Minimum, StrokeSlider.Maximum);
         TextSizeSlider.Value = Math.Clamp(_viewModel.EditorDefaultTextSize, TextSizeSlider.Minimum, TextSizeSlider.Maximum);
         UpdateColorButtonStates();
+        UpdateShapeFillButtonState();
     }
 
     private void UpdateToolButtonStates()
@@ -465,7 +479,7 @@ public partial class QuickActionsWindow : Window
         var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(31, 41, 55));
         var activeBorder = new SolidColorBrush(MediaColor.FromRgb(134, 165, 255));
         var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(56, 71, 95));
-        var activeForeground = Brushes.White;
+        var activeForeground = new SolidColorBrush(MediaColor.FromRgb(7, 17, 31));
         var inactiveForeground = new SolidColorBrush(MediaColor.FromRgb(226, 232, 240));
 
         foreach (var (button, tool) in ToolButtons())
@@ -482,6 +496,7 @@ public partial class QuickActionsWindow : Window
         var activeBorder = Brushes.White;
         var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(120, 137, 162));
         var activeHex = ToHex(_activeColor);
+        ActiveColorPreview.Background = new SolidColorBrush(_activeColor);
 
         foreach (var button in ColorButtons())
         {
@@ -489,6 +504,19 @@ public partial class QuickActionsWindow : Window
             button.BorderBrush = isActive ? activeBorder : inactiveBorder;
             button.BorderThickness = isActive ? new Thickness(3) : new Thickness(2);
         }
+    }
+
+    private void UpdateShapeFillButtonState()
+    {
+        var activeBackground = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(56, 189, 248));
+        var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(31, 41, 55));
+        ShapeFillButton.Background = _useShapeFill ? activeBackground : inactiveBackground;
+        ShapeFillButton.BorderBrush = _useShapeFill
+            ? new SolidColorBrush(MediaColor.FromRgb(125, 211, 252))
+            : new SolidColorBrush(MediaColor.FromRgb(56, 71, 95));
+        ShapeFillButton.Foreground = _useShapeFill
+            ? new SolidColorBrush(MediaColor.FromRgb(7, 17, 31))
+            : new SolidColorBrush(MediaColor.FromRgb(226, 232, 240));
     }
 
     private (Button Button, EditorTool Tool)[] ToolButtons() =>
@@ -507,10 +535,22 @@ public partial class QuickActionsWindow : Window
 
     private Button[] ColorButtons() =>
     [
+        RoseColorButton,
         RedColorButton,
-        BlueColorButton,
-        GreenColorButton,
+        OrangeColorButton,
         AmberColorButton,
+        YellowColorButton,
+        LimeColorButton,
+        GreenColorButton,
+        MintColorButton,
+        CyanColorButton,
+        SkyColorButton,
+        BlueColorButton,
+        IndigoColorButton,
+        VioletColorButton,
+        PinkColorButton,
+        WhiteColorButton,
+        SlateColorButton,
         InkColorButton
     ];
 
@@ -659,7 +699,7 @@ public partial class QuickActionsWindow : Window
         {
             Stroke = new SolidColorBrush(_activeColor),
             StrokeThickness = ActiveStrokeThickness,
-            Fill = Brushes.Transparent
+            Fill = CreateShapeFillBrush()
         };
         PositionShape(rectangle, start, end);
         return rectangle;
@@ -671,11 +711,16 @@ public partial class QuickActionsWindow : Window
         {
             Stroke = new SolidColorBrush(_activeColor),
             StrokeThickness = ActiveStrokeThickness,
-            Fill = Brushes.Transparent
+            Fill = CreateShapeFillBrush()
         };
         PositionShape(ellipse, start, end);
         return ellipse;
     }
+
+    private MediaBrush CreateShapeFillBrush() =>
+        _useShapeFill
+            ? new SolidColorBrush(MediaColor.FromArgb(46, _activeColor.R, _activeColor.G, _activeColor.B))
+            : Brushes.Transparent;
 
     private static RectangleShape CreateCropRectangle(Point start, Point end)
     {

@@ -140,30 +140,66 @@
                     Style="{StaticResource EditorGlassPanelBorder}"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Bottom"
-                    MaxWidth="760"
+                    MaxWidth="920"
                     Margin="82,0,82,0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="190" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="160" />
-                    </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button x:Name="RedColorButton" Style="{StaticResource ColorSwatchButton}" Background="#E53935" Tag="#E53935" Click="ColorButton_OnClick" ToolTip="Червоний" />
-                        <Button x:Name="BlueColorButton" Style="{StaticResource ColorSwatchButton}" Background="#2563EB" Tag="#2563EB" Click="ColorButton_OnClick" ToolTip="Синій" />
-                        <Button x:Name="GreenColorButton" Style="{StaticResource ColorSwatchButton}" Background="#14966D" Tag="#14966D" Click="ColorButton_OnClick" ToolTip="Зелений" />
-                        <Button x:Name="AmberColorButton" Style="{StaticResource ColorSwatchButton}" Background="#F59E0B" Tag="#F59E0B" Click="ColorButton_OnClick" ToolTip="Жовтий" />
-                        <Button x:Name="InkColorButton" Style="{StaticResource ColorSwatchButton}" Background="#111827" Tag="#111827" Click="ColorButton_OnClick" ToolTip="Темний" />
-                    </StackPanel>
+                        <Border x:Name="ActiveColorPreview"
+                                Width="32"
+                                Height="32"
+                                CornerRadius="8"
+                                Background="#E53935"
+                                BorderBrush="#E5F0FF"
+                                BorderThickness="2"
+                                Margin="0,0,10,0" />
 
-                    <TextBlock Grid.Column="1" Text="Лінія" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,8,0" />
-                    <Slider x:Name="StrokeSlider" Grid.Column="2" Minimum="1" Maximum="28" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
-                    <TextBlock Grid.Column="3" Text="Текст" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,8,0" />
-                    <Slider x:Name="TextSizeSlider" Grid.Column="4" Minimum="14" Maximum="48" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
-                </Grid>
+                        <WrapPanel Grid.Column="1" VerticalAlignment="Center">
+                            <Button x:Name="RoseColorButton" Style="{StaticResource ColorSwatchButton}" Background="#F43F5E" Tag="#F43F5E" Click="ColorButton_OnClick" ToolTip="Rose" />
+                            <Button x:Name="RedColorButton" Style="{StaticResource ColorSwatchButton}" Background="#EF4444" Tag="#EF4444" Click="ColorButton_OnClick" ToolTip="Red" />
+                            <Button x:Name="OrangeColorButton" Style="{StaticResource ColorSwatchButton}" Background="#F97316" Tag="#F97316" Click="ColorButton_OnClick" ToolTip="Orange" />
+                            <Button x:Name="AmberColorButton" Style="{StaticResource ColorSwatchButton}" Background="#F59E0B" Tag="#F59E0B" Click="ColorButton_OnClick" ToolTip="Amber" />
+                            <Button x:Name="YellowColorButton" Style="{StaticResource ColorSwatchButton}" Background="#FACC15" Tag="#FACC15" Click="ColorButton_OnClick" ToolTip="Yellow" />
+                            <Button x:Name="LimeColorButton" Style="{StaticResource ColorSwatchButton}" Background="#84CC16" Tag="#84CC16" Click="ColorButton_OnClick" ToolTip="Lime" />
+                            <Button x:Name="GreenColorButton" Style="{StaticResource ColorSwatchButton}" Background="#22C55E" Tag="#22C55E" Click="ColorButton_OnClick" ToolTip="Green" />
+                            <Button x:Name="MintColorButton" Style="{StaticResource ColorSwatchButton}" Background="#10B981" Tag="#10B981" Click="ColorButton_OnClick" ToolTip="Mint" />
+                            <Button x:Name="CyanColorButton" Style="{StaticResource ColorSwatchButton}" Background="#06B6D4" Tag="#06B6D4" Click="ColorButton_OnClick" ToolTip="Cyan" />
+                            <Button x:Name="SkyColorButton" Style="{StaticResource ColorSwatchButton}" Background="#38BDF8" Tag="#38BDF8" Click="ColorButton_OnClick" ToolTip="Sky" />
+                            <Button x:Name="BlueColorButton" Style="{StaticResource ColorSwatchButton}" Background="#2563EB" Tag="#2563EB" Click="ColorButton_OnClick" ToolTip="Blue" />
+                            <Button x:Name="IndigoColorButton" Style="{StaticResource ColorSwatchButton}" Background="#4F46E5" Tag="#4F46E5" Click="ColorButton_OnClick" ToolTip="Indigo" />
+                            <Button x:Name="VioletColorButton" Style="{StaticResource ColorSwatchButton}" Background="#8B5CF6" Tag="#8B5CF6" Click="ColorButton_OnClick" ToolTip="Violet" />
+                            <Button x:Name="PinkColorButton" Style="{StaticResource ColorSwatchButton}" Background="#EC4899" Tag="#EC4899" Click="ColorButton_OnClick" ToolTip="Pink" />
+                            <Button x:Name="WhiteColorButton" Style="{StaticResource ColorSwatchButton}" Background="#F8FAFC" Tag="#F8FAFC" Click="ColorButton_OnClick" ToolTip="White" />
+                            <Button x:Name="SlateColorButton" Style="{StaticResource ColorSwatchButton}" Background="#64748B" Tag="#64748B" Click="ColorButton_OnClick" ToolTip="Slate" />
+                            <Button x:Name="InkColorButton" Style="{StaticResource ColorSwatchButton}" Background="#111827" Tag="#111827" Click="ColorButton_OnClick" ToolTip="Ink" />
+                        </WrapPanel>
+                    </Grid>
+
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="220" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="Лінія" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <Slider x:Name="StrokeSlider" Grid.Column="1" Minimum="1" Maximum="32" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
+                        <TextBlock Grid.Column="2" Text="Текст" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,8,0" />
+                        <Slider x:Name="TextSizeSlider" Grid.Column="3" Minimum="12" Maximum="64" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
+                        <Button x:Name="ShapeFillButton"
+                                Grid.Column="4"
+                                Content="◐"
+                                Click="ShapeFillButton_OnClick"
+                                Style="{StaticResource EditorOptionButton}"
+                                ToolTip="Напівпрозора заливка фігур (F)" />
+                    </Grid>
+                </StackPanel>
             </Border>
         </Grid>
 

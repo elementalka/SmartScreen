@@ -124,8 +124,16 @@ public sealed class AppInteractionCoordinator(
 
         if (actions.Contains(AfterCaptureAction.CopyImageToClipboard))
         {
-            await clipboardService.CopyImageAsync(screenshot, cancellationToken);
-            completedActions.Add("буфер");
+            try
+            {
+                await clipboardService.CopyImageAsync(screenshot, cancellationToken);
+                completedActions.Add("буфер");
+            }
+            catch (Exception exception)
+            {
+                loggingService.Error(exception, "Could not copy screenshot to clipboard. Continuing after-capture workflow.");
+                completedActions.Add("буфер недоступний");
+            }
         }
 
         if (actions.Contains(AfterCaptureAction.SaveImageToFile))

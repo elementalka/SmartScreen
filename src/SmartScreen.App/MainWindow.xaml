@@ -265,7 +265,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <Border Width="62"
                                                                 Height="46"
-                                                                Background="#E7EDF7"
+                                                                Background="#1E293B"
                                                                 CornerRadius="8"
                                                                 ClipToBounds="True">
                                                             <Image Source="{Binding PreviewImage}" Stretch="UniformToFill" />
@@ -273,7 +273,7 @@
                                                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                                             <TextBlock Text="{Binding Summary}" Style="{StaticResource MutedText}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                                                            <TextBlock Text="{Binding FileName}" Foreground="#7A8595" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                                                            <TextBlock Text="{Binding FileName}" Foreground="#8EA0B8" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -297,8 +297,8 @@
                                                Style="{StaticResource MutedText}"
                                                TextWrapping="Wrap"
                                                Margin="0,4,0,0" />
-                                    <Border Background="#FFFFF7ED"
-                                            BorderBrush="#FFFED7AA"
+                                    <Border Background="#2CF59E0B"
+                                            BorderBrush="#66F59E0B"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="10"
@@ -344,7 +344,7 @@
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Grid.Column="1"
                                Text="{Binding StorageSummary}"
-                               Foreground="#7A8595"
+                               Foreground="#8EA0B8"
                                VerticalAlignment="Center"
                                Margin="16,0,0,0"
                                TextTrimming="CharacterEllipsis" />

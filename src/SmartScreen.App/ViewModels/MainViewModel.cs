@@ -134,17 +134,50 @@ public sealed class MainViewModel : ObservableObject
 
     private async Task CaptureFullScreenAsync(CancellationToken cancellationToken)
     {
-        await _coordinator.CaptureFullScreenAsync(cancellationToken);
+        await RunCaptureActionAsync(
+            _coordinator.CaptureFullScreenAsync,
+            "Could not capture full screen from main window.",
+            "Не вдалося зробити скріншот всього екрана",
+            cancellationToken);
     }
 
     private async Task CaptureRegionAsync(CancellationToken cancellationToken)
     {
-        await _coordinator.CaptureRegionAsync(cancellationToken);
+        await RunCaptureActionAsync(
+            _coordinator.CaptureRegionAsync,
+            "Could not capture region from main window.",
+            "Не вдалося зробити скріншот області",
+            cancellationToken);
     }
 
     private async Task CaptureActiveWindowAsync(CancellationToken cancellationToken)
     {
-        await _coordinator.CaptureActiveWindowAsync(cancellationToken);
+        await RunCaptureActionAsync(
+            _coordinator.CaptureActiveWindowAsync,
+            "Could not capture active window from main window.",
+            "Не вдалося зробити скріншот активного вікна",
+            cancellationToken);
+    }
+
+    private async Task RunCaptureActionAsync(
+        Func<CancellationToken, Task> action,
+        string logMessage,
+        string userMessage,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await action(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            Status = "Дію скасовано";
+        }
+        catch (Exception exception)
+        {
+            _loggingService.Error(exception, logMessage);
+            Status = $"{userMessage}. Деталі записано в logs/app.log.";
+        }
     }
 
     private void AskAi()
