@@ -23,13 +23,33 @@ public sealed class WpfWindowService(
     ILocalizationService localizationService,
     ILoggingService loggingService) : IWindowService
 {
+    private ScreenshotOverlayWindow? _regionSelectionWindow;
+    private QuickActionsWindow? _quickActionsWindow;
+    private SettingsWindow? _settingsWindow;
+
     public Task<ScreenRegion?> SelectRegionAsync()
     {
+        if (ActivateExistingWindow(_regionSelectionWindow))
+        {
+            return Task.FromResult<ScreenRegion?>(null);
+        }
+
         var overlay = new ScreenshotOverlayWindow();
+        _regionSelectionWindow = overlay;
         AssignVisibleOwner(overlay);
 
-        var result = overlay.ShowDialog();
-        return Task.FromResult(result == true ? overlay.SelectedRegion : null);
+        try
+        {
+            var result = overlay.ShowDialog();
+            return Task.FromResult(result == true ? overlay.SelectedRegion : null);
+        }
+        finally
+        {
+            if (ReferenceEquals(_regionSelectionWindow, overlay))
+            {
+                _regionSelectionWindow = null;
+            }
+        }
     }
 
     public Task ShowQuickActionsAsync(
@@ -39,6 +59,11 @@ public sealed class WpfWindowService(
         string? customPrompt = null,
         bool startAiImmediately = false)
     {
+        if (ActivateExistingWindow(_quickActionsWindow))
+        {
+            return Task.CompletedTask;
+        }
+
         var viewModel = new QuickActionsViewModel(
             screenshot,
             clipboardService,
@@ -54,6 +79,15 @@ public sealed class WpfWindowService(
             startAiImmediately);
 
         var window = new QuickActionsWindow(viewModel);
+        _quickActionsWindow = window;
+        window.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_quickActionsWindow, window))
+            {
+                _quickActionsWindow = null;
+            }
+        };
+
         AssignVisibleOwner(window);
 
         window.Opacity = 0;
@@ -71,6 +105,11 @@ public sealed class WpfWindowService(
 
     public void ShowSettings()
     {
+        if (ActivateExistingWindow(_settingsWindow))
+        {
+            return;
+        }
+
         var viewModel = new SettingsViewModel(
             settingsService,
             hotkeySettingsService,
@@ -82,9 +121,42 @@ public sealed class WpfWindowService(
             localizationService,
             loggingService);
         var window = new SettingsWindow(viewModel);
+        _settingsWindow = window;
+        window.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_settingsWindow, window))
+            {
+                _settingsWindow = null;
+            }
+        };
+
         AssignVisibleOwner(window);
 
         window.ShowDialog();
+    }
+
+    private static bool ActivateExistingWindow(System.Windows.Window? window)
+    {
+        if (window is null)
+        {
+            return false;
+        }
+
+        if (!window.IsVisible)
+        {
+            return false;
+        }
+
+        if (window.WindowState == WindowState.Minimized)
+        {
+            window.WindowState = WindowState.Normal;
+        }
+
+        window.Activate();
+        window.Topmost = true;
+        window.Topmost = false;
+        window.Focus();
+        return true;
     }
 
     private static void AssignVisibleOwner(System.Windows.Window window)

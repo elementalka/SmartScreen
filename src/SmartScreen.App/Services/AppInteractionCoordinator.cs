@@ -13,6 +13,7 @@ public sealed class AppInteractionCoordinator(
     IWindowService windowService,
     ILoggingService loggingService)
 {
+    private readonly SemaphoreSlim _captureGate = new(1, 1);
     private ScreenshotResult? _currentScreenshot;
 
     public event EventHandler<string>? StatusChanged;
@@ -30,6 +31,11 @@ public sealed class AppInteractionCoordinator(
 
     public async Task CaptureRegionAsync(CancellationToken cancellationToken = default)
     {
+        await RunCaptureExclusiveAsync(CaptureRegionCoreAsync, cancellationToken);
+    }
+
+    private async Task CaptureRegionCoreAsync(CancellationToken cancellationToken)
+    {
         SetStatus("Очікую виділення області...");
         var region = await windowService.SelectRegionAsync();
 
@@ -46,29 +52,39 @@ public sealed class AppInteractionCoordinator(
 
     public async Task CaptureDefaultAsync(CancellationToken cancellationToken = default)
     {
+        await RunCaptureExclusiveAsync(CaptureDefaultCoreAsync, cancellationToken);
+    }
+
+    private async Task CaptureDefaultCoreAsync(CancellationToken cancellationToken)
+    {
         var settings = await settingsService.LoadAsync(cancellationToken);
         switch (settings.Screenshots.DefaultMode)
         {
             case ScreenshotMode.FullScreen:
-                await CaptureFullScreenAsync(cancellationToken);
+                await CaptureFullScreenCoreAsync(cancellationToken);
                 break;
             case ScreenshotMode.ActiveWindow:
-                await CaptureActiveWindowAsync(cancellationToken);
+                await CaptureActiveWindowCoreAsync(cancellationToken);
                 break;
             case ScreenshotMode.Monitor:
-                await CaptureMonitorAsync(cancellationToken);
+                await CaptureMonitorCoreAsync(cancellationToken);
                 break;
             case ScreenshotMode.Delayed:
-                await CaptureDelayedAsync(cancellationToken);
+                await CaptureDelayedCoreAsync(cancellationToken);
                 break;
             case ScreenshotMode.Region:
             default:
-                await CaptureRegionAsync(cancellationToken);
+                await CaptureRegionCoreAsync(cancellationToken);
                 break;
         }
     }
 
     public async Task CaptureFullScreenAsync(CancellationToken cancellationToken = default)
+    {
+        await RunCaptureExclusiveAsync(CaptureFullScreenCoreAsync, cancellationToken);
+    }
+
+    private async Task CaptureFullScreenCoreAsync(CancellationToken cancellationToken)
     {
         SetStatus("Створюю скріншот всього екрана...");
         await HandleScreenshotAsync(await screenshotService.CaptureFullScreenAsync(cancellationToken), cancellationToken);
@@ -76,11 +92,21 @@ public sealed class AppInteractionCoordinator(
 
     public async Task CaptureActiveWindowAsync(CancellationToken cancellationToken = default)
     {
+        await RunCaptureExclusiveAsync(CaptureActiveWindowCoreAsync, cancellationToken);
+    }
+
+    private async Task CaptureActiveWindowCoreAsync(CancellationToken cancellationToken)
+    {
         SetStatus("Створюю скріншот активного вікна...");
         await HandleScreenshotAsync(await screenshotService.CaptureActiveWindowAsync(cancellationToken), cancellationToken);
     }
 
     public async Task CaptureMonitorAsync(CancellationToken cancellationToken = default)
+    {
+        await RunCaptureExclusiveAsync(CaptureMonitorCoreAsync, cancellationToken);
+    }
+
+    private async Task CaptureMonitorCoreAsync(CancellationToken cancellationToken)
     {
         var settings = await settingsService.LoadAsync(cancellationToken);
         SetStatus($"Створюю скріншот монітора #{settings.Screenshots.MonitorIndex + 1}...");
@@ -91,11 +117,36 @@ public sealed class AppInteractionCoordinator(
 
     public async Task CaptureDelayedAsync(CancellationToken cancellationToken = default)
     {
+        await RunCaptureExclusiveAsync(CaptureDelayedCoreAsync, cancellationToken);
+    }
+
+    private async Task CaptureDelayedCoreAsync(CancellationToken cancellationToken)
+    {
         var settings = await settingsService.LoadAsync(cancellationToken);
         var delaySeconds = Math.Clamp(settings.Screenshots.DelaySeconds, 1, 60);
         SetStatus($"Скріншот через {delaySeconds} сек...");
         await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
         await HandleScreenshotAsync(await screenshotService.CaptureFullScreenAsync(cancellationToken), cancellationToken);
+    }
+
+    private async Task RunCaptureExclusiveAsync(
+        Func<CancellationToken, Task> captureAction,
+        CancellationToken cancellationToken)
+    {
+        if (!await _captureGate.WaitAsync(0, cancellationToken))
+        {
+            SetStatus("Сценарій скріншота вже виконується");
+            return;
+        }
+
+        try
+        {
+            await captureAction(cancellationToken);
+        }
+        finally
+        {
+            _captureGate.Release();
+        }
     }
 
     public void AskAiForCurrentScreenshot(string? promptTemplateId = null)

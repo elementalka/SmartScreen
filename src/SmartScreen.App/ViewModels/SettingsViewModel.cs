@@ -60,17 +60,18 @@ public sealed class SettingsViewModel : ObservableObject
 
         Sections =
         [
-            new("general", "Загальні", "запуск, portable, папки"),
-            new("screenshots", "Скріншоти", "формат, файл, pipeline"),
-            new("editor", "Редактор", "колір, товщина, текст"),
-            new("ai", "AI-провайдери", "маршрути, ключі, моделі"),
-            new("prompts", "Prompt-шаблони", "дії для AI-аналізу"),
-            new("hotkeys", "Гарячі клавіші", "глобальні комбінації"),
-            new("interface", "Інтерфейс", "тема та акцент"),
-            new("languages", "Мови", "локалізація UI"),
-            new("security", "Безпека", "приватність і секрети"),
-            new("logs", "Логи", "діагностика і конфіги")
+            new("general"),
+            new("screenshots"),
+            new("editor"),
+            new("ai"),
+            new("prompts"),
+            new("hotkeys"),
+            new("interface"),
+            new("languages"),
+            new("security"),
+            new("logs")
         ];
+        RefreshSectionTexts();
 
         ScreenshotModeOptions =
         [
@@ -405,6 +406,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         await _settingsService.SaveAsync(Settings, cancellationToken);
         await LocalizationResourceService.ApplyAsync(_localizationService, Settings.Language, cancellationToken);
+        RefreshSectionTexts();
         ThemeResourceService.Apply(Settings.Theme);
         await _hotkeySettingsService.SaveAsync(hotkeySettings, cancellationToken);
         await _hotkeyService.RegisterAsync(hotkeySettings, cancellationToken);
@@ -772,6 +774,38 @@ public sealed class SettingsViewModel : ObservableObject
     private Visibility SectionVisibility(string sectionKey) =>
         SelectedSection?.Key == sectionKey ? Visibility.Visible : Visibility.Collapsed;
 
+    private void RefreshSectionTexts()
+    {
+        SetSectionText("general", "Загальні", "запуск, portable, папки");
+        SetSectionText("screenshots", "Скріншоти", "формат, файл, pipeline");
+        SetSectionText("editor", "Редактор", "колір, товщина, текст");
+        SetSectionText("ai", "AI-провайдери", "маршрути, ключі, моделі");
+        SetSectionText("prompts", "Prompt-шаблони", "дії для AI-аналізу");
+        SetSectionText("hotkeys", "Гарячі клавіші", "глобальні комбінації");
+        SetSectionText("interface", "Інтерфейс", "тема та акцент");
+        SetSectionText("languages", "Мови", "локалізація UI");
+        SetSectionText("security", "Безпека", "приватність і секрети");
+        SetSectionText("logs", "Логи", "діагностика і конфіги");
+    }
+
+    private void SetSectionText(string key, string fallbackTitle, string fallbackDescription)
+    {
+        var section = Sections.FirstOrDefault(item => item.Key == key);
+        if (section is null)
+        {
+            return;
+        }
+
+        section.Title = Localize($"settings.section.{key}.title", fallbackTitle);
+        section.Description = Localize($"settings.section.{key}.description", fallbackDescription);
+    }
+
+    private string Localize(string key, string fallback)
+    {
+        var value = _localizationService.GetString(key);
+        return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
+    }
+
     private void NotifySectionVisibilityChanged()
     {
         OnPropertyChanged(nameof(GeneralSectionVisibility));
@@ -801,11 +835,24 @@ public sealed class SettingsViewModel : ObservableObject
     }
 }
 
-public sealed class SettingsSectionViewModel(string key, string title, string description)
+public sealed class SettingsSectionViewModel(string key) : ObservableObject
 {
+    private string _title = key;
+    private string _description = string.Empty;
+
     public string Key { get; } = key;
-    public string Title { get; } = title;
-    public string Description { get; } = description;
+
+    public string Title
+    {
+        get => _title;
+        set => SetProperty(ref _title, value);
+    }
+
+    public string Description
+    {
+        get => _description;
+        set => SetProperty(ref _description, value);
+    }
 }
 
 public sealed class HotkeyBindingViewModel : ObservableObject
