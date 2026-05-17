@@ -26,7 +26,7 @@
 
         <Border x:Name="ActionPanel"
                 Style="{StaticResource FloatingPanelBorder}"
-                MaxWidth="720"
+                MaxWidth="680"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Margin="18"
@@ -52,37 +52,37 @@
                                TextTrimming="CharacterEllipsis" />
 
                     <UniformGrid Columns="6" Margin="0,12,0,0">
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding SaveCommand}" ToolTip="Зберегти файл">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding SaveCommand}" AutomationProperties.Name="Зберегти файл" ToolTip="Зберегти файл">
                             <StackPanel>
                                 <TextBlock Text="&#xE74E;" Style="{StaticResource ActionIconText}" />
                                 <TextBlock Text="Файл" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding CopyCommand}" ToolTip="Скопіювати в буфер">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding CopyCommand}" AutomationProperties.Name="Копіювати в буфер" ToolTip="Скопіювати в буфер">
                             <StackPanel>
                                 <TextBlock Text="&#xE8C8;" Style="{StaticResource ActionIconText}" />
                                 <TextBlock Text="Буфер" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Click="EditOverlayButton_OnClick" ToolTip="Редагувати скріншот">
+                        <Button Style="{StaticResource FloatingActionButton}" Click="EditOverlayButton_OnClick" AutomationProperties.Name="Редагувати скріншот" ToolTip="Редагувати скріншот">
                             <StackPanel>
                                 <TextBlock Text="&#xE70F;" Style="{StaticResource ActionIconText}" />
                                 <TextBlock Text="Редаг." Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AskAiCommand}" ToolTip="Відкрити AI-панель">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="Запитати AI" ToolTip="Відкрити AI-панель">
                             <StackPanel>
                                 <TextBlock Text="AI" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4" />
                                 <TextBlock Text="Запит" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding OpenFolderCommand}" ToolTip="Відкрити папку скріншотів">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding OpenFolderCommand}" AutomationProperties.Name="Відкрити папку" ToolTip="Відкрити папку скріншотів">
                             <StackPanel>
                                 <TextBlock Text="&#xE8B7;" Style="{StaticResource ActionIconText}" />
                                 <TextBlock Text="Папка" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Click="CloseButton_OnClick" ToolTip="Закрити overlay">
+                        <Button Style="{StaticResource FloatingActionButton}" Click="CloseButton_OnClick" AutomationProperties.Name="Закрити overlay" ToolTip="Закрити overlay">
                             <StackPanel>
                                 <TextBlock Text="&#xE711;" Style="{StaticResource ActionIconText}" />
                                 <TextBlock Text="Закр." Style="{StaticResource ActionCaptionText}" />
@@ -167,13 +167,12 @@
             </Border>
         </Grid>
 
-        <Border Style="{StaticResource FloatingPanelBorder}"
+        <Border Style="{StaticResource AiPanelBorder}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
-                Width="420"
+                Width="460"
                 MaxHeight="720"
                 Margin="24"
-                Opacity="0.96"
                 Visibility="{Binding AiPanelVisibility}">
             <Grid>
                 <Grid.RowDefinitions>
@@ -183,13 +182,29 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <DockPanel>
-                    <StackPanel>
-                        <TextBlock Text="AI" Style="{StaticResource SectionTitleText}" />
-                        <TextBlock Text="{Binding AiStatus}" Style="{StaticResource MutedText}" FontSize="12" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38"
+                            Height="38"
+                            CornerRadius="8"
+                            Background="{StaticResource AccentBrush}"
+                            Margin="0,0,12,0">
+                        <TextBlock Text="AI"
+                                   Foreground="White"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="AI-панель" Style="{StaticResource SectionTitleText}" />
+                        <TextBlock Text="{Binding AiStatus}" Style="{StaticResource MutedText}" FontSize="12" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                    <Button DockPanel.Dock="Right" Style="{StaticResource CloseGlyphButton}" Content="&#xE711;" Command="{Binding CloseAiPanelCommand}" ToolTip="Закрити AI-панель" />
-                </DockPanel>
+                    <Button Grid.Column="2" Style="{StaticResource CloseGlyphButton}" Content="&#xE711;" Command="{Binding CloseAiPanelCommand}" ToolTip="Закрити AI-панель" />
+                </Grid>
 
                 <StackPanel Grid.Row="1" Margin="0,14,0,12">
                     <TextBlock Text="AI-дія" Style="{StaticResource FieldLabel}" />
@@ -208,6 +223,7 @@
 
                 <TextBox Grid.Row="2"
                          Text="{Binding AiResponseText, Mode=OneWay}"
+                         Style="{StaticResource ModernResponseTextBox}"
                          IsReadOnly="True"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
@@ -215,25 +231,25 @@
                          MinHeight="180" />
 
                 <UniformGrid Grid.Row="3" Columns="4" Margin="0,12,0,0">
-                    <Button Command="{Binding RunAiCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Надіслати запит">
+                    <Button Command="{Binding RunAiCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Надіслати AI-запит" ToolTip="Надіслати запит">
                         <StackPanel>
                             <TextBlock Text="&#xE768;" Style="{StaticResource ActionIconText}" />
                             <TextBlock Text="Запит" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding CancelAiCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Скасувати запит">
+                    <Button Command="{Binding CancelAiCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Скасувати AI-запит" ToolTip="Скасувати запит">
                         <StackPanel>
                             <TextBlock Text="&#xE71A;" Style="{StaticResource ActionIconText}" />
                             <TextBlock Text="Стоп" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding CopyAiResponseCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Скопіювати відповідь">
+                    <Button Command="{Binding CopyAiResponseCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Копіювати AI-відповідь" ToolTip="Скопіювати відповідь">
                         <StackPanel>
                             <TextBlock Text="&#xE8C8;" Style="{StaticResource ActionIconText}" />
                             <TextBlock Text="Копія" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding SaveAiResponseCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Зберегти відповідь у файл">
+                    <Button Command="{Binding SaveAiResponseCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Зберегти AI-відповідь" ToolTip="Зберегти відповідь у файл">
                         <StackPanel>
                             <TextBlock Text="&#xE74E;" Style="{StaticResource ActionIconText}" />
                             <TextBlock Text="Файл" Style="{StaticResource ActionCaptionText}" />

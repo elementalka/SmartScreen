@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Налаштування SmartScreen"
-        Width="1120"
-        Height="760"
-        MinWidth="980"
-        MinHeight="680"
+        Width="1080"
+        Height="740"
+        MinWidth="920"
+        MinHeight="640"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource GlassWindowBackgroundBrush}">
     <Window.Resources>
@@ -23,7 +23,7 @@
                                 BorderBrush="Transparent"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                Padding="12">
+                                Padding="11">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -42,32 +42,39 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="22">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <DockPanel>
-            <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="0,0,18,0">
                 <TextBlock Text="Налаштування" Style="{StaticResource TitleText}" />
                 <TextBlock Text="Керування скріншотами, AI-маршрутами, prompt-шаблонами та глобальними клавішами"
-                           Style="{StaticResource MutedText}" />
+                           Style="{StaticResource MutedText}"
+                           TextWrapping="Wrap" />
             </StackPanel>
-            <Button DockPanel.Dock="Right"
+            <Button Grid.Column="1"
                     Content="Зберегти"
                     Command="{Binding SaveCommand}"
-                    Style="{StaticResource PrimarySmallButton}" />
-        </DockPanel>
+                    Style="{StaticResource PrimarySmallButton}"
+                    Width="148"
+                    VerticalAlignment="Top" />
+        </Grid>
 
-        <Grid Grid.Row="1" Margin="0,22,0,18">
+        <Grid Grid.Row="1" Margin="0,20,0,16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="270" />
+                <ColumnDefinition Width="248" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Border Style="{StaticResource PanelBorder}" Margin="0,0,18,0">
+            <Border Style="{StaticResource PanelBorder}" Margin="0,0,16,0">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
                         <TextBlock Text="Розділи" Style="{StaticResource SectionTitleText}" />
@@ -90,6 +97,7 @@
                                     <TextBlock Text="{Binding Description}"
                                                Style="{StaticResource MutedText}"
                                                FontSize="12"
+                                               TextWrapping="Wrap"
                                                Margin="0,3,0,0" />
                                 </StackPanel>
                             </DataTemplate>
@@ -112,7 +120,7 @@
                                            TextWrapping="Wrap" />
 
                                 <UniformGrid Columns="2">
-                                    <Border Style="{StaticResource MetricPanel}" Margin="0,0,10,0">
+                                    <Border Style="{StaticResource MetricPanel}" Margin="0,0,8,0">
                                         <StackPanel>
                                             <CheckBox Content="Запускати згорнуто в трей"
                                                       IsChecked="{Binding Settings.StartMinimizedToTray}" />
@@ -124,7 +132,7 @@
                                                       Margin="0,12,0,0" />
                                         </StackPanel>
                                     </Border>
-                                    <Border Style="{StaticResource MetricPanel}" Margin="10,0,0,0">
+                                    <Border Style="{StaticResource MetricPanel}" Margin="8,0,0,0">
                                         <StackPanel>
                                             <TextBlock Text="Portable storage" Style="{StaticResource FieldLabel}" />
                                             <TextBlock Text="{Binding ConfigDirectory}"
@@ -271,11 +279,11 @@
                     <StackPanel Visibility="{Binding AiSectionVisibility}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="300" />
+                                <ColumnDefinition Width="280" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,18,0">
+                            <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,16,0">
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
                                         <TextBlock Text="AI-провайдери" Style="{StaticResource SectionTitleText}" />
@@ -324,7 +332,7 @@
                                     <Grid Margin="0,22,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="220" />
+                                            <ColumnDefinition Width="176" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
                                             <TextBlock Text="Endpoint" Style="{StaticResource FieldLabel}" />
@@ -382,11 +390,11 @@
                     <StackPanel Visibility="{Binding PromptsSectionVisibility}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="310" />
+                                <ColumnDefinition Width="288" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,18,0">
+                            <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,16,0">
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
                                         <TextBlock Text="Prompt-шаблони" Style="{StaticResource SectionTitleText}" />
@@ -524,8 +532,8 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="34" />
                                                         <ColumnDefinition Width="1.2*" />
-                                                        <ColumnDefinition Width="220" />
-                                                        <ColumnDefinition Width="260" />
+                                                        <ColumnDefinition Width="178" />
+                                                        <ColumnDefinition Width="210" />
                                                     </Grid.ColumnDefinitions>
 
                                                     <CheckBox IsChecked="{Binding IsEnabled}"
@@ -704,15 +712,21 @@
             </ScrollViewer>
         </Grid>
 
-        <DockPanel Grid.Row="2">
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <TextBlock Text="{Binding ConfigDirectory, StringFormat=Config: {0}}"
                        Style="{StaticResource MutedText}"
                        VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
-            <TextBlock DockPanel.Dock="Right"
+            <TextBlock Grid.Column="1"
                        Text="{Binding Status}"
                        Style="{StaticResource MutedText}"
-                       VerticalAlignment="Center" />
-        </DockPanel>
+                       VerticalAlignment="Center"
+                       Margin="18,0,0,0"
+                       TextTrimming="CharacterEllipsis" />
+        </Grid>
     </Grid>
 </Window>

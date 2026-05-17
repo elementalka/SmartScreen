@@ -132,15 +132,22 @@ public partial class App : System.Windows.Application
         hotkeyService.HotkeyPressed += (_, args) => coordinator.HandleHotkey(args.Action, args.PromptTemplateId);
         await hotkeyService.RegisterAsync(hotkeySettings);
 
+        var commandLineArgs = string.Join(' ', e.Args);
+        var openSettingsOnStartup = commandLineArgs.Contains("--settings", StringComparison.OrdinalIgnoreCase);
         if (settings.StartMinimizedToTray &&
             !firstRunShown &&
-            !e.Args.Contains("--show", StringComparer.OrdinalIgnoreCase))
+            !commandLineArgs.Contains("--show", StringComparison.OrdinalIgnoreCase) &&
+            !openSettingsOnStartup)
         {
             trayService.ShowReadyNotification();
             return;
         }
 
         ShowMainWindow(mainWindow);
+        if (openSettingsOnStartup)
+        {
+            coordinator.ShowSettings();
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
