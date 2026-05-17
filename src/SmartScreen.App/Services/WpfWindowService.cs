@@ -41,6 +41,7 @@ public sealed class WpfWindowService(
             storageService,
             this,
             promptTemplateService,
+            aiService,
             loggingService);
 
         var window = new QuickActionsWindow(viewModel);
@@ -49,7 +50,11 @@ public sealed class WpfWindowService(
         window.Opacity = 0;
         window.Show();
         window.UpdateLayout();
-        PositionNearCursor(window);
+        if (window.WindowState != WindowState.Maximized)
+        {
+            PositionNearCursor(window);
+        }
+
         window.Opacity = 1;
         window.Activate();
         return Task.CompletedTask;
