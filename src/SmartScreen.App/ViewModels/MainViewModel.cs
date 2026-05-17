@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App.Commands;
 using SmartScreen.App.Services;
@@ -55,7 +57,7 @@ public sealed class MainViewModel : ObservableObject
             }
         };
 
-        _ = LoadSettingsSummaryAsync();
+        _ = InitializeDashboardAsync();
     }
 
     public ObservableCollection<CaptureHistoryItemViewModel> RecentCaptures { get; } = [];
@@ -211,6 +213,12 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
+    private async Task InitializeDashboardAsync()
+    {
+        await LoadSettingsSummaryAsync();
+        await LoadRecentSavedCapturesAsync();
+    }
+
     private void AddRecentCapture(ScreenshotResult screenshot)
     {
         var item = new CaptureHistoryItemViewModel(screenshot);
@@ -226,6 +234,106 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(HistoryListVisibility));
         OnPropertyChanged(nameof(EmptyHistoryVisibility));
     }
+
+    private async Task LoadRecentSavedCapturesAsync()
+    {
+        try
+        {
+            if (RecentCaptures.Count > 0)
+            {
+                return;
+            }
+
+            var settings = await _settingsService.LoadAsync();
+            var directory = _storageService.ResolveWritableScreenshotsDirectory(settings.Screenshots.SaveDirectory);
+            if (!Directory.Exists(directory))
+            {
+                return;
+            }
+
+            var files = Directory
+                .EnumerateFiles(directory)
+                .Where(IsSupportedImageFile)
+                .Select(path => new FileInfo(path))
+                .OrderByDescending(file => file.LastWriteTimeUtc)
+                .Take(MaxRecentCaptures)
+                .ToList();
+
+            foreach (var file in files)
+            {
+                var screenshot = await TryCreateScreenshotFromFileSafelyAsync(file);
+                if (screenshot is null)
+                {
+                    continue;
+                }
+
+                RecentCaptures.Add(new CaptureHistoryItemViewModel(screenshot));
+            }
+
+            SelectedCapture = RecentCaptures.FirstOrDefault();
+            OnPropertyChanged(nameof(HasRecentCaptures));
+            OnPropertyChanged(nameof(HistoryListVisibility));
+            OnPropertyChanged(nameof(EmptyHistoryVisibility));
+        }
+        catch (Exception exception)
+        {
+            _loggingService.Error(exception, "Could not load recent saved screenshots.");
+        }
+    }
+
+    private async Task<ScreenshotResult?> TryCreateScreenshotFromFileSafelyAsync(FileInfo file)
+    {
+        try
+        {
+            return await TryCreateScreenshotFromFileAsync(file);
+        }
+        catch (Exception exception)
+        {
+            _loggingService.Error(exception, $"Could not load screenshot history item: {file.Name}");
+            return null;
+        }
+    }
+
+    private static async Task<ScreenshotResult?> TryCreateScreenshotFromFileAsync(FileInfo file)
+    {
+        if (!file.Exists)
+        {
+            return null;
+        }
+
+        var bytes = await File.ReadAllBytesAsync(file.FullName);
+        using var stream = new MemoryStream(bytes, writable: false);
+        var decoder = BitmapDecoder.Create(
+            stream,
+            BitmapCreateOptions.PreservePixelFormat,
+            BitmapCacheOption.OnLoad);
+        var frame = decoder.Frames[0];
+
+        return new ScreenshotResult
+        {
+            ImageBytes = bytes,
+            MimeType = GetMimeType(file.Extension),
+            Width = frame.PixelWidth,
+            Height = frame.PixelHeight,
+            CreatedAt = new DateTimeOffset(file.LastWriteTime),
+            SuggestedFileName = file.Name,
+            SourceName = "Збережений скріншот"
+        };
+    }
+
+    private static bool IsSupportedImageFile(string path)
+    {
+        var extension = Path.GetExtension(path);
+        return extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+               extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+               extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetMimeType(string extension) =>
+        extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+        extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase)
+            ? "image/jpeg"
+            : "image/png";
 
     private async Task LoadSettingsSummaryAsync()
     {
