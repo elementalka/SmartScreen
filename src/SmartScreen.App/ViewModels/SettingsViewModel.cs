@@ -102,6 +102,34 @@ public sealed class SettingsViewModel : ObservableObject
         TestAiCommand = new AsyncRelayCommand(TestAiAsync);
         RestoreDefaultHotkeysCommand = new RelayCommand(RestoreDefaultHotkeys);
         ValidateHotkeysCommand = new RelayCommand(ValidateHotkeys);
+        ApplyQuickCopyWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
+            copy: true,
+            save: false,
+            quickActions: false,
+            openEditor: false,
+            askAi: false,
+            status: "Сценарій: копіювати скріншот у буфер"));
+        ApplyEditWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
+            copy: false,
+            save: true,
+            quickActions: true,
+            openEditor: true,
+            askAi: false,
+            status: "Сценарій: відкрити редактор після скріншоту"));
+        ApplyAiWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
+            copy: false,
+            save: true,
+            quickActions: true,
+            openEditor: false,
+            askAi: true,
+            status: "Сценарій: зберегти та запитати AI"));
+        ApplySilentSaveWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
+            copy: false,
+            save: true,
+            quickActions: false,
+            openEditor: false,
+            askAi: false,
+            status: "Сценарій: тихе збереження у файл"));
         AddPromptCommand = new RelayCommand(AddPrompt);
         DeletePromptCommand = new RelayCommand(DeletePrompt, () => SelectedPromptTemplate is not null);
         ResetPromptsCommand = new AsyncRelayCommand(ResetPromptsAsync);
@@ -249,6 +277,10 @@ public sealed class SettingsViewModel : ObservableObject
     public ICommand TestAiCommand { get; }
     public ICommand RestoreDefaultHotkeysCommand { get; }
     public ICommand ValidateHotkeysCommand { get; }
+    public ICommand ApplyQuickCopyWorkflowCommand { get; }
+    public ICommand ApplyEditWorkflowCommand { get; }
+    public ICommand ApplyAiWorkflowCommand { get; }
+    public ICommand ApplySilentSaveWorkflowCommand { get; }
     public ICommand AddPromptCommand { get; }
     public ICommand DeletePromptCommand { get; }
     public ICommand ResetPromptsCommand { get; }
@@ -518,6 +550,22 @@ public sealed class SettingsViewModel : ObservableObject
         QuickActionsAfterCapture = actions.Contains(AfterCaptureAction.ShowQuickActions);
         OpenEditorAfterCapture = actions.Contains(AfterCaptureAction.OpenEditor);
         AskAiAfterCapture = actions.Contains(AfterCaptureAction.AskAi);
+    }
+
+    private void ApplyWorkflowPreset(
+        bool copy,
+        bool save,
+        bool quickActions,
+        bool openEditor,
+        bool askAi,
+        string status)
+    {
+        CopyAfterCapture = copy;
+        SaveAfterCapture = save;
+        QuickActionsAfterCapture = quickActions;
+        OpenEditorAfterCapture = openEditor;
+        AskAiAfterCapture = askAi;
+        Status = $"{status}. Натисни «Зберегти», щоб застосувати";
     }
 
     private void ApplyWorkflowToSettings(ScreenshotSettings screenshots)

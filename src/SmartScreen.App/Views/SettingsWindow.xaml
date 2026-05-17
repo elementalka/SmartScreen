@@ -213,6 +213,44 @@
                                 <Border Style="{StaticResource MetricPanel}" Margin="0,18,0,0">
                                     <StackPanel>
                                         <TextBlock Text="Pipeline після скріншоту" Style="{StaticResource FieldLabel}" />
+                                        <WrapPanel Margin="0,0,0,12">
+                                            <Button Command="{Binding ApplyQuickCopyWorkflowCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    MinWidth="122"
+                                                    Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" />
+                                                    <TextBlock Text="Копія" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Command="{Binding ApplyEditWorkflowCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    MinWidth="132"
+                                                    Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" />
+                                                    <TextBlock Text="Редактор" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Command="{Binding ApplyAiWorkflowCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    MinWidth="116"
+                                                    Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="AI" FontWeight="Bold" Margin="0,0,7,0" />
+                                                    <TextBlock Text="Запит" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Command="{Binding ApplySilentSaveWorkflowCommand}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    MinWidth="152"
+                                                    Margin="0,0,0,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" />
+                                                    <TextBlock Text="Тихий файл" />
+                                                </StackPanel>
+                                            </Button>
+                                        </WrapPanel>
                                         <UniformGrid Columns="3">
                                             <CheckBox Content="Буфер обміну"
                                                       IsChecked="{Binding CopyAfterCapture}"

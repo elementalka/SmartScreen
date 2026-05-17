@@ -370,6 +370,7 @@
         <Setter Property="MinHeight" Value="38" />
         <Setter Property="Padding" Value="8,5" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="Background" Value="#B818263A" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
     </Style>
