@@ -71,17 +71,17 @@
     </Style>
 
     <Style x:Key="FloatingPanelBorder" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
-        <Setter Property="BorderBrush" Value="#CAD3E2" />
+        <Setter Property="Background" Value="#FDFEFF" />
+        <Setter Property="BorderBrush" Value="#C7D1E0" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="14" />
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="24"
-                                  ShadowDepth="8"
+                <DropShadowEffect BlurRadius="22"
+                                  ShadowDepth="6"
                                   Direction="270"
-                                  Opacity="0.18"
+                                  Opacity="0.16"
                                   Color="#1E2430" />
             </Setter.Value>
         </Setter>
@@ -172,11 +172,27 @@
     </Style>
 
     <Style x:Key="FloatingActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Margin" Value="0,0,8,0" />
-        <Setter Property="MinHeight" Value="36" />
-        <Setter Property="Padding" Value="10,7" />
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="MinWidth" Value="76" />
+        <Setter Property="MinHeight" Value="54" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Background" Value="#F7F9FC" />
+    </Style>
+
+    <Style x:Key="ActionIconText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
+    <Style x:Key="ActionCaptionText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
 
     <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -222,11 +238,12 @@
         </Setter>
     </Style>
 
-    <Style x:Key="CloseGlyphButton" TargetType="Button">
+    <Style x:Key="CloseGlyphButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Width" Value="32" />
         <Setter Property="Height" Value="32" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+        <Setter Property="FontSize" Value="13" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Background" Value="Transparent" />
@@ -269,10 +286,22 @@
     </Style>
 
     <Style x:Key="EditorToolButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="MinWidth" Value="64" />
+        <Setter Property="MinWidth" Value="38" />
         <Setter Property="MinHeight" Value="34" />
         <Setter Property="Margin" Value="0,0,6,0" />
-        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Background" Value="#F7F9FC" />
+    </Style>
+
+    <Style x:Key="ColorSwatchButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="28" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,7,0" />
+        <Setter Property="BorderBrush" Value="#C7D1E0" />
+        <Setter Property="BorderThickness" Value="2" />
     </Style>
 </ResourceDictionary>

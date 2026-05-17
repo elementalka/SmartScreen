@@ -26,7 +26,7 @@
 
         <Border x:Name="ActionPanel"
                 Style="{StaticResource FloatingPanelBorder}"
-                MaxWidth="920"
+                MaxWidth="720"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Margin="18"
@@ -38,22 +38,62 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="Скріншот готовий" FontWeight="SemiBold" FontSize="16" />
-                    <TextBlock Text="{Binding Status}" Style="{StaticResource MutedText}" FontSize="12" />
+                    <DockPanel LastChildFill="False">
+                        <TextBlock Text="Скріншот готовий" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="{Binding ScreenshotInfo}"
+                                   Style="{StaticResource MutedText}"
+                                   FontSize="12"
+                                   Margin="14,0,0,0" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding Status}"
+                               Style="{StaticResource MutedText}"
+                               FontSize="12"
+                               TextTrimming="CharacterEllipsis" />
 
-                    <UniformGrid Columns="6" Margin="0,14,0,0">
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding SaveCommand}" Content="Файл" />
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding CopyCommand}" Content="Буфер" />
-                        <Button Style="{StaticResource FloatingActionButton}" Click="EditOverlayButton_OnClick" Content="Редаг." />
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AskAiCommand}" Content="AI" />
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding OpenFolderCommand}" Content="Папка" />
-                        <Button Style="{StaticResource FloatingActionButton}" Click="CloseButton_OnClick" Content="Закр." />
+                    <UniformGrid Columns="6" Margin="0,12,0,0">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding SaveCommand}" ToolTip="Зберегти файл">
+                            <StackPanel>
+                                <TextBlock Text="&#xE74E;" Style="{StaticResource ActionIconText}" />
+                                <TextBlock Text="Файл" Style="{StaticResource ActionCaptionText}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding CopyCommand}" ToolTip="Скопіювати в буфер">
+                            <StackPanel>
+                                <TextBlock Text="&#xE8C8;" Style="{StaticResource ActionIconText}" />
+                                <TextBlock Text="Буфер" Style="{StaticResource ActionCaptionText}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource FloatingActionButton}" Click="EditOverlayButton_OnClick" ToolTip="Редагувати скріншот">
+                            <StackPanel>
+                                <TextBlock Text="&#xE70F;" Style="{StaticResource ActionIconText}" />
+                                <TextBlock Text="Редаг." Style="{StaticResource ActionCaptionText}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AskAiCommand}" ToolTip="Відкрити AI-панель">
+                            <StackPanel>
+                                <TextBlock Text="AI" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                                <TextBlock Text="Запит" Style="{StaticResource ActionCaptionText}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding OpenFolderCommand}" ToolTip="Відкрити папку скріншотів">
+                            <StackPanel>
+                                <TextBlock Text="&#xE8B7;" Style="{StaticResource ActionIconText}" />
+                                <TextBlock Text="Папка" Style="{StaticResource ActionCaptionText}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource FloatingActionButton}" Click="CloseButton_OnClick" ToolTip="Закрити overlay">
+                            <StackPanel>
+                                <TextBlock Text="&#xE711;" Style="{StaticResource ActionIconText}" />
+                                <TextBlock Text="Закр." Style="{StaticResource ActionCaptionText}" />
+                            </StackPanel>
+                        </Button>
                     </UniformGrid>
                 </StackPanel>
 
                 <Button Grid.Column="1"
                         Style="{StaticResource CloseGlyphButton}"
-                        Content="×"
+                        Content="&#xE711;"
                         Click="CloseButton_OnClick"
                         ToolTip="Закрити" />
             </Grid>
@@ -78,20 +118,20 @@
 
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,12,0,0">
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Pen" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="P" />
-                        <Button Content="Mark" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="M" />
-                        <Button Content="Line" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="L" />
-                        <Button Content="Arrow" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="A" />
-                        <Button Content="Rect" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="R" />
-                        <Button Content="Oval" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="E" />
-                        <Button Content="Text" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="T" />
-                        <Button Content="Crop" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="C" />
-                        <Button Content="Blur" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="B" />
-                        <Button Content="Pixel" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="X" />
+                        <Button x:Name="PenToolButton" Content="✎" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Олівець (P)" />
+                        <Button x:Name="HighlighterToolButton" Content="▰" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Маркер (M)" />
+                        <Button x:Name="LineToolButton" Content="╱" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Лінія (L)" />
+                        <Button x:Name="ArrowToolButton" Content="→" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Стрілка (A)" />
+                        <Button x:Name="RectangleToolButton" Content="□" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Прямокутник (R)" />
+                        <Button x:Name="EllipseToolButton" Content="○" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Еліпс (E)" />
+                        <Button x:Name="TextToolButton" Content="T" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Текст (T)" />
+                        <Button x:Name="CropToolButton" Content="⌗" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Обрізання (C)" />
+                        <Button x:Name="BlurToolButton" Content="◌" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Розмиття (B)" />
+                        <Button x:Name="PixelateToolButton" Content="▦" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Пікселізація (X)" />
                         <Separator Margin="8,0" />
-                        <Button Content="Undo" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Ctrl+Z" />
-                        <Button Content="Redo" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Ctrl+Y" />
-                        <Button Content="Clear" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" />
+                        <Button Content="↶" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Скасувати (Ctrl+Z)" />
+                        <Button Content="↷" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Повторити (Ctrl+Y)" />
+                        <Button Content="⌫" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Очистити позначки" />
                     </StackPanel>
                 </ScrollViewer>
 
@@ -106,17 +146,17 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Width="26" Height="26" Background="#E53935" Tag="#E53935" Click="ColorButton_OnClick" Margin="0,0,6,0" />
-                        <Button Width="26" Height="26" Background="#2563EB" Tag="#2563EB" Click="ColorButton_OnClick" Margin="0,0,6,0" />
-                        <Button Width="26" Height="26" Background="#14966D" Tag="#14966D" Click="ColorButton_OnClick" Margin="0,0,6,0" />
-                        <Button Width="26" Height="26" Background="#F59E0B" Tag="#F59E0B" Click="ColorButton_OnClick" Margin="0,0,6,0" />
-                        <Button Width="26" Height="26" Background="#111827" Tag="#111827" Click="ColorButton_OnClick" />
+                        <Button x:Name="RedColorButton" Style="{StaticResource ColorSwatchButton}" Background="#E53935" Tag="#E53935" Click="ColorButton_OnClick" ToolTip="Червоний" />
+                        <Button x:Name="BlueColorButton" Style="{StaticResource ColorSwatchButton}" Background="#2563EB" Tag="#2563EB" Click="ColorButton_OnClick" ToolTip="Синій" />
+                        <Button x:Name="GreenColorButton" Style="{StaticResource ColorSwatchButton}" Background="#14966D" Tag="#14966D" Click="ColorButton_OnClick" ToolTip="Зелений" />
+                        <Button x:Name="AmberColorButton" Style="{StaticResource ColorSwatchButton}" Background="#F59E0B" Tag="#F59E0B" Click="ColorButton_OnClick" ToolTip="Жовтий" />
+                        <Button x:Name="InkColorButton" Style="{StaticResource ColorSwatchButton}" Background="#111827" Tag="#111827" Click="ColorButton_OnClick" ToolTip="Темний" />
                     </StackPanel>
 
                     <TextBlock Grid.Column="2" Text="Лінія" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" Margin="16,0,8,0" />
-                    <Slider x:Name="StrokeSlider" Grid.Column="3" Minimum="1" Maximum="28" Value="4" VerticalAlignment="Center" />
+                    <Slider x:Name="StrokeSlider" Grid.Column="3" Minimum="1" Maximum="28" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
                     <TextBlock Grid.Column="4" Text="Текст" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" Margin="16,0,8,0" />
-                    <Slider x:Name="TextSizeSlider" Grid.Column="5" Minimum="14" Maximum="48" Value="24" VerticalAlignment="Center" />
+                    <Slider x:Name="TextSizeSlider" Grid.Column="5" Minimum="14" Maximum="48" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
                 </Grid>
             </StackPanel>
         </Border>
@@ -142,7 +182,7 @@
                         <TextBlock Text="AI" Style="{StaticResource SectionTitleText}" />
                         <TextBlock Text="{Binding AiStatus}" Style="{StaticResource MutedText}" FontSize="12" />
                     </StackPanel>
-                    <Button DockPanel.Dock="Right" Style="{StaticResource CloseGlyphButton}" Content="×" Command="{Binding CloseAiPanelCommand}" />
+                    <Button DockPanel.Dock="Right" Style="{StaticResource CloseGlyphButton}" Content="&#xE711;" Command="{Binding CloseAiPanelCommand}" ToolTip="Закрити AI-панель" />
                 </DockPanel>
 
                 <StackPanel Grid.Row="1" Margin="0,14,0,12">
@@ -169,10 +209,30 @@
                          MinHeight="180" />
 
                 <UniformGrid Grid.Row="3" Columns="4" Margin="0,12,0,0">
-                    <Button Content="Запит" Command="{Binding RunAiCommand}" Style="{StaticResource FloatingActionButton}" />
-                    <Button Content="Стоп" Command="{Binding CancelAiCommand}" Style="{StaticResource FloatingActionButton}" />
-                    <Button Content="Копія" Command="{Binding CopyAiResponseCommand}" Style="{StaticResource FloatingActionButton}" />
-                    <Button Content="Файл" Command="{Binding SaveAiResponseCommand}" Style="{StaticResource FloatingActionButton}" />
+                    <Button Command="{Binding RunAiCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Надіслати запит">
+                        <StackPanel>
+                            <TextBlock Text="&#xE768;" Style="{StaticResource ActionIconText}" />
+                            <TextBlock Text="Запит" Style="{StaticResource ActionCaptionText}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding CancelAiCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Скасувати запит">
+                        <StackPanel>
+                            <TextBlock Text="&#xE71A;" Style="{StaticResource ActionIconText}" />
+                            <TextBlock Text="Стоп" Style="{StaticResource ActionCaptionText}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding CopyAiResponseCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Скопіювати відповідь">
+                        <StackPanel>
+                            <TextBlock Text="&#xE8C8;" Style="{StaticResource ActionIconText}" />
+                            <TextBlock Text="Копія" Style="{StaticResource ActionCaptionText}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding SaveAiResponseCommand}" Style="{StaticResource FloatingActionButton}" ToolTip="Зберегти відповідь у файл">
+                        <StackPanel>
+                            <TextBlock Text="&#xE74E;" Style="{StaticResource ActionIconText}" />
+                            <TextBlock Text="Файл" Style="{StaticResource ActionCaptionText}" />
+                        </StackPanel>
+                    </Button>
                 </UniformGrid>
             </Grid>
         </Border>

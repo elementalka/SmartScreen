@@ -30,6 +30,10 @@ public sealed class QuickActionsViewModel : ObservableObject
     private string _aiResponseText = string.Empty;
     private string _aiStatus = "Готово";
     private string _status = "Вибери дію";
+    private string _editorDefaultColor = "#E53935";
+    private double _editorDefaultStrokeThickness = 3;
+    private double _editorDefaultTextSize = 18;
+    private double _editorHighlighterOpacity = 0.35;
     private bool _isAiPanelOpen;
     private bool _isAiBusy;
     private CancellationTokenSource? _aiRequestCts;
@@ -77,6 +81,7 @@ public sealed class QuickActionsViewModel : ObservableObject
     public event Action? CloseRequested;
     public ObservableCollection<AiPromptTemplate> Prompts { get; } = [];
     public CaptureWorkspaceStartupMode StartupMode => _startupMode;
+    public string ScreenshotInfo => $"{Screenshot.Width} x {Screenshot.Height}px";
 
     public ScreenshotResult Screenshot
     {
@@ -86,6 +91,7 @@ public sealed class QuickActionsViewModel : ObservableObject
             if (SetProperty(ref _screenshot, value))
             {
                 PreviewImage = BitmapSourceFactory.FromScreenshot(value);
+                OnPropertyChanged(nameof(ScreenshotInfo));
             }
         }
     }
@@ -170,6 +176,30 @@ public sealed class QuickActionsViewModel : ObservableObject
     public Visibility AiPanelVisibility => IsAiPanelOpen ? Visibility.Visible : Visibility.Collapsed;
     public Visibility ActionPanelVisibility => IsAiPanelOpen ? Visibility.Collapsed : Visibility.Visible;
 
+    public string EditorDefaultColor
+    {
+        get => _editorDefaultColor;
+        private set => SetProperty(ref _editorDefaultColor, value);
+    }
+
+    public double EditorDefaultStrokeThickness
+    {
+        get => _editorDefaultStrokeThickness;
+        private set => SetProperty(ref _editorDefaultStrokeThickness, value);
+    }
+
+    public double EditorDefaultTextSize
+    {
+        get => _editorDefaultTextSize;
+        private set => SetProperty(ref _editorDefaultTextSize, value);
+    }
+
+    public double EditorHighlighterOpacity
+    {
+        get => _editorHighlighterOpacity;
+        private set => SetProperty(ref _editorHighlighterOpacity, value);
+    }
+
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand CopyCommand { get; }
@@ -183,12 +213,18 @@ public sealed class QuickActionsViewModel : ObservableObject
 
     public void Close() => CloseRequested?.Invoke();
 
-    private async Task LoadAsync(CancellationToken cancellationToken)
+    public async Task LoadAsync(CancellationToken cancellationToken)
     {
         if (Prompts.Count > 0)
         {
             return;
         }
+
+        var settings = await _settingsService.LoadAsync(cancellationToken);
+        EditorDefaultColor = settings.Editor.DefaultColor;
+        EditorDefaultStrokeThickness = settings.Editor.DefaultStrokeThickness;
+        EditorDefaultTextSize = settings.Editor.DefaultTextSize;
+        EditorHighlighterOpacity = settings.Editor.HighlighterOpacity;
 
         var library = await _promptTemplateService.LoadAsync(cancellationToken);
         foreach (var prompt in library.Templates.OrderBy(prompt => prompt.Order))

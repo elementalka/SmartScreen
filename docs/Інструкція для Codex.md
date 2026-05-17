@@ -100,16 +100,12 @@ SmartScreen/
 │   ├── Views/
 │   │   ├── ScreenshotOverlayWindow.xaml
 │   │   ├── QuickActionsWindow.xaml
-│   │   ├── ScreenshotEditorWindow.xaml
-│   │   ├── AiResponseWindow.xaml
 │   │   ├── SettingsWindow.xaml
 │   │   └── FirstRunWizardWindow.xaml
 │   ├── ViewModels/
 │   │   ├── MainViewModel.cs
 │   │   ├── ScreenshotOverlayViewModel.cs
 │   │   ├── QuickActionsViewModel.cs
-│   │   ├── ScreenshotEditorViewModel.cs
-│   │   ├── AiResponseViewModel.cs
 │   │   ├── SettingsViewModel.cs
 │   │   └── FirstRunWizardViewModel.cs
 │   ├── Models/
@@ -197,7 +193,7 @@ dotnet test
 * копіювання в буфер;
 * збереження PNG/JPG;
 * fallback-папку;
-* `QuickActionsWindow`.
+* `QuickActionsWindow` як повноекранний capture workspace з панеллю швидких дій.
 
 Перевірка:
 
@@ -211,7 +207,7 @@ dotnet test
 
 Реалізуй:
 
-* `ScreenshotEditorWindow`;
+* редактор без окремого вікна всередині capture workspace;
 * інструменти олівець, лінія, стрілка, прямокутник, еліпс, текст, маркер;
 * undo/redo;
 * обрізання;
@@ -223,7 +219,7 @@ dotnet test
 * пікселізація;
 * гарячі клавіші редактора.
 
-Готово, якщо користувач може відкрити скріншот, внести позначки, скасувати дію і зберегти результат.
+Готово, якщо користувач може відкрити workspace після скріншота, внести позначки, скасувати дію і зберегти результат без переходу в окреме вікно.
 
 ## Етап 4. AI-модуль
 
@@ -238,7 +234,7 @@ dotnet test
 * cancellation;
 * безпечне маскування секретів у логах;
 * prompt-шаблони;
-* `AiResponseWindow`.
+* AI-панель усередині capture workspace.
 
 Провайдери `OpenAiProvider`, `GeminiProvider`, `ClaudeProvider`, `OpenRouterProvider` можна залишити як адаптери або заготовки, якщо робочий OpenAI-compatible provider уже є.
 
@@ -452,4 +448,3 @@ config/prompts.json
 * має теми;
 * працює без інтернету як звичайний скріншотер;
 * має README та мінімальні тести.
-

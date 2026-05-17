@@ -16,6 +16,7 @@ using Button = System.Windows.Controls.Button;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using Image = System.Windows.Controls.Image;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MediaBrush = System.Windows.Media.Brush;
 using MediaColor = System.Windows.Media.Color;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Point = System.Windows.Point;
@@ -49,9 +50,9 @@ public partial class QuickActionsWindow : Window
         DataContext = viewModel;
         _viewModel.CloseRequested += Close;
         _viewModel.PropertyChanged += ViewModel_OnPropertyChanged;
-        Loaded += (_, _) =>
+        Loaded += async (_, _) =>
         {
-            viewModel.LoadCommand.Execute(null);
+            await viewModel.LoadAsync(CancellationToken.None);
             InitializeSurface(viewModel.Screenshot);
             if (viewModel.StartupMode == CaptureWorkspaceStartupMode.Editor)
             {
@@ -85,6 +86,7 @@ public partial class QuickActionsWindow : Window
         InkCanvas.Height = screenshot.Height;
         InkCanvas.StrokeCollected -= InkCanvas_OnStrokeCollected;
         InkCanvas.StrokeCollected += InkCanvas_OnStrokeCollected;
+        ApplyEditorDefaults();
         SetTool(EditorTool.Pen);
         SetEditMode(false);
     }
@@ -162,7 +164,18 @@ public partial class QuickActionsWindow : Window
         {
             _activeColor = (MediaColor)ColorConverter.ConvertFromString(hex);
             SetTool(_activeTool);
+            UpdateColorButtonStates();
         }
+    }
+
+    private void EditorSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!IsLoaded || _activeTool is not (EditorTool.Pen or EditorTool.Highlighter))
+        {
+            return;
+        }
+
+        SetTool(_activeTool);
     }
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -171,6 +184,45 @@ public partial class QuickActionsWindow : Window
 
         if (!_isEditMode)
         {
+            if (_viewModel.IsAiPanelOpen)
+            {
+                if (e.Key == Key.Escape && TryExecute(_viewModel.CloseAiPanelCommand))
+                {
+                    e.Handled = true;
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Control &&
+                         e.Key is Key.Enter or Key.Return &&
+                         TryExecute(_viewModel.RunAiCommand))
+                {
+                    e.Handled = true;
+                }
+
+                return;
+            }
+
+            if (Keyboard.Modifiers == ModifierKeys.None && Keyboard.FocusedElement is not TextBox)
+            {
+                switch (e.Key)
+                {
+                    case Key.S when TryExecute(_viewModel.SaveCommand):
+                        e.Handled = true;
+                        return;
+                    case Key.C when TryExecute(_viewModel.CopyCommand):
+                        e.Handled = true;
+                        return;
+                    case Key.E:
+                        BeginEditMode();
+                        e.Handled = true;
+                        return;
+                    case Key.A when TryExecute(_viewModel.AskAiCommand):
+                        e.Handled = true;
+                        return;
+                    case Key.O when TryExecute(_viewModel.OpenFolderCommand):
+                        e.Handled = true;
+                        return;
+                }
+            }
+
             if (e.Key == Key.Escape)
             {
                 Close();
@@ -256,6 +308,7 @@ public partial class QuickActionsWindow : Window
     private void SetTool(EditorTool tool)
     {
         _activeTool = tool;
+        UpdateToolButtonStates();
 
         if (tool is EditorTool.Pen or EditorTool.Highlighter)
         {
@@ -263,7 +316,7 @@ public partial class QuickActionsWindow : Window
             AnnotationCanvas.IsHitTestVisible = false;
             InkCanvas.EditingMode = InkCanvasEditingMode.Ink;
             SetPen(
-                tool == EditorTool.Pen ? _activeColor : MediaColor.FromArgb(120, 255, 214, 10),
+                tool == EditorTool.Pen ? _activeColor : MediaColor.FromArgb(ToAlpha(_viewModel.EditorHighlighterOpacity), 255, 214, 10),
                 tool == EditorTool.Pen ? ActiveStrokeThickness : Math.Max(14, ActiveStrokeThickness * 4),
                 tool == EditorTool.Highlighter);
             return;
@@ -273,6 +326,70 @@ public partial class QuickActionsWindow : Window
         AnnotationCanvas.IsHitTestVisible = _isEditMode;
         InkCanvas.EditingMode = InkCanvasEditingMode.None;
     }
+
+    private void ApplyEditorDefaults()
+    {
+        if (TryParseColor(_viewModel.EditorDefaultColor, out var color))
+        {
+            _activeColor = color;
+        }
+
+        StrokeSlider.Value = Math.Clamp(_viewModel.EditorDefaultStrokeThickness, StrokeSlider.Minimum, StrokeSlider.Maximum);
+        TextSizeSlider.Value = Math.Clamp(_viewModel.EditorDefaultTextSize, TextSizeSlider.Minimum, TextSizeSlider.Maximum);
+        UpdateColorButtonStates();
+    }
+
+    private void UpdateToolButtonStates()
+    {
+        var activeBackground = TryFindResource("AccentSoftBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(234, 241, 255));
+        var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(247, 249, 252));
+        var activeBorder = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(37, 99, 235));
+        var inactiveBorder = TryFindResource("BorderBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(217, 225, 236));
+
+        foreach (var (button, tool) in ToolButtons())
+        {
+            var isActive = tool == _activeTool;
+            button.Background = isActive ? activeBackground : inactiveBackground;
+            button.BorderBrush = isActive ? activeBorder : inactiveBorder;
+        }
+    }
+
+    private void UpdateColorButtonStates()
+    {
+        var activeBorder = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(37, 99, 235));
+        var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(199, 209, 224));
+        var activeHex = ToHex(_activeColor);
+
+        foreach (var button in ColorButtons())
+        {
+            var isActive = string.Equals(button.Tag as string, activeHex, StringComparison.OrdinalIgnoreCase);
+            button.BorderBrush = isActive ? activeBorder : inactiveBorder;
+            button.BorderThickness = isActive ? new Thickness(3) : new Thickness(2);
+        }
+    }
+
+    private (Button Button, EditorTool Tool)[] ToolButtons() =>
+    [
+        (PenToolButton, EditorTool.Pen),
+        (HighlighterToolButton, EditorTool.Highlighter),
+        (LineToolButton, EditorTool.Line),
+        (ArrowToolButton, EditorTool.Arrow),
+        (RectangleToolButton, EditorTool.Rectangle),
+        (EllipseToolButton, EditorTool.Ellipse),
+        (TextToolButton, EditorTool.Text),
+        (CropToolButton, EditorTool.Crop),
+        (BlurToolButton, EditorTool.Blur),
+        (PixelateToolButton, EditorTool.Pixelate)
+    ];
+
+    private Button[] ColorButtons() =>
+    [
+        RedColorButton,
+        BlueColorButton,
+        GreenColorButton,
+        AmberColorButton,
+        InkColorButton
+    ];
 
     private void InkCanvas_OnStrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e)
     {
@@ -608,6 +725,44 @@ public partial class QuickActionsWindow : Window
             IsHighlighter = highlighter
         };
     }
+
+    private static bool TryExecute(ICommand command)
+    {
+        if (!command.CanExecute(null))
+        {
+            return false;
+        }
+
+        command.Execute(null);
+        return true;
+    }
+
+    private static bool TryParseColor(string value, out MediaColor color)
+    {
+        try
+        {
+            color = (MediaColor)ColorConverter.ConvertFromString(value);
+            return true;
+        }
+        catch (FormatException)
+        {
+            color = Colors.Red;
+            return false;
+        }
+    }
+
+    private static byte ToAlpha(double opacity)
+    {
+        if (double.IsNaN(opacity) || double.IsInfinity(opacity))
+        {
+            return 90;
+        }
+
+        var normalized = opacity > 1 ? opacity / 100 : opacity;
+        return (byte)Math.Clamp((int)Math.Round(normalized * 255), 24, 220);
+    }
+
+    private static string ToHex(MediaColor color) => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
 
     private void AddHistory(IEditorHistoryAction action)
     {
