@@ -8,6 +8,7 @@ using SmartScreen.Application.Abstractions;
 using SmartScreen.App.Commands;
 using SmartScreen.App.Services;
 using SmartScreen.Domain.Models;
+using DomainThemeMode = SmartScreen.Domain.Enums.ThemeMode;
 
 namespace SmartScreen.App.ViewModels;
 
@@ -34,6 +35,8 @@ public sealed class QuickActionsViewModel : ObservableObject
     private double _editorDefaultStrokeThickness = 3;
     private double _editorDefaultTextSize = 18;
     private double _editorHighlighterOpacity = 0.35;
+    private DomainThemeMode _themeMode = DomainThemeMode.System;
+    private string _themeAccentColor = "#2563EB";
     private bool _isAiPanelOpen;
     private bool _isAiBusy;
     private CancellationTokenSource? _aiRequestCts;
@@ -200,6 +203,18 @@ public sealed class QuickActionsViewModel : ObservableObject
         private set => SetProperty(ref _editorHighlighterOpacity, value);
     }
 
+    public DomainThemeMode ThemeMode
+    {
+        get => _themeMode;
+        private set => SetProperty(ref _themeMode, value);
+    }
+
+    public string ThemeAccentColor
+    {
+        get => _themeAccentColor;
+        private set => SetProperty(ref _themeAccentColor, value);
+    }
+
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand CopyCommand { get; }
@@ -225,6 +240,8 @@ public sealed class QuickActionsViewModel : ObservableObject
         EditorDefaultStrokeThickness = settings.Editor.DefaultStrokeThickness;
         EditorDefaultTextSize = settings.Editor.DefaultTextSize;
         EditorHighlighterOpacity = settings.Editor.HighlighterOpacity;
+        ThemeMode = settings.Theme.Mode;
+        ThemeAccentColor = settings.Theme.AccentColor;
 
         var library = await _promptTemplateService.LoadAsync(cancellationToken);
         foreach (var prompt in library.Templates.OrderBy(prompt => prompt.Order))

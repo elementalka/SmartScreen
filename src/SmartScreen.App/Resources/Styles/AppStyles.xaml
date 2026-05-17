@@ -71,8 +71,8 @@
     </Style>
 
     <Style x:Key="FloatingPanelBorder" TargetType="Border">
-        <Setter Property="Background" Value="#FDFEFF" />
-        <Setter Property="BorderBrush" Value="#C7D1E0" />
+        <Setter Property="Background" Value="#EAFDFEFF" />
+        <Setter Property="BorderBrush" Value="#AAC7D1E0" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="14" />
@@ -83,6 +83,23 @@
                                   Direction="270"
                                   Opacity="0.16"
                                   Color="#1E2430" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="EditorGlassPanelBorder" TargetType="Border">
+        <Setter Property="Background" Value="#D9141C2E" />
+        <Setter Property="BorderBrush" Value="#668EA3C5" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="24"
+                                  ShadowDepth="5"
+                                  Direction="270"
+                                  Opacity="0.28"
+                                  Color="#050812" />
             </Setter.Value>
         </Setter>
     </Style>
@@ -286,13 +303,29 @@
     </Style>
 
     <Style x:Key="EditorToolButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="MinWidth" Value="38" />
-        <Setter Property="MinHeight" Value="34" />
-        <Setter Property="Margin" Value="0,0,6,0" />
-        <Setter Property="Padding" Value="8,5" />
-        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Width" Value="42" />
+        <Setter Property="Height" Value="38" />
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="17" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Background" Value="#F7F9FC" />
+        <Setter Property="Background" Value="#1F2937" />
+        <Setter Property="BorderBrush" Value="#38475F" />
+        <Setter Property="Foreground" Value="#F8FAFC" />
+    </Style>
+
+    <Style x:Key="EditorCommitButton" TargetType="Button" BasedOn="{StaticResource EditorToolButton}">
+        <Setter Property="Background" Value="#2563EB" />
+        <Setter Property="BorderBrush" Value="#5B8AF4" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Margin" Value="0,8,0,6" />
+    </Style>
+
+    <Style x:Key="EditorCancelButton" TargetType="Button" BasedOn="{StaticResource EditorToolButton}">
+        <Setter Property="Background" Value="#2A3446" />
+        <Setter Property="BorderBrush" Value="#4A5C76" />
+        <Setter Property="Foreground" Value="#DCE5F2" />
     </Style>
 
     <Style x:Key="ColorSwatchButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">

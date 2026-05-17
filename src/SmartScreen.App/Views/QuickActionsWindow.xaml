@@ -10,7 +10,7 @@
         ShowInTaskbar="False"
         Background="#990B1220">
     <Grid>
-        <Viewbox Stretch="Uniform" Margin="32,52,32,122">
+        <Viewbox Stretch="Uniform" Margin="28,28,28,98">
             <Grid x:Name="EditingSurface" Background="Transparent">
                 <Image x:Name="WorkspaceImage" Stretch="Fill" />
                 <Canvas x:Name="AnnotationCanvas"
@@ -99,50 +99,56 @@
             </Grid>
         </Border>
 
-        <Border x:Name="EditorPanel"
-                Style="{StaticResource FloatingPanelBorder}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                MaxWidth="1120"
-                Margin="18"
-                Opacity="0.96"
-                Visibility="Collapsed">
-            <StackPanel>
-                <DockPanel>
-                    <TextBlock Text="Редактор" Style="{StaticResource SectionTitleText}" VerticalAlignment="Center" />
-                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                        <Button Content="Готово" Click="DoneEditButton_OnClick" Style="{StaticResource PrimarySmallButton}" Margin="8,0,0,0" />
-                        <Button Content="Назад" Click="CancelEditButton_OnClick" Style="{StaticResource GhostButton}" Margin="8,0,0,0" />
-                    </StackPanel>
-                </DockPanel>
+        <Grid x:Name="EditorPanel"
+              Margin="16"
+              Visibility="Collapsed">
+            <Border x:Name="EditorRail"
+                    Style="{StaticResource EditorGlassPanelBorder}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <Button x:Name="PenToolButton" Content="✎" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Олівець (P)" />
+                    <Button x:Name="HighlighterToolButton" Content="▰" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Маркер (M)" />
+                    <Button x:Name="LineToolButton" Content="╱" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Лінія (L)" />
+                    <Button x:Name="ArrowToolButton" Content="→" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Стрілка (A)" />
+                    <Button x:Name="RectangleToolButton" Content="□" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Прямокутник (R)" />
+                    <Button x:Name="EllipseToolButton" Content="○" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Еліпс (E)" />
+                    <Button x:Name="TextToolButton" Content="T" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Текст (T)" />
+                    <Button x:Name="CropToolButton" Content="⌗" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Обрізання (C)" />
+                    <Button x:Name="BlurToolButton" Content="◌" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Розмиття (B)" />
+                    <Button x:Name="PixelateToolButton" Content="▦" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Пікселізація (X)" />
+                    <Button Content="◐" Click="ToggleEditorChromeButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Сховати панелі (H)" />
+                    <Rectangle Height="1" Fill="#4B5C76" Margin="4,4,4,10" />
+                    <Button Content="↶" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Скасувати (Ctrl+Z)" />
+                    <Button Content="↷" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Повторити (Ctrl+Y)" />
+                    <Button Content="⌫" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Очистити позначки" />
+                    <Button Content="✓" Click="DoneEditButton_OnClick" Style="{StaticResource EditorCommitButton}" ToolTip="Застосувати (Ctrl+S або Enter)" />
+                    <Button Content="×" Click="CancelEditButton_OnClick" Style="{StaticResource EditorCancelButton}" ToolTip="Скасувати редактор (Esc)" />
+                </StackPanel>
+            </Border>
 
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,12,0,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="PenToolButton" Content="✎" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Олівець (P)" />
-                        <Button x:Name="HighlighterToolButton" Content="▰" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Маркер (M)" />
-                        <Button x:Name="LineToolButton" Content="╱" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Лінія (L)" />
-                        <Button x:Name="ArrowToolButton" Content="→" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Стрілка (A)" />
-                        <Button x:Name="RectangleToolButton" Content="□" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Прямокутник (R)" />
-                        <Button x:Name="EllipseToolButton" Content="○" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Еліпс (E)" />
-                        <Button x:Name="TextToolButton" Content="T" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Текст (T)" />
-                        <Button x:Name="CropToolButton" Content="⌗" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Обрізання (C)" />
-                        <Button x:Name="BlurToolButton" Content="◌" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Розмиття (B)" />
-                        <Button x:Name="PixelateToolButton" Content="▦" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Пікселізація (X)" />
-                        <Separator Margin="8,0" />
-                        <Button Content="↶" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Скасувати (Ctrl+Z)" />
-                        <Button Content="↷" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Повторити (Ctrl+Y)" />
-                        <Button Content="⌫" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Очистити позначки" />
-                    </StackPanel>
-                </ScrollViewer>
+            <Button x:Name="EditorPeekButton"
+                    Content="›"
+                    Click="ToggleEditorChromeButton_OnClick"
+                    Style="{StaticResource EditorToolButton}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    ToolTip="Показати панелі (H)"
+                    Visibility="Collapsed" />
 
-                <Grid Margin="0,12,0,0">
+            <Border x:Name="EditorOptionsPanel"
+                    Style="{StaticResource EditorGlassPanelBorder}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    MaxWidth="760"
+                    Margin="82,0,82,0">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="210" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="190" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="160" />
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -153,13 +159,13 @@
                         <Button x:Name="InkColorButton" Style="{StaticResource ColorSwatchButton}" Background="#111827" Tag="#111827" Click="ColorButton_OnClick" ToolTip="Темний" />
                     </StackPanel>
 
-                    <TextBlock Grid.Column="2" Text="Лінія" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" Margin="16,0,8,0" />
-                    <Slider x:Name="StrokeSlider" Grid.Column="3" Minimum="1" Maximum="28" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
-                    <TextBlock Grid.Column="4" Text="Текст" Style="{StaticResource FieldLabel}" VerticalAlignment="Center" Margin="16,0,8,0" />
-                    <Slider x:Name="TextSizeSlider" Grid.Column="5" Minimum="14" Maximum="48" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
+                    <TextBlock Grid.Column="1" Text="Лінія" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,8,0" />
+                    <Slider x:Name="StrokeSlider" Grid.Column="2" Minimum="1" Maximum="28" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
+                    <TextBlock Grid.Column="3" Text="Текст" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,8,0" />
+                    <Slider x:Name="TextSizeSlider" Grid.Column="4" Minimum="14" Maximum="48" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
                 </Grid>
-            </StackPanel>
-        </Border>
+            </Border>
+        </Grid>
 
         <Border Style="{StaticResource FloatingPanelBorder}"
                 HorizontalAlignment="Right"

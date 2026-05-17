@@ -22,6 +22,7 @@ using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Point = System.Windows.Point;
 using RectangleShape = System.Windows.Shapes.Rectangle;
 using TextBox = System.Windows.Controls.TextBox;
+using DomainThemeMode = SmartScreen.Domain.Enums.ThemeMode;
 
 namespace SmartScreen.App.Views;
 
@@ -42,6 +43,7 @@ public partial class QuickActionsWindow : Window
     private RectangleShape? _cropOverlay;
     private MediaColor _activeColor = Colors.Red;
     private bool _isEditMode;
+    private bool _isEditorChromeVisible = true;
 
     public QuickActionsWindow(QuickActionsViewModel viewModel)
     {
@@ -53,6 +55,7 @@ public partial class QuickActionsWindow : Window
         Loaded += async (_, _) =>
         {
             await viewModel.LoadAsync(CancellationToken.None);
+            ApplyWorkspaceTheme();
             InitializeSurface(viewModel.Screenshot);
             if (viewModel.StartupMode == CaptureWorkspaceStartupMode.Editor)
             {
@@ -91,10 +94,28 @@ public partial class QuickActionsWindow : Window
         SetEditMode(false);
     }
 
+    private void ApplyWorkspaceTheme()
+    {
+        if (TryParseColor(_viewModel.ThemeAccentColor, out var accent))
+        {
+            Resources["AccentBrush"] = new SolidColorBrush(accent);
+            Resources["AccentColor"] = accent;
+        }
+
+        Background = _viewModel.ThemeMode == DomainThemeMode.Light
+            ? new SolidColorBrush(MediaColor.FromArgb(86, 248, 250, 252))
+            : new SolidColorBrush(MediaColor.FromArgb(150, 11, 18, 32));
+    }
+
     private void SetEditMode(bool isEditMode)
     {
         _isEditMode = isEditMode;
         EditorPanel.Visibility = isEditMode ? Visibility.Visible : Visibility.Collapsed;
+        if (!isEditMode)
+        {
+            SetEditorChromeVisibility(true);
+        }
+
         UpdateActionPanelVisibility();
         InkCanvas.IsHitTestVisible = isEditMode && (_activeTool is EditorTool.Pen or EditorTool.Highlighter);
         AnnotationCanvas.IsHitTestVisible = isEditMode && _activeTool is not (EditorTool.Pen or EditorTool.Highlighter);
@@ -125,6 +146,7 @@ public partial class QuickActionsWindow : Window
         _undoStack.Clear();
         _redoStack.Clear();
         SetEditMode(true);
+        SetEditorChromeVisibility(true);
         SetTool(EditorTool.Pen);
     }
 
@@ -157,6 +179,19 @@ public partial class QuickActionsWindow : Window
     private void UndoButton_OnClick(object sender, RoutedEventArgs e) => UndoLastAction();
     private void RedoButton_OnClick(object sender, RoutedEventArgs e) => RedoLastAction();
     private void ClearButton_OnClick(object sender, RoutedEventArgs e) => ClearAnnotations();
+
+    private void ToggleEditorChromeButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        SetEditorChromeVisibility(!_isEditorChromeVisible);
+    }
+
+    private void SetEditorChromeVisibility(bool isVisible)
+    {
+        _isEditorChromeVisible = isVisible;
+        EditorRail.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+        EditorOptionsPanel.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+        EditorPeekButton.Visibility = isVisible ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     private void ColorButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -258,6 +293,10 @@ public partial class QuickActionsWindow : Window
 
         switch (e.Key)
         {
+            case Key.Enter:
+                DoneEditButton_OnClick(this, new RoutedEventArgs());
+                e.Handled = true;
+                break;
             case Key.P:
                 SetTool(EditorTool.Pen);
                 e.Handled = true;
@@ -296,6 +335,10 @@ public partial class QuickActionsWindow : Window
                 break;
             case Key.X:
                 SetTool(EditorTool.Pixelate);
+                e.Handled = true;
+                break;
+            case Key.H:
+                SetEditorChromeVisibility(!_isEditorChromeVisible);
                 e.Handled = true;
                 break;
             case Key.Escape:
@@ -341,23 +384,26 @@ public partial class QuickActionsWindow : Window
 
     private void UpdateToolButtonStates()
     {
-        var activeBackground = TryFindResource("AccentSoftBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(234, 241, 255));
-        var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(247, 249, 252));
-        var activeBorder = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(37, 99, 235));
-        var inactiveBorder = TryFindResource("BorderBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(217, 225, 236));
+        var activeBackground = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(37, 99, 235));
+        var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(31, 41, 55));
+        var activeBorder = new SolidColorBrush(MediaColor.FromRgb(134, 165, 255));
+        var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(56, 71, 95));
+        var activeForeground = Brushes.White;
+        var inactiveForeground = new SolidColorBrush(MediaColor.FromRgb(226, 232, 240));
 
         foreach (var (button, tool) in ToolButtons())
         {
             var isActive = tool == _activeTool;
             button.Background = isActive ? activeBackground : inactiveBackground;
             button.BorderBrush = isActive ? activeBorder : inactiveBorder;
+            button.Foreground = isActive ? activeForeground : inactiveForeground;
         }
     }
 
     private void UpdateColorButtonStates()
     {
-        var activeBorder = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(37, 99, 235));
-        var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(199, 209, 224));
+        var activeBorder = Brushes.White;
+        var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(120, 137, 162));
         var activeHex = ToHex(_activeColor);
 
         foreach (var button in ColorButtons())
