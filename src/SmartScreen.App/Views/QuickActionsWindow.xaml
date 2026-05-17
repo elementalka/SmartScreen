@@ -39,7 +39,7 @@
 
                 <StackPanel>
                     <DockPanel LastChildFill="False">
-                        <TextBlock Text="Скріншот готовий" FontWeight="SemiBold" FontSize="15" />
+                        <TextBlock Text="{DynamicResource Loc.quick.ready}" FontWeight="SemiBold" FontSize="15" />
                         <TextBlock DockPanel.Dock="Right"
                                    Text="{Binding ScreenshotInfo}"
                                    Style="{StaticResource MutedText}"
@@ -52,40 +52,40 @@
                                TextTrimming="CharacterEllipsis" />
 
                     <UniformGrid Columns="6" Margin="0,12,0,0">
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding SaveCommand}" AutomationProperties.Name="Зберегти файл" ToolTip="Зберегти файл">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding SaveCommand}" AutomationProperties.Name="{DynamicResource Loc.quick.saveFile}" ToolTip="{DynamicResource Loc.quick.saveFile}">
                             <StackPanel>
                                 <TextBlock Text="&#xE74E;" Style="{StaticResource ActionIconText}" />
-                                <TextBlock Text="Файл" Style="{StaticResource ActionCaptionText}" />
+                                <TextBlock Text="{DynamicResource Loc.quick.file}" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding CopyCommand}" AutomationProperties.Name="Копіювати в буфер" ToolTip="Скопіювати в буфер">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding CopyCommand}" AutomationProperties.Name="{DynamicResource Loc.quick.copyClipboard}" ToolTip="{DynamicResource Loc.quick.copyClipboard}">
                             <StackPanel>
                                 <TextBlock Text="&#xE8C8;" Style="{StaticResource ActionIconText}" />
-                                <TextBlock Text="Буфер" Style="{StaticResource ActionCaptionText}" />
+                                <TextBlock Text="{DynamicResource Loc.quick.clipboard}" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Click="EditOverlayButton_OnClick" AutomationProperties.Name="Редагувати скріншот" ToolTip="Редагувати скріншот">
+                        <Button Style="{StaticResource FloatingActionButton}" Click="EditOverlayButton_OnClick" AutomationProperties.Name="{DynamicResource Loc.quick.editScreenshot}" ToolTip="{DynamicResource Loc.quick.editScreenshot}">
                             <StackPanel>
                                 <TextBlock Text="&#xE70F;" Style="{StaticResource ActionIconText}" />
-                                <TextBlock Text="Редаг." Style="{StaticResource ActionCaptionText}" />
+                                <TextBlock Text="{DynamicResource Loc.quick.editShort}" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="Запитати AI" ToolTip="Відкрити AI-панель">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="{DynamicResource Loc.quick.askAi}" ToolTip="{DynamicResource Loc.quick.openAiPanel}">
                             <StackPanel>
                                 <TextBlock Text="AI" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4" />
-                                <TextBlock Text="Запит" Style="{StaticResource ActionCaptionText}" />
+                                <TextBlock Text="{DynamicResource Loc.quick.request}" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding OpenFolderCommand}" AutomationProperties.Name="Відкрити папку" ToolTip="Відкрити папку скріншотів">
+                        <Button Style="{StaticResource FloatingActionButton}" Command="{Binding OpenFolderCommand}" AutomationProperties.Name="{DynamicResource Loc.quick.openFolder}" ToolTip="{DynamicResource Loc.quick.openScreenshotsFolder}">
                             <StackPanel>
                                 <TextBlock Text="&#xE8B7;" Style="{StaticResource ActionIconText}" />
-                                <TextBlock Text="Папка" Style="{StaticResource ActionCaptionText}" />
+                                <TextBlock Text="{DynamicResource Loc.quick.folder}" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource FloatingActionButton}" Click="CloseButton_OnClick" AutomationProperties.Name="Закрити overlay" ToolTip="Закрити overlay">
+                        <Button Style="{StaticResource FloatingActionButton}" Click="CloseButton_OnClick" AutomationProperties.Name="{DynamicResource Loc.quick.closeOverlay}" ToolTip="{DynamicResource Loc.quick.closeOverlay}">
                             <StackPanel>
                                 <TextBlock Text="&#xE711;" Style="{StaticResource ActionIconText}" />
-                                <TextBlock Text="Закр." Style="{StaticResource ActionCaptionText}" />
+                                <TextBlock Text="{DynamicResource Loc.quick.closeShort}" Style="{StaticResource ActionCaptionText}" />
                             </StackPanel>
                         </Button>
                     </UniformGrid>
@@ -95,7 +95,7 @@
                         Style="{StaticResource CloseGlyphButton}"
                         Content="&#xE711;"
                         Click="CloseButton_OnClick"
-                        ToolTip="Закрити" />
+                        ToolTip="{DynamicResource Loc.quick.close}" />
             </Grid>
         </Border>
 
@@ -107,23 +107,23 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center">
                 <StackPanel>
-                    <Button x:Name="PenToolButton" Content="✎" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Олівець (P)" />
-                    <Button x:Name="HighlighterToolButton" Content="▰" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Маркер (M)" />
-                    <Button x:Name="LineToolButton" Content="╱" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Лінія (L)" />
-                    <Button x:Name="ArrowToolButton" Content="→" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Стрілка (A)" />
-                    <Button x:Name="RectangleToolButton" Content="□" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Прямокутник (R)" />
-                    <Button x:Name="EllipseToolButton" Content="○" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Еліпс (E)" />
-                    <Button x:Name="TextToolButton" Content="T" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Текст (T)" />
-                    <Button x:Name="CropToolButton" Content="⌗" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Обрізання (C)" />
-                    <Button x:Name="BlurToolButton" Content="◌" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Розмиття (B)" />
-                    <Button x:Name="PixelateToolButton" Content="▦" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Пікселізація (X)" />
-                    <Button Content="◐" Click="ToggleEditorChromeButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Сховати панелі (H)" />
+                    <Button x:Name="PenToolButton" Content="✎" Click="PenButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.pen}" />
+                    <Button x:Name="HighlighterToolButton" Content="▰" Click="HighlighterButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.highlighter}" />
+                    <Button x:Name="LineToolButton" Content="╱" Click="LineButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.line}" />
+                    <Button x:Name="ArrowToolButton" Content="→" Click="ArrowButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.arrow}" />
+                    <Button x:Name="RectangleToolButton" Content="□" Click="RectangleButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.rectangle}" />
+                    <Button x:Name="EllipseToolButton" Content="○" Click="EllipseButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.ellipse}" />
+                    <Button x:Name="TextToolButton" Content="T" Click="TextButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.text}" />
+                    <Button x:Name="CropToolButton" Content="⌗" Click="CropButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.crop}" />
+                    <Button x:Name="BlurToolButton" Content="◌" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.blur}" />
+                    <Button x:Name="PixelateToolButton" Content="▦" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.pixelate}" />
+                    <Button Content="◐" Click="ToggleEditorChromeButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.hidePanels}" />
                     <Rectangle Height="1" Fill="#4B5C76" Margin="4,4,4,10" />
-                    <Button Content="↶" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Скасувати (Ctrl+Z)" />
-                    <Button Content="↷" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Повторити (Ctrl+Y)" />
-                    <Button Content="⌫" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="Очистити позначки" />
-                    <Button Content="✓" Click="DoneEditButton_OnClick" Style="{StaticResource EditorCommitButton}" ToolTip="Застосувати (Ctrl+S або Enter)" />
-                    <Button Content="×" Click="CancelEditButton_OnClick" Style="{StaticResource EditorCancelButton}" ToolTip="Скасувати редактор (Esc)" />
+                    <Button Content="↶" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.undo}" />
+                    <Button Content="↷" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.redo}" />
+                    <Button Content="⌫" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.clear}" />
+                    <Button Content="✓" Click="DoneEditButton_OnClick" Style="{StaticResource EditorCommitButton}" ToolTip="{DynamicResource Loc.editor.apply}" />
+                    <Button Content="×" Click="CancelEditButton_OnClick" Style="{StaticResource EditorCancelButton}" ToolTip="{DynamicResource Loc.editor.cancel}" />
                 </StackPanel>
             </Border>
 
@@ -133,7 +133,7 @@
                     Style="{StaticResource EditorToolButton}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-                    ToolTip="Показати панелі (H)"
+                    ToolTip="{DynamicResource Loc.editor.showPanels}"
                     Visibility="Collapsed" />
 
             <Border x:Name="EditorOptionsPanel"
@@ -188,16 +188,16 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="Лінія" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Loc.editor.lineLabel}" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <Slider x:Name="StrokeSlider" Grid.Column="1" Minimum="1" Maximum="32" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
-                        <TextBlock Grid.Column="2" Text="Текст" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,8,0" />
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Loc.editor.textLabel}" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,8,0" />
                         <Slider x:Name="TextSizeSlider" Grid.Column="3" Minimum="12" Maximum="64" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
                         <Button x:Name="ShapeFillButton"
                                 Grid.Column="4"
                                 Content="◐"
                                 Click="ShapeFillButton_OnClick"
                                 Style="{StaticResource EditorOptionButton}"
-                                ToolTip="Напівпрозора заливка фігур (F)" />
+                                ToolTip="{DynamicResource Loc.editor.shapeFill}" />
                     </Grid>
                 </StackPanel>
             </Border>
@@ -236,14 +236,14 @@
                                    VerticalAlignment="Center" />
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="AI-панель" Style="{StaticResource SectionTitleText}" />
+                        <TextBlock Text="{DynamicResource Loc.ai.panel}" Style="{StaticResource SectionTitleText}" />
                         <TextBlock Text="{Binding AiStatus}" Style="{StaticResource MutedText}" FontSize="12" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                    <Button Grid.Column="2" Style="{StaticResource CloseGlyphButton}" Content="&#xE711;" Command="{Binding CloseAiPanelCommand}" ToolTip="Закрити AI-панель" />
+                    <Button Grid.Column="2" Style="{StaticResource CloseGlyphButton}" Content="&#xE711;" Command="{Binding CloseAiPanelCommand}" ToolTip="{DynamicResource Loc.ai.closePanel}" />
                 </Grid>
 
                 <StackPanel Grid.Row="1" Margin="0,14,0,12">
-                    <TextBlock Text="AI-дія" Style="{StaticResource FieldLabel}" />
+                    <TextBlock Text="{DynamicResource Loc.ai.action}" Style="{StaticResource FieldLabel}" />
                     <ComboBox ItemsSource="{Binding Prompts}"
                               SelectedItem="{Binding SelectedPrompt}"
                               MinHeight="36">
@@ -274,28 +274,28 @@
                          MinHeight="180" />
 
                 <UniformGrid Grid.Row="3" Columns="4" Margin="0,12,0,0">
-                    <Button Command="{Binding RunAiCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Надіслати AI-запит" ToolTip="Надіслати запит">
+                    <Button Command="{Binding RunAiCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="{DynamicResource Loc.ai.sendRequest}" ToolTip="{DynamicResource Loc.ai.sendRequest}">
                         <StackPanel>
                             <TextBlock Text="&#xE768;" Style="{StaticResource ActionIconText}" />
-                            <TextBlock Text="Запит" Style="{StaticResource ActionCaptionText}" />
+                            <TextBlock Text="{DynamicResource Loc.quick.request}" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding CancelAiCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Скасувати AI-запит" ToolTip="Скасувати запит">
+                    <Button Command="{Binding CancelAiCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="{DynamicResource Loc.ai.cancelRequest}" ToolTip="{DynamicResource Loc.ai.cancelRequest}">
                         <StackPanel>
                             <TextBlock Text="&#xE71A;" Style="{StaticResource ActionIconText}" />
-                            <TextBlock Text="Стоп" Style="{StaticResource ActionCaptionText}" />
+                            <TextBlock Text="{DynamicResource Loc.ai.stop}" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding CopyAiResponseCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Копіювати AI-відповідь" ToolTip="Скопіювати відповідь">
+                    <Button Command="{Binding CopyAiResponseCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="{DynamicResource Loc.ai.copyResponse}" ToolTip="{DynamicResource Loc.ai.copyResponse}">
                         <StackPanel>
                             <TextBlock Text="&#xE8C8;" Style="{StaticResource ActionIconText}" />
-                            <TextBlock Text="Копія" Style="{StaticResource ActionCaptionText}" />
+                            <TextBlock Text="{DynamicResource Loc.quick.copy}" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding SaveAiResponseCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="Зберегти AI-відповідь" ToolTip="Зберегти відповідь у файл">
+                    <Button Command="{Binding SaveAiResponseCommand}" Style="{StaticResource FloatingActionButton}" AutomationProperties.Name="{DynamicResource Loc.ai.saveResponse}" ToolTip="{DynamicResource Loc.ai.saveResponse}">
                         <StackPanel>
                             <TextBlock Text="&#xE74E;" Style="{StaticResource ActionIconText}" />
-                            <TextBlock Text="Файл" Style="{StaticResource ActionCaptionText}" />
+                            <TextBlock Text="{DynamicResource Loc.quick.file}" Style="{StaticResource ActionCaptionText}" />
                         </StackPanel>
                     </Button>
                 </UniformGrid>

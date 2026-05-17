@@ -55,6 +55,9 @@ public sealed class UiSmokeTests
                     Assert.AreEqual("SmartScreen Test", window.Title);
                     Assert.IsNotNull(application.Resources["TextBrush"]);
                     Assert.IsNotNull(application.Resources["Loc.main.workspace"]);
+                    Assert.AreEqual("Скріншот готовий", application.Resources["Loc.quick.ready"]);
+                    Assert.AreEqual("Олівець (P)", application.Resources["Loc.editor.pen"]);
+                    Assert.AreEqual("AI-панель", application.Resources["Loc.ai.panel"]);
                     Assert.IsNotNull(window.Content);
                 }
                 finally
