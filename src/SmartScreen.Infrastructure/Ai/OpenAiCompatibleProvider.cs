@@ -21,6 +21,7 @@ public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvide
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint(settings.Endpoint));
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         httpRequest.Content = JsonContent.Create(BuildBody(request));
 
         using var response = await httpClient.SendAsync(httpRequest, cancellationToken);
@@ -46,6 +47,7 @@ public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvide
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, BuildEndpoint(settings.Endpoint));
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Content = JsonContent.Create(new
         {
             model = settings.Model,
@@ -96,22 +98,50 @@ public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvide
         {
             model = request.ProviderSettings.Model,
             messages,
-            max_tokens = 2048
+            max_tokens = 2048,
+            temperature = 0.2
         };
     }
 
     private static string ExtractText(string json)
     {
-        using var document = JsonDocument.Parse(json);
-        var message = document.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message");
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            var root = document.RootElement;
 
-        if (!message.TryGetProperty("content", out var content))
+            if (root.TryGetProperty("output_text", out var outputText) &&
+                outputText.ValueKind == JsonValueKind.String)
+            {
+                return outputText.GetString() ?? string.Empty;
+            }
+
+            if (!root.TryGetProperty("choices", out var choices) ||
+                choices.ValueKind != JsonValueKind.Array ||
+                choices.GetArrayLength() == 0)
+            {
+                return string.Empty;
+            }
+
+            var choice = choices[0];
+            if (!choice.TryGetProperty("message", out var message) &&
+                !choice.TryGetProperty("delta", out message))
+            {
+                return string.Empty;
+            }
+
+            return message.TryGetProperty("content", out var content)
+                ? ExtractContentText(content)
+                : string.Empty;
+        }
+        catch (JsonException)
         {
             return string.Empty;
         }
+    }
 
+    private static string ExtractContentText(JsonElement content)
+    {
         if (content.ValueKind == JsonValueKind.String)
         {
             return content.GetString() ?? string.Empty;

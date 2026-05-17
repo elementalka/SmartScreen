@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using SmartScreen.Application.Abstractions;
@@ -21,6 +22,7 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
         httpRequest.Headers.Add("x-goog-api-key", settings.ApiKey);
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         httpRequest.Content = JsonContent.Create(BuildBody(request));
 
         using var response = await httpClient.SendAsync(httpRequest, cancellationToken);
@@ -35,9 +37,17 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         }
 
         var text = ExtractText(body);
-        return string.IsNullOrWhiteSpace(text)
-            ? AiResponse.Fail("Gemini не повернув текстову відповідь.", stopwatch.Elapsed)
-            : AiResponse.Ok(text, stopwatch.Elapsed);
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            return AiResponse.Ok(text, stopwatch.Elapsed);
+        }
+
+        var failureReason = ExtractFailureReason(body);
+        return AiResponse.Fail(
+            string.IsNullOrWhiteSpace(failureReason)
+                ? "Gemini не повернув текстову відповідь."
+                : failureReason,
+            stopwatch.Elapsed);
     }
 
     public async Task<bool> TestConnectionAsync(
@@ -47,6 +57,7 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         var endpoint = BuildEndpoint(settings);
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
         request.Headers.Add("x-goog-api-key", settings.ApiKey);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Content = JsonContent.Create(new
         {
             contents = new[]
@@ -117,22 +128,80 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
             };
         }
 
+        body["generationConfig"] = new
+        {
+            temperature = 0.2,
+            maxOutputTokens = 2048
+        };
+
         return body;
     }
 
     private static string ExtractText(string json)
     {
-        using var document = JsonDocument.Parse(json);
-        var parts = document.RootElement
-            .GetProperty("candidates")[0]
-            .GetProperty("content")
-            .GetProperty("parts");
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            var root = document.RootElement;
 
-        var texts = parts.EnumerateArray()
-            .Where(part => part.TryGetProperty("text", out _))
-            .Select(part => part.GetProperty("text").GetString())
-            .Where(text => !string.IsNullOrWhiteSpace(text));
+            if (!root.TryGetProperty("candidates", out var candidates) ||
+                candidates.ValueKind != JsonValueKind.Array ||
+                candidates.GetArrayLength() == 0)
+            {
+                return string.Empty;
+            }
 
-        return string.Join(Environment.NewLine, texts);
+            var candidate = candidates[0];
+            if (!candidate.TryGetProperty("content", out var content) ||
+                !content.TryGetProperty("parts", out var parts) ||
+                parts.ValueKind != JsonValueKind.Array)
+            {
+                return string.Empty;
+            }
+
+            var texts = parts.EnumerateArray()
+                .Where(part => part.TryGetProperty("text", out _))
+                .Select(part => part.GetProperty("text").GetString())
+                .Where(text => !string.IsNullOrWhiteSpace(text));
+
+            return string.Join(Environment.NewLine, texts);
+        }
+        catch (JsonException)
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string ExtractFailureReason(string json)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            var root = document.RootElement;
+            if (root.TryGetProperty("promptFeedback", out var feedback))
+            {
+                return ExtractPromptFeedback(feedback);
+            }
+
+            if (root.TryGetProperty("candidates", out var candidates) &&
+                candidates.ValueKind == JsonValueKind.Array &&
+                candidates.GetArrayLength() > 0 &&
+                candidates[0].TryGetProperty("finishReason", out var finishReason))
+            {
+                return $"Gemini завершив відповідь без тексту: {finishReason.GetString()}.";
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return string.Empty;
+    }
+
+    private static string ExtractPromptFeedback(JsonElement feedback)
+    {
+        return feedback.TryGetProperty("blockReason", out var blockReason)
+            ? $"Gemini заблокував запит: {blockReason.GetString()}."
+            : string.Empty;
     }
 }

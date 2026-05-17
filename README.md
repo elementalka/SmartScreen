@@ -53,6 +53,8 @@ dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 - Configurable after-capture pipeline
 - Built-in screenshot editor with pen, shapes, crop, blur, pixelation, undo/redo
 - Built-in AI panel for prompt selection, cancellation, copy, and save
+- AI image optimization before provider requests to reduce timeouts and payload errors
+- Friendly AI provider errors with safe secret masking
 - Gemini provider
 - OpenAI-compatible provider for NVIDIA NIM, OpenRouter, local endpoints, and similar APIs
 - Local JSON settings

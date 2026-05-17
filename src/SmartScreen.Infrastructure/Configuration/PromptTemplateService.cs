@@ -25,8 +25,15 @@ public sealed class PromptTemplateService(IStorageService storageService, ILoggi
 
         try
         {
-            var library = await JsonFileStore.ReadAsync<AiPromptLibrary>(path, _jsonOptions, cancellationToken);
-            return library ?? DefaultPromptLibraryFactory.Create();
+            var library = await JsonFileStore.ReadAsync<AiPromptLibrary>(path, _jsonOptions, cancellationToken)
+                ?? DefaultPromptLibraryFactory.Create();
+
+            if (Normalize(library))
+            {
+                await SaveAsync(library, cancellationToken);
+            }
+
+            return library;
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
         {
@@ -47,4 +54,46 @@ public sealed class PromptTemplateService(IStorageService storageService, ILoggi
 
     public async Task ResetToDefaultsAsync(CancellationToken cancellationToken = default) =>
         await SaveAsync(DefaultPromptLibraryFactory.Create(), cancellationToken);
+
+    private static bool Normalize(AiPromptLibrary library)
+    {
+        var changed = false;
+        var defaults = DefaultPromptLibraryFactory.Create();
+
+        foreach (var category in defaults.Categories)
+        {
+            if (library.Categories.Any(existing => existing.Id.Equals(category.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            library.Categories.Add(category);
+            changed = true;
+        }
+
+        foreach (var template in defaults.Templates)
+        {
+            if (library.Templates.Any(existing => existing.Id.Equals(template.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            library.Templates.Add(template);
+            changed = true;
+        }
+
+        if (changed)
+        {
+            library.Categories = library.Categories
+                .OrderBy(category => category.Order)
+                .ThenBy(category => category.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            library.Templates = library.Templates
+                .OrderBy(template => template.Order)
+                .ThenBy(template => template.Title, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        return changed;
+    }
 }

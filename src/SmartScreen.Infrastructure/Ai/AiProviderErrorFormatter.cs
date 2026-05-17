@@ -10,11 +10,29 @@ internal static class AiProviderErrorFormatter
     {
         var detail = ExtractErrorDetail(responseBody);
         var status = (int)statusCode;
+        var friendlyMessage = FriendlyStatusMessage(statusCode);
 
-        return string.IsNullOrWhiteSpace(detail)
-            ? $"{providerName} повернув помилку: {status}."
-            : $"{providerName} повернув помилку: {status} - {detail}";
+        if (string.IsNullOrWhiteSpace(detail))
+        {
+            return $"{providerName}: {friendlyMessage} ({status}).";
+        }
+
+        return $"{providerName}: {friendlyMessage} ({status}) - {detail}";
     }
+
+    private static string FriendlyStatusMessage(HttpStatusCode statusCode) =>
+        statusCode switch
+        {
+            HttpStatusCode.Unauthorized => "ключ не прийнято або він не вказаний",
+            HttpStatusCode.Forbidden => "немає доступу до моделі або endpoint",
+            HttpStatusCode.NotFound => "модель або endpoint не знайдено",
+            HttpStatusCode.RequestTimeout => "провайдер не дочекався запиту",
+            HttpStatusCode.RequestEntityTooLarge => "скріншот завеликий для провайдера",
+            (HttpStatusCode)422 => "провайдер не зміг обробити формат запиту",
+            (HttpStatusCode)429 => "перевищено ліміт запитів або квоту",
+            >= HttpStatusCode.InternalServerError => "тимчасова помилка на стороні провайдера",
+            _ => "провайдер повернув помилку"
+        };
 
     private static string ExtractErrorDetail(string responseBody)
     {

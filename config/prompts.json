@@ -13,10 +13,34 @@
       "order": 1
     },
     {
+      "id": "code",
+      "name": "Код",
+      "isSystem": true,
+      "order": 2
+    },
+    {
       "id": "errors",
       "name": "Помилки",
       "isSystem": true,
-      "order": 2
+      "order": 3
+    },
+    {
+      "id": "ui",
+      "name": "Інтерфейс",
+      "isSystem": true,
+      "order": 4
+    },
+    {
+      "id": "translation",
+      "name": "Переклад",
+      "isSystem": true,
+      "order": 5
+    },
+    {
+      "id": "custom",
+      "name": "Користувацькі",
+      "isSystem": true,
+      "order": 6
     }
   ],
   "templates": [
@@ -37,13 +61,68 @@
       "order": 1
     },
     {
+      "id": "translate-uk",
+      "categoryId": "translation",
+      "title": "Переклади українською",
+      "prompt": "Розпізнай текст на скріншоті та переклади його українською мовою.",
+      "isSystem": true,
+      "order": 2
+    },
+    {
+      "id": "translate-en",
+      "categoryId": "translation",
+      "title": "Переклади англійською",
+      "prompt": "Розпізнай текст на скріншоті та переклади його англійською мовою.",
+      "isSystem": true,
+      "order": 3
+    },
+    {
       "id": "explain-error",
       "categoryId": "errors",
       "title": "Поясни помилку",
       "prompt": "Поясни помилку на скріншоті простою мовою. Додай ймовірну причину та конкретні кроки виправлення.",
       "isSystem": true,
-      "order": 2
+      "order": 4
+    },
+    {
+      "id": "explain-code",
+      "categoryId": "code",
+      "title": "Поясни код",
+      "prompt": "Поясни код на скріншоті: що він робить, які є проблеми та як його можна покращити.",
+      "isSystem": true,
+      "order": 5
+    },
+    {
+      "id": "ui-problem",
+      "categoryId": "ui",
+      "title": "Знайди проблему в UI",
+      "prompt": "Проаналізуй інтерфейс на скріншоті. Знайди проблеми з UX, доступністю або візуальною ієрархією.",
+      "isSystem": true,
+      "order": 6
+    },
+    {
+      "id": "compose-reply",
+      "categoryId": "general",
+      "title": "Склади відповідь",
+      "prompt": "На основі скріншота склади доречну відповідь користувачу. Враховуй контекст і тон повідомлення.",
+      "isSystem": true,
+      "order": 7
+    },
+    {
+      "id": "summary",
+      "categoryId": "general",
+      "title": "Короткий підсумок",
+      "prompt": "Зроби короткий підсумок інформації на скріншоті у 3-5 пунктах.",
+      "isSystem": true,
+      "order": 8
+    },
+    {
+      "id": "next-steps",
+      "categoryId": "general",
+      "title": "Що робити далі?",
+      "prompt": "Поясни, що користувачу потрібно зробити далі. Дай конкретні наступні кроки.",
+      "isSystem": true,
+      "order": 9
     }
   ]
 }
-

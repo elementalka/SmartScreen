@@ -106,7 +106,7 @@ public sealed class QuickActionsViewModel : ObservableObject
         get => _selectedPrompt;
         set
         {
-            if (SetProperty(ref _selectedPrompt, value) && value is not null && string.IsNullOrWhiteSpace(CustomPrompt))
+            if (SetProperty(ref _selectedPrompt, value) && value is not null)
             {
                 CustomPrompt = value.Prompt;
             }
@@ -352,8 +352,21 @@ public sealed class QuickActionsViewModel : ObservableObject
                 : response.ErrorMessage ?? "AI-помилка";
             AiResponseText = response.Success ? response.Text ?? string.Empty : response.ErrorMessage ?? string.Empty;
         }
+        catch (OperationCanceledException)
+        {
+            AiStatus = "AI-запит скасовано";
+            AiResponseText = string.Empty;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _loggingService.Error(exception, "AI panel request failed.");
+            AiStatus = "AI-запит завершився помилкою";
+            AiResponseText = "Не вдалося виконати AI-запит. Деталі записано в logs/app.log.";
+        }
         finally
         {
+            _aiRequestCts?.Dispose();
+            _aiRequestCts = null;
             IsAiBusy = false;
         }
     }
