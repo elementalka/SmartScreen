@@ -7,7 +7,7 @@
         MinWidth="980"
         MinHeight="640"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource AppBackgroundBrush}">
+        Background="{StaticResource GlassWindowBackgroundBrush}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="252" />
@@ -254,10 +254,7 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Background="#FFFFFF"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
+                    Style="{StaticResource FloatingPanelBorder}"
                     Padding="12"
                     Margin="0,18,0,0">
                 <DockPanel>

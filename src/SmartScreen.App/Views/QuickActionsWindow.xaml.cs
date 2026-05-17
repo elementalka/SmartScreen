@@ -44,6 +44,7 @@ public partial class QuickActionsWindow : Window
     private MediaColor _activeColor = Colors.Red;
     private bool _isEditMode;
     private bool _isEditorChromeVisible = true;
+    private bool _isCompletingFinalAction;
 
     public QuickActionsWindow(QuickActionsViewModel viewModel)
     {
@@ -152,10 +153,72 @@ public partial class QuickActionsWindow : Window
 
     private async void DoneEditButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var edited = RenderEditedScreenshot();
-        ClearAllAnnotations();
-        await _viewModel.ApplyEditedScreenshotAsync(edited);
-        InitializeSurface(edited);
+        try
+        {
+            var edited = RenderEditedScreenshot();
+            await _viewModel.ApplyEditedScreenshotAsync(edited);
+            ClearAllAnnotations();
+            InitializeSurface(edited);
+        }
+        catch (Exception exception)
+        {
+            _viewModel.ReportActionError(exception, "Could not apply edited screenshot.", "Не вдалося застосувати редагування");
+        }
+    }
+
+    private async Task CopyAndCloseAsync(CancellationToken cancellationToken = default)
+    {
+        if (_isEditMode)
+        {
+            var edited = RenderEditedScreenshot();
+            await _viewModel.ApplyEditedScreenshotAsync(edited, copyToClipboard: true, cancellationToken);
+            ClearAllAnnotations();
+        }
+        else
+        {
+            await _viewModel.CopyCurrentScreenshotAsync(cancellationToken);
+        }
+
+        Close();
+    }
+
+    private async Task SaveAndCloseAsync(CancellationToken cancellationToken = default)
+    {
+        if (_isEditMode)
+        {
+            var edited = RenderEditedScreenshot();
+            await _viewModel.ApplyEditedScreenshotAsync(edited, copyToClipboard: false, cancellationToken);
+            ClearAllAnnotations();
+        }
+
+        await _viewModel.SaveCurrentScreenshotAsync(cancellationToken);
+        Close();
+    }
+
+    private async void RunFinalAction(Func<CancellationToken, Task> action, string failureStatus)
+    {
+        if (_isCompletingFinalAction)
+        {
+            return;
+        }
+
+        _isCompletingFinalAction = true;
+
+        try
+        {
+            await action(CancellationToken.None);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception exception)
+        {
+            _viewModel.ReportActionError(exception, "Could not finish capture action.", failureStatus);
+        }
+        finally
+        {
+            _isCompletingFinalAction = false;
+        }
     }
 
     private void CancelEditButton_OnClick(object sender, RoutedEventArgs e)
@@ -217,6 +280,24 @@ public partial class QuickActionsWindow : Window
     {
         base.OnPreviewKeyDown(e);
 
+        if (Keyboard.Modifiers == ModifierKeys.Control &&
+            e.Key == Key.C &&
+            !(_viewModel.IsAiPanelOpen && Keyboard.FocusedElement is TextBox))
+        {
+            RunFinalAction(CopyAndCloseAsync, "Не вдалося скопіювати скріншот");
+            e.Handled = true;
+            return;
+        }
+
+        if (Keyboard.Modifiers == ModifierKeys.Control &&
+            e.Key == Key.S &&
+            !(_viewModel.IsAiPanelOpen && Keyboard.FocusedElement is TextBox))
+        {
+            RunFinalAction(SaveAndCloseAsync, "Не вдалося зберегти скріншот");
+            e.Handled = true;
+            return;
+        }
+
         if (!_isEditMode)
         {
             if (_viewModel.IsAiPanelOpen)
@@ -277,10 +358,6 @@ public partial class QuickActionsWindow : Window
                     return;
                 case Key.Y:
                     RedoLastAction();
-                    e.Handled = true;
-                    return;
-                case Key.S:
-                    DoneEditButton_OnClick(this, new RoutedEventArgs());
                     e.Handled = true;
                     return;
             }

@@ -70,8 +70,8 @@ public sealed class QuickActionsViewModel : ObservableObject
         PreviewImage = BitmapSourceFactory.FromScreenshot(screenshot);
 
         LoadCommand = new AsyncRelayCommand(LoadAsync);
-        SaveCommand = new AsyncRelayCommand(SaveAsync);
-        CopyCommand = new AsyncRelayCommand(CopyAsync);
+        SaveCommand = new AsyncRelayCommand(SaveCurrentScreenshotAsync);
+        CopyCommand = new AsyncRelayCommand(CopyCurrentScreenshotAsync);
         AskAiCommand = new RelayCommand(OpenAiPanel);
         RunAiCommand = new AsyncRelayCommand(RunAiAsync, () => !IsAiBusy);
         CancelAiCommand = new RelayCommand(CancelAi, () => IsAiBusy);
@@ -228,6 +228,12 @@ public sealed class QuickActionsViewModel : ObservableObject
 
     public void Close() => CloseRequested?.Invoke();
 
+    public void ReportActionError(Exception exception, string logMessage, string userMessage)
+    {
+        _loggingService.Error(exception, logMessage);
+        Status = userMessage;
+    }
+
     public async Task LoadAsync(CancellationToken cancellationToken)
     {
         if (Prompts.Count > 0)
@@ -273,7 +279,7 @@ public sealed class QuickActionsViewModel : ObservableObject
         }
     }
 
-    private async Task SaveAsync(CancellationToken cancellationToken)
+    public async Task SaveCurrentScreenshotAsync(CancellationToken cancellationToken)
     {
         var settings = await _settingsService.LoadAsync(cancellationToken);
         var path = await _imageFileService.SaveAsync(
@@ -286,18 +292,27 @@ public sealed class QuickActionsViewModel : ObservableObject
         Status = $"Збережено: {Path.GetFileName(path)}";
     }
 
-    private async Task CopyAsync(CancellationToken cancellationToken)
+    public async Task CopyCurrentScreenshotAsync(CancellationToken cancellationToken)
     {
         await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
         Status = "Скопійовано в буфер";
     }
 
-    public async Task ApplyEditedScreenshotAsync(ScreenshotResult screenshot, CancellationToken cancellationToken = default)
+    public async Task ApplyEditedScreenshotAsync(
+        ScreenshotResult screenshot,
+        bool copyToClipboard = true,
+        CancellationToken cancellationToken = default)
     {
         Screenshot = screenshot;
         OnPropertyChanged(nameof(PreviewImage));
-        await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
-        Status = "Відредаговано і скопійовано";
+        if (copyToClipboard)
+        {
+            await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
+            Status = "Відредаговано і скопійовано";
+            return;
+        }
+
+        Status = "Відредаговано";
     }
 
     private void OpenAiPanel()

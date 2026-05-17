@@ -7,7 +7,7 @@
         MinWidth="980"
         MinHeight="680"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource AppBackgroundBrush}">
+        Background="{StaticResource GlassWindowBackgroundBrush}">
     <Window.Resources>
         <Style x:Key="SettingsNavItem" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0" />
@@ -28,11 +28,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#F7F9FC" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#BFF7F9FC" />
                                 <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource BorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#DDEAF1FF" />
                                 <Setter TargetName="Chrome" Property="BorderBrush" Value="#C7D7FE" />
                             </Trigger>
                         </ControlTemplate.Triggers>
