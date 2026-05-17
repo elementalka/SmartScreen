@@ -49,6 +49,18 @@
                             <TextBlock Text="Активне вікно" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureMonitorCommand}" AutomationProperties.Name="Монітор">
+                        <DockPanel LastChildFill="True">
+                            <TextBlock Text="&#xE772;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
+                            <TextBlock Text="Монітор" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </Button>
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureDelayedCommand}" AutomationProperties.Name="Із затримкою">
+                        <DockPanel LastChildFill="True">
+                            <TextBlock Text="&#xE916;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
+                            <TextBlock Text="Затримка" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </Button>
                     <Button Style="{StaticResource RailButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="Запитати AI">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="AI" FontSize="13" FontWeight="Bold" Margin="0,0,10,0" />
@@ -191,7 +203,7 @@
                                 </Grid>
                             </Border>
 
-                            <UniformGrid Grid.Row="2" Columns="3">
+                            <UniformGrid Grid.Row="2" Columns="5">
                                 <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureRegionCommand}" AutomationProperties.Name="Скріншот області" ToolTip="Скріншот області">
                                     <StackPanel>
                                         <TextBlock Text="&#xE8A7;" Style="{StaticResource ActionIconText}" />
@@ -202,6 +214,18 @@
                                     <StackPanel>
                                         <TextBlock Text="&#xE7C4;" Style="{StaticResource ActionIconText}" />
                                         <TextBlock Text="Вікно" Style="{StaticResource ActionCaptionText}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureMonitorCommand}" AutomationProperties.Name="Скріншот монітора" ToolTip="Скріншот монітора">
+                                    <StackPanel>
+                                        <TextBlock Text="&#xE772;" Style="{StaticResource ActionIconText}" />
+                                        <TextBlock Text="Монітор" Style="{StaticResource ActionCaptionText}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureDelayedCommand}" AutomationProperties.Name="Скріншот із затримкою" ToolTip="Скріншот із затримкою">
+                                    <StackPanel>
+                                        <TextBlock Text="&#xE916;" Style="{StaticResource ActionIconText}" />
+                                        <TextBlock Text="Таймер" Style="{StaticResource ActionCaptionText}" />
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource DashboardActionButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="Запитати AI про поточний скріншот" ToolTip="Запитати AI про поточний скріншот">

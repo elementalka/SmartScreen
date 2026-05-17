@@ -33,6 +33,14 @@ dotnet build
 dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 ```
 
+## Portable Publish
+
+```powershell
+.\scripts\publish-portable.ps1
+```
+
+The portable build is written to `artifacts/SmartScreen-win-x64/`.
+
 ## Default Hotkeys
 
 - `Ctrl+Shift+S` - capture selected region
@@ -47,6 +55,8 @@ dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 - Capture full screen
 - Capture selected region
 - Capture active window
+- Capture selected monitor
+- Delayed screenshot capture
 - Copy screenshot to clipboard
 - Save PNG/JPG
 - Fullscreen capture workspace with quick actions
@@ -55,6 +65,7 @@ dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 - Built-in AI panel for prompt selection, cancellation, copy, and save
 - AI image optimization before provider requests to reduce timeouts and payload errors
 - Friendly AI provider errors with safe secret masking
+- DPAPI-protected local API key storage
 - Gemini provider
 - OpenAI-compatible provider for NVIDIA NIM, OpenRouter, local endpoints, and similar APIs
 - Local JSON settings
@@ -105,3 +116,4 @@ Course documents are stored in `docs/`:
 - `ТЗ.md`
 - `Інструкція для Codex.md`
 - `План звіту.md`
+- `Статус реалізації.md`

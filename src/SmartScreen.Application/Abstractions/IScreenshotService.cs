@@ -6,6 +6,6 @@ public interface IScreenshotService
 {
     Task<ScreenshotResult> CaptureFullScreenAsync(CancellationToken cancellationToken = default);
     Task<ScreenshotResult> CaptureActiveWindowAsync(CancellationToken cancellationToken = default);
+    Task<ScreenshotResult> CaptureMonitorAsync(int monitorIndex, CancellationToken cancellationToken = default);
     Task<ScreenshotResult> CaptureRegionAsync(ScreenRegion region, CancellationToken cancellationToken = default);
 }
-

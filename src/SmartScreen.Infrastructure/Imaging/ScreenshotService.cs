@@ -32,6 +32,26 @@ public sealed class ScreenshotService : IScreenshotService
             return CaptureRectangle(new Rectangle(rect.Left, rect.Top, width, height), "Active window");
         }, cancellationToken);
 
+    public Task<ScreenshotResult> CaptureMonitorAsync(int monitorIndex, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var screens = Forms.Screen.AllScreens
+                .OrderByDescending(screen => screen.Primary)
+                .ThenBy(screen => screen.DeviceName, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            if (screens.Length == 0)
+            {
+                return CaptureRectangle(GetVirtualScreenBounds(), "Full screen");
+            }
+
+            var safeIndex = Math.Clamp(monitorIndex, 0, screens.Length - 1);
+            var screen = screens[safeIndex];
+            return CaptureRectangle(screen.Bounds, screen.Primary ? "Primary monitor" : $"Monitor {safeIndex + 1}");
+        }, cancellationToken);
+
     public Task<ScreenshotResult> CaptureRegionAsync(ScreenRegion region, CancellationToken cancellationToken = default) =>
         Task.Run(() =>
         {
@@ -92,4 +112,3 @@ public sealed class ScreenshotService : IScreenshotService
         public readonly int Bottom;
     }
 }
-

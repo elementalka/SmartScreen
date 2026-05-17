@@ -162,6 +162,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Margin="0,0,10,0">
                                         <TextBlock Text="Режим за замовчуванням" Style="{StaticResource FieldLabel}" />
@@ -171,10 +172,18 @@
                                                   DisplayMemberPath="Label"
                                                   MinHeight="38" />
                                     </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
                                         <TextBlock Text="Формат" Style="{StaticResource FieldLabel}" />
                                         <ComboBox ItemsSource="{Binding ImageFormatOptions}"
                                                   SelectedValue="{Binding Settings.Screenshots.DefaultFormat}"
+                                                  SelectedValuePath="Value"
+                                                  DisplayMemberPath="Label"
+                                                  MinHeight="38" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                        <TextBlock Text="Монітор" Style="{StaticResource FieldLabel}" />
+                                        <ComboBox ItemsSource="{Binding MonitorOptions}"
+                                                  SelectedValue="{Binding Settings.Screenshots.MonitorIndex}"
                                                   SelectedValuePath="Value"
                                                   DisplayMemberPath="Label"
                                                   MinHeight="38" />
@@ -330,6 +339,16 @@
                                                    Margin="0,4,0,0" />
                                     </StackPanel>
 
+                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Button Content="Додати"
+                                                Command="{Binding AddProviderCommand}"
+                                                Style="{StaticResource GhostButton}"
+                                                Margin="0,0,8,0" />
+                                        <Button Content="Видалити"
+                                                Command="{Binding DeleteProviderCommand}"
+                                                Style="{StaticResource GhostButton}" />
+                                    </StackPanel>
+
                                     <ListBox ItemsSource="{Binding Providers}"
                                              SelectedItem="{Binding SelectedProvider}"
                                              BorderThickness="0"
@@ -366,6 +385,26 @@
                                                   VerticalAlignment="Center"
                                                   IsChecked="{Binding SelectedProvider.IsEnabled}" />
                                     </DockPanel>
+
+                                    <Grid Margin="0,18,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="220" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Назва" Style="{StaticResource FieldLabel}" />
+                                            <TextBox Text="{Binding SelectedProvider.DisplayName, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBox}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                            <TextBlock Text="Тип" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox ItemsSource="{Binding AiProviderKindOptions}"
+                                                      SelectedValue="{Binding SelectedProvider.Kind}"
+                                                      SelectedValuePath="Value"
+                                                      DisplayMemberPath="Label"
+                                                      MinHeight="38" />
+                                        </StackPanel>
+                                    </Grid>
 
                                     <Grid Margin="0,22,0,0">
                                         <Grid.ColumnDefinitions>
@@ -441,6 +480,47 @@
                                                    Margin="0,4,0,0" />
                                     </StackPanel>
 
+                                    <Border DockPanel.Dock="Top"
+                                            Style="{StaticResource MetricPanel}"
+                                            Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <DockPanel Margin="0,0,0,8">
+                                                <TextBlock Text="Категорії"
+                                                           Style="{StaticResource FieldLabel}"
+                                                           DockPanel.Dock="Left" />
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                                    <Button Content="+"
+                                                            Command="{Binding AddPromptCategoryCommand}"
+                                                            Style="{StaticResource GhostButton}"
+                                                            Width="34"
+                                                            MinWidth="34"
+                                                            Padding="0"
+                                                            Margin="0,0,6,0"
+                                                            ToolTip="Додати категорію" />
+                                                    <Button Content="−"
+                                                            Command="{Binding DeletePromptCategoryCommand}"
+                                                            Style="{StaticResource GhostButton}"
+                                                            Width="34"
+                                                            MinWidth="34"
+                                                            Padding="0"
+                                                            ToolTip="Видалити власну категорію" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <ListBox ItemsSource="{Binding PromptCategories}"
+                                                     SelectedItem="{Binding SelectedPromptCategory}"
+                                                     MaxHeight="150">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontWeight="SemiBold"
+                                                                   Margin="9,7"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </StackPanel>
+                                    </Border>
+
                                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
                                         <Button Content="Додати"
                                                 Command="{Binding AddPromptCommand}"
@@ -486,6 +566,24 @@
                                                 Command="{Binding ResetPromptsCommand}"
                                                 Style="{StaticResource GhostButton}" />
                                     </DockPanel>
+
+                                    <Grid Margin="0,18,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Назва категорії" Style="{StaticResource FieldLabel}" />
+                                            <TextBox Text="{Binding SelectedPromptCategory.Name, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource ModernTextBox}" />
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1"
+                                                  Content="Системна"
+                                                  IsChecked="{Binding SelectedPromptCategory.IsSystem}"
+                                                  IsEnabled="False"
+                                                  VerticalAlignment="Bottom"
+                                                  Margin="14,0,0,8" />
+                                    </Grid>
 
                                     <Grid Margin="0,18,0,0">
                                         <Grid.ColumnDefinitions>

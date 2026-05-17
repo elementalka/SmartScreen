@@ -103,6 +103,10 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
             : screenshots.SaveDirectory;
 
         screenshots.JpegQuality = Math.Clamp(screenshots.JpegQuality, 1, 100);
+        screenshots.DelaySeconds = screenshots.DelaySeconds <= 0
+            ? 3
+            : Math.Clamp(screenshots.DelaySeconds, 1, 60);
+        screenshots.MonitorIndex = Math.Max(0, screenshots.MonitorIndex);
 
         if (screenshots.AfterCaptureActions.Count == 0)
         {

@@ -57,6 +57,7 @@ public partial class App : System.Windows.Application
         var settings = await settingsService.LoadAsync();
         var hotkeySettings = await hotkeySettingsService.LoadAsync();
         await promptTemplateService.LoadAsync();
+        ThemeResourceService.Apply(settings.Theme);
 
         var screenshotService = new ScreenshotService();
         var imageFileService = new ImageFileService(storageService);
@@ -101,6 +102,7 @@ public partial class App : System.Windows.Application
             var firstRunWizard = new FirstRunWizardWindow(new FirstRunWizardViewModel(settingsService));
             firstRunWizard.ShowDialog();
             settings = await settingsService.LoadAsync();
+            ThemeResourceService.Apply(settings.Theme);
         }
 
         mainWindow.Closing += (_, args) =>
@@ -121,6 +123,8 @@ public partial class App : System.Windows.Application
         trayService.CaptureRegionRequested += async (_, _) => await coordinator.CaptureRegionAsync();
         trayService.CaptureFullScreenRequested += async (_, _) => await coordinator.CaptureFullScreenAsync();
         trayService.CaptureActiveWindowRequested += async (_, _) => await coordinator.CaptureActiveWindowAsync();
+        trayService.CaptureMonitorRequested += async (_, _) => await coordinator.CaptureMonitorAsync();
+        trayService.CaptureDelayedRequested += async (_, _) => await coordinator.CaptureDelayedAsync();
         trayService.OpenSettingsRequested += (_, _) => coordinator.ShowSettings();
         trayService.OpenMainWindowRequested += (_, _) => ShowMainWindow(mainWindow);
         trayService.ExitRequested += (_, _) =>

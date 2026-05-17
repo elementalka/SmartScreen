@@ -154,7 +154,11 @@ public sealed class ConfigurationTests
             await service.ApplySecretsAsync(settings);
 
             Assert.AreEqual("secret-test-key", settings.ApiKey);
-            Assert.IsTrue(File.Exists(Path.Combine(root, "config", "secrets.local.json")));
+            var secretsPath = Path.Combine(root, "config", "secrets.local.json");
+            Assert.IsTrue(File.Exists(secretsPath));
+            var secretsJson = await File.ReadAllTextAsync(secretsPath);
+            Assert.IsFalse(secretsJson.Contains("secret-test-key", StringComparison.Ordinal));
+            Assert.IsTrue(secretsJson.Contains("dpapi:", StringComparison.OrdinalIgnoreCase));
         }
         finally
         {

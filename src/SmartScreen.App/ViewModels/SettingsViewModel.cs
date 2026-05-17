@@ -8,6 +8,7 @@ using SmartScreen.App.Commands;
 using SmartScreen.App.Services;
 using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
+using Forms = System.Windows.Forms;
 using Visibility = System.Windows.Visibility;
 
 namespace SmartScreen.App.ViewModels;
@@ -25,6 +26,7 @@ public sealed class SettingsViewModel : ObservableObject
     private AppSettings? _settings;
     private SettingsSectionViewModel? _selectedSection;
     private AiProviderSettings? _selectedProvider;
+    private AiPromptCategory? _selectedPromptCategory;
     private AiPromptTemplate? _selectedPromptTemplate;
     private string _apiKeyInput = string.Empty;
     private string _status = "Налаштування";
@@ -82,6 +84,17 @@ public sealed class SettingsViewModel : ObservableObject
             new(ScreenshotImageFormat.Jpeg, "JPG")
         ];
 
+        AiProviderKindOptions =
+        [
+            new(AiProviderKind.Gemini, "Gemini"),
+            new(AiProviderKind.OpenAiCompatible, "OpenAI-compatible"),
+            new(AiProviderKind.OpenRouter, "OpenRouter"),
+            new(AiProviderKind.Nvidia, "NVIDIA"),
+            new(AiProviderKind.OpenAi, "OpenAI"),
+            new(AiProviderKind.Claude, "Claude"),
+            new(AiProviderKind.Custom, "Custom")
+        ];
+
         ThemeModeOptions =
         [
             new(ThemeMode.System, "Системна"),
@@ -100,6 +113,8 @@ public sealed class SettingsViewModel : ObservableObject
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         TestAiCommand = new AsyncRelayCommand(TestAiAsync);
+        AddProviderCommand = new RelayCommand(AddProvider);
+        DeleteProviderCommand = new RelayCommand(DeleteProvider, () => Providers.Count > 1 && SelectedProvider is not null);
         RestoreDefaultHotkeysCommand = new RelayCommand(RestoreDefaultHotkeys);
         ValidateHotkeysCommand = new RelayCommand(ValidateHotkeys);
         ApplyQuickCopyWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
@@ -132,6 +147,8 @@ public sealed class SettingsViewModel : ObservableObject
             status: "Сценарій: тихе збереження у файл"));
         AddPromptCommand = new RelayCommand(AddPrompt);
         DeletePromptCommand = new RelayCommand(DeletePrompt, () => SelectedPromptTemplate is not null);
+        AddPromptCategoryCommand = new RelayCommand(AddPromptCategory);
+        DeletePromptCategoryCommand = new RelayCommand(DeletePromptCategory, () => SelectedPromptCategory is { IsSystem: false });
         ResetPromptsCommand = new AsyncRelayCommand(ResetPromptsAsync);
         OpenConfigFolderCommand = new RelayCommand(() => OpenFolder(ConfigDirectory));
         OpenLogsFolderCommand = new RelayCommand(() => OpenFolder(LogDirectory));
@@ -144,8 +161,10 @@ public sealed class SettingsViewModel : ObservableObject
     public ObservableCollection<string> ValidationMessages { get; } = [];
     public ObservableCollection<AiPromptCategory> PromptCategories { get; } = [];
     public ObservableCollection<AiPromptTemplate> PromptTemplates { get; } = [];
+    public ObservableCollection<Option<int>> MonitorOptions { get; } = [];
     public IReadOnlyList<Option<ScreenshotMode>> ScreenshotModeOptions { get; }
     public IReadOnlyList<Option<ScreenshotImageFormat>> ImageFormatOptions { get; }
+    public IReadOnlyList<Option<AiProviderKind>> AiProviderKindOptions { get; }
     public IReadOnlyList<Option<ThemeMode>> ThemeModeOptions { get; }
     public IReadOnlyList<Option<string>> LanguageOptions { get; }
 
@@ -177,6 +196,23 @@ public sealed class SettingsViewModel : ObservableObject
                 ApiKeyInput = value?.ApiKey ?? string.Empty;
                 OnPropertyChanged(nameof(SelectedProviderEnvironmentVariable));
                 OnPropertyChanged(nameof(SelectedProviderHasKey));
+                if (DeleteProviderCommand is RelayCommand command)
+                {
+                    command.RaiseCanExecuteChanged();
+                }
+            }
+        }
+    }
+
+    public AiPromptCategory? SelectedPromptCategory
+    {
+        get => _selectedPromptCategory;
+        set
+        {
+            if (SetProperty(ref _selectedPromptCategory, value) &&
+                DeletePromptCategoryCommand is RelayCommand command)
+            {
+                command.RaiseCanExecuteChanged();
             }
         }
     }
@@ -186,9 +222,18 @@ public sealed class SettingsViewModel : ObservableObject
         get => _selectedPromptTemplate;
         set
         {
-            if (SetProperty(ref _selectedPromptTemplate, value) && DeletePromptCommand is RelayCommand command)
+            if (SetProperty(ref _selectedPromptTemplate, value))
             {
-                command.RaiseCanExecuteChanged();
+                if (value is not null)
+                {
+                    SelectedPromptCategory = PromptCategories.FirstOrDefault(category => category.Id == value.CategoryId)
+                        ?? SelectedPromptCategory;
+                }
+
+                if (DeletePromptCommand is RelayCommand command)
+                {
+                    command.RaiseCanExecuteChanged();
+                }
             }
         }
     }
@@ -275,6 +320,8 @@ public sealed class SettingsViewModel : ObservableObject
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand TestAiCommand { get; }
+    public ICommand AddProviderCommand { get; }
+    public ICommand DeleteProviderCommand { get; }
     public ICommand RestoreDefaultHotkeysCommand { get; }
     public ICommand ValidateHotkeysCommand { get; }
     public ICommand ApplyQuickCopyWorkflowCommand { get; }
@@ -283,6 +330,8 @@ public sealed class SettingsViewModel : ObservableObject
     public ICommand ApplySilentSaveWorkflowCommand { get; }
     public ICommand AddPromptCommand { get; }
     public ICommand DeletePromptCommand { get; }
+    public ICommand AddPromptCategoryCommand { get; }
+    public ICommand DeletePromptCategoryCommand { get; }
     public ICommand ResetPromptsCommand { get; }
     public ICommand OpenConfigFolderCommand { get; }
     public ICommand OpenLogsFolderCommand { get; }
@@ -291,6 +340,7 @@ public sealed class SettingsViewModel : ObservableObject
     private async Task LoadAsync(CancellationToken cancellationToken)
     {
         Settings = await _settingsService.LoadAsync(cancellationToken);
+        RefreshMonitorOptions();
         Providers.Clear();
 
         foreach (var provider in Settings.Ai.Providers)
@@ -351,6 +401,7 @@ public sealed class SettingsViewModel : ObservableObject
             .ToList();
 
         await _settingsService.SaveAsync(Settings, cancellationToken);
+        ThemeResourceService.Apply(Settings.Theme);
         await _hotkeySettingsService.SaveAsync(hotkeySettings, cancellationToken);
         await _hotkeyService.RegisterAsync(hotkeySettings, cancellationToken);
         await SavePromptsAsync(cancellationToken);
@@ -400,6 +451,8 @@ public sealed class SettingsViewModel : ObservableObject
 
         SelectedPromptTemplate = PromptTemplates.FirstOrDefault();
         OnPropertyChanged(nameof(PromptTemplateCount));
+        SelectedPromptCategory = PromptCategories.FirstOrDefault(category => category.Id == SelectedPromptTemplate?.CategoryId)
+            ?? PromptCategories.FirstOrDefault();
     }
 
     private async Task SavePromptsAsync(CancellationToken cancellationToken)
@@ -437,11 +490,11 @@ public sealed class SettingsViewModel : ObservableObject
 
     private void AddPrompt()
     {
-        EnsureCustomPromptCategory();
+        var category = SelectedPromptCategory ?? EnsureCustomPromptCategory();
         var nextOrder = PromptTemplates.Count == 0 ? 0 : PromptTemplates.Max(template => template.Order) + 1;
         var template = new AiPromptTemplate
         {
-            CategoryId = "custom",
+            CategoryId = category.Id,
             Title = "Новий prompt",
             Prompt = "Опиши, що потрібно зробити зі скріншотом.",
             IsSystem = false,
@@ -452,6 +505,84 @@ public sealed class SettingsViewModel : ObservableObject
         SelectedPromptTemplate = template;
         OnPropertyChanged(nameof(PromptTemplateCount));
         Status = "Prompt додано. Натисни «Зберегти», щоб записати";
+    }
+
+    private void AddProvider()
+    {
+        var nextNumber = Providers.Count(provider =>
+            provider.Id.StartsWith("custom-provider", StringComparison.OrdinalIgnoreCase)) + 1;
+        var provider = new AiProviderSettings
+        {
+            Id = $"custom-provider-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}",
+            DisplayName = $"Custom provider {nextNumber}",
+            Kind = AiProviderKind.OpenAiCompatible,
+            Endpoint = "http://localhost:1234/v1/chat/completions",
+            Model = "vision-model",
+            TimeoutSeconds = 60,
+            IsEnabled = true
+        };
+
+        Providers.Add(provider);
+        SelectedProvider = provider;
+        Status = "AI-провайдера додано. Заповни endpoint, model і ключ";
+        if (DeleteProviderCommand is RelayCommand command)
+        {
+            command.RaiseCanExecuteChanged();
+        }
+    }
+
+    private void DeleteProvider()
+    {
+        if (SelectedProvider is null || Providers.Count <= 1)
+        {
+            return;
+        }
+
+        var index = Math.Max(0, Providers.IndexOf(SelectedProvider) - 1);
+        Providers.Remove(SelectedProvider);
+        SelectedProvider = Providers.ElementAtOrDefault(index);
+        Status = "AI-провайдера видалено. Натисни «Зберегти», щоб застосувати";
+        if (DeleteProviderCommand is RelayCommand command)
+        {
+            command.RaiseCanExecuteChanged();
+        }
+    }
+
+    private void AddPromptCategory()
+    {
+        var nextOrder = PromptCategories.Count == 0 ? 0 : PromptCategories.Max(category => category.Order) + 1;
+        var category = new AiPromptCategory
+        {
+            Id = $"custom-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}",
+            Name = "Нова категорія",
+            IsSystem = false,
+            Order = nextOrder
+        };
+
+        PromptCategories.Add(category);
+        SelectedPromptCategory = category;
+        Status = "Категорію prompt-ів додано. Перейменуй і натисни «Зберегти»";
+    }
+
+    private void DeletePromptCategory()
+    {
+        if (SelectedPromptCategory is null || SelectedPromptCategory.IsSystem)
+        {
+            return;
+        }
+
+        var fallback = PromptCategories.FirstOrDefault(category => category.Id == "custom" && !ReferenceEquals(category, SelectedPromptCategory))
+            ?? PromptCategories.FirstOrDefault(category => category.IsSystem)
+            ?? EnsureCustomPromptCategory();
+
+        foreach (var template in PromptTemplates.Where(template => template.CategoryId == SelectedPromptCategory.Id))
+        {
+            template.CategoryId = fallback.Id;
+        }
+
+        PromptCategories.Remove(SelectedPromptCategory);
+        SelectedPromptCategory = fallback;
+        Status = "Категорію видалено, її prompt-и перенесено в іншу категорію";
     }
 
     private void DeletePrompt()
@@ -475,21 +606,47 @@ public sealed class SettingsViewModel : ObservableObject
         Status = "Стандартні prompt-шаблони відновлено";
     }
 
-    private void EnsureCustomPromptCategory()
+    private AiPromptCategory EnsureCustomPromptCategory()
     {
-        if (PromptCategories.Any(category => category.Id == "custom"))
+        var existing = PromptCategories.FirstOrDefault(category => category.Id == "custom");
+        if (existing is not null)
         {
-            return;
+            return existing;
         }
 
         var nextOrder = PromptCategories.Count == 0 ? 0 : PromptCategories.Max(category => category.Order) + 1;
-        PromptCategories.Add(new AiPromptCategory
+        var category = new AiPromptCategory
         {
             Id = "custom",
             Name = "Користувацькі",
             IsSystem = false,
             Order = nextOrder
-        });
+        };
+        PromptCategories.Add(category);
+        return category;
+    }
+
+    private void RefreshMonitorOptions()
+    {
+        MonitorOptions.Clear();
+        var screens = Forms.Screen.AllScreens
+            .OrderByDescending(screen => screen.Primary)
+            .ThenBy(screen => screen.DeviceName, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        for (var index = 0; index < screens.Length; index++)
+        {
+            var screen = screens[index];
+            var primary = screen.Primary ? " · основний" : string.Empty;
+            MonitorOptions.Add(new Option<int>(
+                index,
+                $"{index + 1}: {screen.Bounds.Width}x{screen.Bounds.Height}{primary}"));
+        }
+
+        if (MonitorOptions.Count == 0)
+        {
+            MonitorOptions.Add(new Option<int>(0, "1: основний монітор"));
+        }
     }
 
     private bool TryBuildHotkeySettings(out HotkeySettings hotkeySettings)
@@ -680,9 +837,12 @@ public sealed class HotkeyBindingViewModel : ObservableObject
 
     public string ActionDisplayName => Action switch
     {
+        HotkeyAction.CaptureDefault => "Скріншот за замовчуванням",
         HotkeyAction.CaptureRegion => "Скріншот області",
         HotkeyAction.CaptureFullScreen => "Весь екран",
         HotkeyAction.CaptureActiveWindow => "Активне вікно",
+        HotkeyAction.CaptureMonitor => "Монітор",
+        HotkeyAction.CaptureDelayed => "Із затримкою",
         HotkeyAction.AskAiForCurrentScreenshot => "AI для поточного скріншота",
         HotkeyAction.OpenMainWindow => "Відкрити головне вікно",
         HotkeyAction.OpenSettings => "Відкрити налаштування",
@@ -691,9 +851,12 @@ public sealed class HotkeyBindingViewModel : ObservableObject
 
     public string Description => Action switch
     {
+        HotkeyAction.CaptureDefault => "Запускає режим, вибраний у налаштуваннях скріншотів.",
         HotkeyAction.CaptureRegion => "Основний сценарій: виділення області та quick actions.",
         HotkeyAction.CaptureFullScreen => "Захоплення всіх екранів одним натисканням.",
         HotkeyAction.CaptureActiveWindow => "Знімок активного вікна без ручного виділення.",
+        HotkeyAction.CaptureMonitor => "Захоплення монітора, вибраного в налаштуваннях.",
+        HotkeyAction.CaptureDelayed => "Таймер перед скріншотом, корисно для меню і hover-станів.",
         HotkeyAction.AskAiForCurrentScreenshot => "AI-запит тільки для вже створеного скріншота.",
         HotkeyAction.OpenMainWindow => "Повернення до dashboard.",
         HotkeyAction.OpenSettings => "Швидкий доступ до конфігурації.",

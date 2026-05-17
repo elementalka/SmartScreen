@@ -10,6 +10,8 @@ public sealed class WpfTrayService : ITrayService
     public event EventHandler? CaptureRegionRequested;
     public event EventHandler? CaptureFullScreenRequested;
     public event EventHandler? CaptureActiveWindowRequested;
+    public event EventHandler? CaptureMonitorRequested;
+    public event EventHandler? CaptureDelayedRequested;
     public event EventHandler? OpenMainWindowRequested;
     public event EventHandler? OpenSettingsRequested;
     public event EventHandler? ExitRequested;
@@ -25,6 +27,8 @@ public sealed class WpfTrayService : ITrayService
         menu.Items.Add("Скріншот області", null, (_, _) => CaptureRegionRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add("Скріншот всього екрана", null, (_, _) => CaptureFullScreenRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add("Скріншот активного вікна", null, (_, _) => CaptureActiveWindowRequested?.Invoke(this, EventArgs.Empty));
+        menu.Items.Add("Скріншот монітора", null, (_, _) => CaptureMonitorRequested?.Invoke(this, EventArgs.Empty));
+        menu.Items.Add("Скріншот із затримкою", null, (_, _) => CaptureDelayedRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Відкрити SmartScreen", null, (_, _) => OpenMainWindowRequested?.Invoke(this, EventArgs.Empty));
         menu.Items.Add("Налаштування", null, (_, _) => OpenSettingsRequested?.Invoke(this, EventArgs.Empty));

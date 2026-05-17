@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.Domain.Models;
 
@@ -8,6 +10,7 @@ public sealed class LocalAiSecretService(IStorageService storageService, ILoggin
     : IAiSecretService
 {
     private const string FileName = "secrets.local.json";
+    private const string DpapiPrefix = "dpapi:";
     private readonly JsonSerializerOptions _jsonOptions = JsonOptionsFactory.Create();
 
     public async Task ApplySecretsAsync(AiProviderSettings settings, CancellationToken cancellationToken = default)
@@ -27,14 +30,14 @@ public sealed class LocalAiSecretService(IStorageService storageService, ILoggin
         var secrets = await LoadAsync(cancellationToken);
         if (secrets.ProviderApiKeys.TryGetValue(settings.Id, out var apiKey) && !string.IsNullOrWhiteSpace(apiKey))
         {
-            settings.ApiKey = apiKey;
+            settings.ApiKey = Unprotect(apiKey);
         }
     }
 
     public async Task SaveApiKeyAsync(string providerId, string apiKey, CancellationToken cancellationToken = default)
     {
         var secrets = await LoadAsync(cancellationToken);
-        secrets.ProviderApiKeys[providerId] = apiKey;
+        secrets.ProviderApiKeys[providerId] = Protect(apiKey);
         await SaveAsync(secrets, cancellationToken);
     }
 
@@ -74,5 +77,37 @@ public sealed class LocalAiSecretService(IStorageService storageService, ILoggin
     {
         await storageService.EnsureDirectoriesAsync(cancellationToken);
         await JsonFileStore.WriteAsync(storageService.GetConfigFilePath(FileName), secrets, _jsonOptions, cancellationToken);
+    }
+
+    private static string Protect(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(value);
+        var protectedBytes = ProtectedData.Protect(bytes, optionalEntropy: null, DataProtectionScope.CurrentUser);
+        return $"{DpapiPrefix}{Convert.ToBase64String(protectedBytes)}";
+    }
+
+    private string Unprotect(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || !value.StartsWith(DpapiPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        try
+        {
+            var protectedBytes = Convert.FromBase64String(value[DpapiPrefix.Length..]);
+            var bytes = ProtectedData.Unprotect(protectedBytes, optionalEntropy: null, DataProtectionScope.CurrentUser);
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch (Exception exception) when (exception is CryptographicException or FormatException)
+        {
+            loggingService.Error(exception, "Could not decrypt local AI secret.");
+            return string.Empty;
+        }
     }
 }

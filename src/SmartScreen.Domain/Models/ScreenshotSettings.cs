@@ -12,6 +12,7 @@ public sealed class ScreenshotSettings
     public bool ShowQuickActionsAfterCapture { get; set; } = true;
     public List<AfterCaptureAction> AfterCaptureActions { get; set; } = [];
 
-    public int DelaySeconds { get; set; }
+    public int DelaySeconds { get; set; } = 3;
+    public int MonitorIndex { get; set; }
     public string SaveDirectory { get; set; } = "screenshots";
 }

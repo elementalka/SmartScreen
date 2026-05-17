@@ -1,6 +1,12 @@
 {
   "bindings": [
     {
+      "action": "captureDefault",
+      "gesture": "Ctrl+Shift+Space",
+      "isEnabled": false,
+      "promptTemplateId": null
+    },
+    {
       "action": "captureRegion",
       "gesture": "Ctrl+Shift+S",
       "isEnabled": true,
@@ -16,6 +22,18 @@
       "action": "captureActiveWindow",
       "gesture": "Ctrl+Shift+W",
       "isEnabled": true,
+      "promptTemplateId": null
+    },
+    {
+      "action": "captureMonitor",
+      "gesture": "Ctrl+Shift+M",
+      "isEnabled": false,
+      "promptTemplateId": null
+    },
+    {
+      "action": "captureDelayed",
+      "gesture": "Ctrl+Shift+D",
+      "isEnabled": false,
       "promptTemplateId": null
     },
     {

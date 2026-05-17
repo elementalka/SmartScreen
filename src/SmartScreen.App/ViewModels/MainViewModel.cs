@@ -42,6 +42,8 @@ public sealed class MainViewModel : ObservableObject
         CaptureFullScreenCommand = new AsyncRelayCommand(CaptureFullScreenAsync);
         CaptureRegionCommand = new AsyncRelayCommand(CaptureRegionAsync);
         CaptureActiveWindowCommand = new AsyncRelayCommand(CaptureActiveWindowAsync);
+        CaptureMonitorCommand = new AsyncRelayCommand(CaptureMonitorAsync);
+        CaptureDelayedCommand = new AsyncRelayCommand(CaptureDelayedAsync);
         AskAiCommand = new RelayCommand(AskAi, () => CurrentScreenshot is not null);
         OpenSettingsCommand = new RelayCommand(OpenSettings);
         OpenScreenshotsFolderCommand = new RelayCommand(OpenScreenshotsFolder);
@@ -130,6 +132,8 @@ public sealed class MainViewModel : ObservableObject
     public ICommand CaptureFullScreenCommand { get; }
     public ICommand CaptureRegionCommand { get; }
     public ICommand CaptureActiveWindowCommand { get; }
+    public ICommand CaptureMonitorCommand { get; }
+    public ICommand CaptureDelayedCommand { get; }
     public ICommand AskAiCommand { get; }
     public ICommand OpenSettingsCommand { get; }
     public ICommand OpenScreenshotsFolderCommand { get; }
@@ -158,6 +162,24 @@ public sealed class MainViewModel : ObservableObject
             _coordinator.CaptureActiveWindowAsync,
             "Could not capture active window from main window.",
             "Не вдалося зробити скріншот активного вікна",
+            cancellationToken);
+    }
+
+    private async Task CaptureMonitorAsync(CancellationToken cancellationToken)
+    {
+        await RunCaptureActionAsync(
+            _coordinator.CaptureMonitorAsync,
+            "Could not capture monitor from main window.",
+            "Не вдалося зробити скріншот монітора",
+            cancellationToken);
+    }
+
+    private async Task CaptureDelayedAsync(CancellationToken cancellationToken)
+    {
+        await RunCaptureActionAsync(
+            _coordinator.CaptureDelayedAsync,
+            "Could not capture delayed screenshot from main window.",
+            "Не вдалося зробити скріншот із затримкою",
             cancellationToken);
     }
 
