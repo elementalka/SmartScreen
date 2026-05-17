@@ -31,7 +31,12 @@ public sealed class WpfWindowService(
         return Task.FromResult(result == true ? overlay.SelectedRegion : null);
     }
 
-    public Task ShowQuickActionsAsync(ScreenshotResult screenshot)
+    public Task ShowQuickActionsAsync(
+        ScreenshotResult screenshot,
+        CaptureWorkspaceStartupMode startupMode = CaptureWorkspaceStartupMode.Actions,
+        string? promptTemplateId = null,
+        string? customPrompt = null,
+        bool startAiImmediately = false)
     {
         var viewModel = new QuickActionsViewModel(
             screenshot,
@@ -39,10 +44,13 @@ public sealed class WpfWindowService(
             imageFileService,
             settingsService,
             storageService,
-            this,
             promptTemplateService,
             aiService,
-            loggingService);
+            loggingService,
+            startupMode,
+            promptTemplateId,
+            customPrompt,
+            startAiImmediately);
 
         var window = new QuickActionsWindow(viewModel);
         AssignVisibleOwner(window);
@@ -58,37 +66,6 @@ public sealed class WpfWindowService(
         window.Opacity = 1;
         window.Activate();
         return Task.CompletedTask;
-    }
-
-    public Task<ScreenshotResult?> ShowEditorAsync(ScreenshotResult screenshot)
-    {
-        var editor = new ScreenshotEditorWindow(screenshot);
-        AssignVisibleOwner(editor);
-
-        var result = editor.ShowDialog();
-        return Task.FromResult(result == true ? editor.EditedScreenshot : null);
-    }
-
-    public void ShowAiResponse(
-        ScreenshotResult screenshot,
-        string? promptTemplateId = null,
-        string? customPrompt = null,
-        bool startImmediately = false)
-    {
-        var viewModel = new AiResponseViewModel(
-            screenshot,
-            aiService,
-            clipboardService,
-            promptTemplateService,
-            storageService,
-            this,
-            promptTemplateId,
-            customPrompt,
-            startImmediately);
-        var window = new AiResponseWindow(viewModel);
-        AssignVisibleOwner(window);
-
-        window.Show();
     }
 
     public void ShowSettings()

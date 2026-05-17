@@ -5,12 +5,11 @@ namespace SmartScreen.App.Services;
 public interface IWindowService
 {
     Task<ScreenRegion?> SelectRegionAsync();
-    Task ShowQuickActionsAsync(ScreenshotResult screenshot);
-    Task<ScreenshotResult?> ShowEditorAsync(ScreenshotResult screenshot);
-    void ShowAiResponse(
+    Task ShowQuickActionsAsync(
         ScreenshotResult screenshot,
+        CaptureWorkspaceStartupMode startupMode = CaptureWorkspaceStartupMode.Actions,
         string? promptTemplateId = null,
         string? customPrompt = null,
-        bool startImmediately = false);
+        bool startAiImmediately = false);
     void ShowSettings();
 }

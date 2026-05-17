@@ -64,7 +64,11 @@ public sealed class AppInteractionCoordinator(
             return;
         }
 
-        windowService.ShowAiResponse(CurrentScreenshot, promptTemplateId, startImmediately: promptTemplateId is not null);
+        _ = windowService.ShowQuickActionsAsync(
+            CurrentScreenshot,
+            CaptureWorkspaceStartupMode.Ai,
+            promptTemplateId,
+            startAiImmediately: promptTemplateId is not null);
     }
 
     public void ShowSettings() => windowService.ShowSettings();
@@ -114,15 +118,6 @@ public sealed class AppInteractionCoordinator(
         var settings = await settingsService.LoadAsync(cancellationToken);
         var actions = settings.Screenshots.AfterCaptureActions;
 
-        if (actions.Contains(AfterCaptureAction.OpenEditor))
-        {
-            var edited = await windowService.ShowEditorAsync(screenshot);
-            if (edited is not null)
-            {
-                screenshot = edited;
-            }
-        }
-
         CurrentScreenshot = screenshot;
 
         var completedActions = new List<string>();
@@ -148,14 +143,20 @@ public sealed class AppInteractionCoordinator(
             ? $"Скріншот готовий: {screenshot.Width}x{screenshot.Height}"
             : $"Скріншот готовий: {screenshot.Width}x{screenshot.Height}; {string.Join(", ", completedActions)}");
 
-        if (actions.Contains(AfterCaptureAction.ShowQuickActions))
+        if (actions.Contains(AfterCaptureAction.ShowQuickActions) ||
+            actions.Contains(AfterCaptureAction.OpenEditor) ||
+            actions.Contains(AfterCaptureAction.AskAi))
         {
-            await windowService.ShowQuickActionsAsync(screenshot);
-        }
+            var startupMode = actions.Contains(AfterCaptureAction.OpenEditor)
+                ? CaptureWorkspaceStartupMode.Editor
+                : actions.Contains(AfterCaptureAction.AskAi)
+                    ? CaptureWorkspaceStartupMode.Ai
+                    : CaptureWorkspaceStartupMode.Actions;
 
-        if (actions.Contains(AfterCaptureAction.AskAi))
-        {
-            windowService.ShowAiResponse(screenshot);
+            await windowService.ShowQuickActionsAsync(
+                screenshot,
+                startupMode,
+                startAiImmediately: startupMode == CaptureWorkspaceStartupMode.Ai);
         }
     }
 

@@ -53,6 +53,10 @@ public partial class QuickActionsWindow : Window
         {
             viewModel.LoadCommand.Execute(null);
             InitializeSurface(viewModel.Screenshot);
+            if (viewModel.StartupMode == CaptureWorkspaceStartupMode.Editor)
+            {
+                BeginEditMode();
+            }
         };
     }
 
@@ -110,6 +114,11 @@ public partial class QuickActionsWindow : Window
     }
 
     private void EditOverlayButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        BeginEditMode();
+    }
+
+    private void BeginEditMode()
     {
         _undoStack.Clear();
         _redoStack.Clear();

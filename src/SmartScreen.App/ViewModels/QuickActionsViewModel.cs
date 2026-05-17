@@ -17,10 +17,13 @@ public sealed class QuickActionsViewModel : ObservableObject
     private readonly IImageFileService _imageFileService;
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
-    private readonly IWindowService _windowService;
     private readonly IPromptTemplateService _promptTemplateService;
     private readonly IAiService _aiService;
     private readonly ILoggingService _loggingService;
+    private readonly CaptureWorkspaceStartupMode _startupMode;
+    private readonly string? _initialPromptTemplateId;
+    private readonly string? _initialCustomPrompt;
+    private readonly bool _startAiImmediately;
     private ScreenshotResult _screenshot;
     private AiPromptTemplate? _selectedPrompt;
     private string _customPrompt = string.Empty;
@@ -37,26 +40,31 @@ public sealed class QuickActionsViewModel : ObservableObject
         IImageFileService imageFileService,
         ISettingsService settingsService,
         IStorageService storageService,
-        IWindowService windowService,
         IPromptTemplateService promptTemplateService,
         IAiService aiService,
-        ILoggingService loggingService)
+        ILoggingService loggingService,
+        CaptureWorkspaceStartupMode startupMode = CaptureWorkspaceStartupMode.Actions,
+        string? initialPromptTemplateId = null,
+        string? initialCustomPrompt = null,
+        bool startAiImmediately = false)
     {
         _screenshot = screenshot;
         _clipboardService = clipboardService;
         _imageFileService = imageFileService;
         _settingsService = settingsService;
         _storageService = storageService;
-        _windowService = windowService;
         _promptTemplateService = promptTemplateService;
         _aiService = aiService;
         _loggingService = loggingService;
+        _startupMode = startupMode;
+        _initialPromptTemplateId = initialPromptTemplateId;
+        _initialCustomPrompt = initialCustomPrompt;
+        _startAiImmediately = startAiImmediately;
         PreviewImage = BitmapSourceFactory.FromScreenshot(screenshot);
 
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         CopyCommand = new AsyncRelayCommand(CopyAsync);
-        EditCommand = new AsyncRelayCommand(EditAsync);
         AskAiCommand = new RelayCommand(OpenAiPanel);
         RunAiCommand = new AsyncRelayCommand(RunAiAsync, () => !IsAiBusy);
         CancelAiCommand = new RelayCommand(CancelAi, () => IsAiBusy);
@@ -68,6 +76,7 @@ public sealed class QuickActionsViewModel : ObservableObject
 
     public event Action? CloseRequested;
     public ObservableCollection<AiPromptTemplate> Prompts { get; } = [];
+    public CaptureWorkspaceStartupMode StartupMode => _startupMode;
 
     public ScreenshotResult Screenshot
     {
@@ -164,7 +173,6 @@ public sealed class QuickActionsViewModel : ObservableObject
     public ICommand LoadCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand CopyCommand { get; }
-    public ICommand EditCommand { get; }
     public ICommand AskAiCommand { get; }
     public ICommand RunAiCommand { get; }
     public ICommand CancelAiCommand { get; }
@@ -188,10 +196,27 @@ public sealed class QuickActionsViewModel : ObservableObject
             Prompts.Add(prompt);
         }
 
-        SelectedPrompt = Prompts.FirstOrDefault(prompt => prompt.Id == "describe") ?? Prompts.FirstOrDefault();
+        SelectedPrompt = Prompts.FirstOrDefault(prompt => prompt.Id == _initialPromptTemplateId)
+            ?? Prompts.FirstOrDefault(prompt => prompt.Id == "describe")
+            ?? Prompts.FirstOrDefault();
         if (SelectedPrompt is not null)
         {
             CustomPrompt = SelectedPrompt.Prompt;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_initialCustomPrompt))
+        {
+            CustomPrompt = _initialCustomPrompt;
+        }
+
+        if (_startupMode == CaptureWorkspaceStartupMode.Ai)
+        {
+            OpenAiPanel();
+
+            if (_startAiImmediately)
+            {
+                await RunAiAsync(cancellationToken);
+            }
         }
     }
 
@@ -212,22 +237,6 @@ public sealed class QuickActionsViewModel : ObservableObject
     {
         await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
         Status = "Скопійовано в буфер";
-    }
-
-    private async Task EditAsync(CancellationToken cancellationToken)
-    {
-        var edited = await _windowService.ShowEditorAsync(Screenshot);
-
-        if (edited is null)
-        {
-            Status = "Редагування скасовано";
-            return;
-        }
-
-        Screenshot = edited;
-        OnPropertyChanged(nameof(PreviewImage));
-        await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
-        Status = "Відредаговано і скопійовано";
     }
 
     public async Task ApplyEditedScreenshotAsync(ScreenshotResult screenshot, CancellationToken cancellationToken = default)
