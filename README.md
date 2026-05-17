@@ -66,10 +66,13 @@ The portable build is written to `artifacts/SmartScreen-win-x64/`.
 - AI image optimization before provider requests to reduce timeouts and payload errors
 - Friendly AI provider errors with safe secret masking
 - DPAPI-protected local API key storage
+- Runtime theme resources for dark/light/system modes
+- Runtime localization resources for the main shell, with JSON fallback
 - Gemini provider
 - OpenAI-compatible provider for NVIDIA NIM, OpenRouter, local endpoints, and similar APIs
 - Local JSON settings
 - Safe logging without API keys
+- Unit and smoke tests for configuration, AI image pipeline, localization, and WPF resource loading
 
 AI requests are sent only after an explicit user action.
 

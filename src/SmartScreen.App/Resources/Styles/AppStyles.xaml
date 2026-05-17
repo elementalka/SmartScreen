@@ -21,6 +21,23 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="GlassPanelBrush" Color="#D6121B2D" />
+    <SolidColorBrush x:Key="GlassPanelStrongBrush" Color="#E010172A" />
+    <SolidColorBrush x:Key="GlassPanelSoftBrush" Color="#8718263A" />
+    <SolidColorBrush x:Key="RailBrush" Color="#F00B1220" />
+    <SolidColorBrush x:Key="ControlBrush" Color="#B818263A" />
+    <SolidColorBrush x:Key="ControlHoverBrush" Color="#D222334A" />
+    <SolidColorBrush x:Key="ControlSelectedBrush" Color="#C219324D" />
+    <SolidColorBrush x:Key="PopupBrush" Color="#F0111A2D" />
+    <SolidColorBrush x:Key="GlassBorderBrush" Color="#526D83A6" />
+    <SolidColorBrush x:Key="PopupBorderBrush" Color="#708EA3C5" />
+    <SolidColorBrush x:Key="HoverBorderBrush" Color="#6DA6C7F3" />
+    <SolidColorBrush x:Key="FocusBorderBrush" Color="#7DD3FC" />
+    <SolidColorBrush x:Key="SuccessSoftBrush" Color="#2634D399" />
+    <SolidColorBrush x:Key="SuccessBorderBrush" Color="#6634D399" />
+    <SolidColorBrush x:Key="WarningSoftBrush" Color="#2CF59E0B" />
+    <SolidColorBrush x:Key="WarningBorderBrush" Color="#66F59E0B" />
+    <SolidColorBrush x:Key="ThumbnailBrush" Color="#1E293B" />
     <LinearGradientBrush x:Key="GlassWindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#07111F" Offset="0" />
         <GradientStop Color="#0E1A2D" Offset="0.45" />
@@ -40,9 +57,9 @@
     </Style>
 
     <Style TargetType="ToolTip">
-        <Setter Property="Background" Value="#F0111A2D" />
+        <Setter Property="Background" Value="{StaticResource PopupBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-        <Setter Property="BorderBrush" Value="#7C93B4" />
+        <Setter Property="BorderBrush" Value="{StaticResource PopupBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="10,7" />
         <Setter Property="MaxWidth" Value="360" />
@@ -82,8 +99,8 @@
     </Style>
 
     <Style x:Key="PanelBorder" TargetType="Border">
-        <Setter Property="Background" Value="#D6121B2D" />
-        <Setter Property="BorderBrush" Value="#526D83A6" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="18" />
@@ -100,26 +117,26 @@
 
     <Style x:Key="WorkspacePanel" TargetType="Border" BasedOn="{StaticResource PanelBorder}">
         <Setter Property="Padding" Value="16" />
-        <Setter Property="Background" Value="#C9141C2E" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelBrush}" />
     </Style>
 
     <Style x:Key="SideRail" TargetType="Border">
-        <Setter Property="Background" Value="#F00B1220" />
+        <Setter Property="Background" Value="{StaticResource RailBrush}" />
         <Setter Property="CornerRadius" Value="0" />
         <Setter Property="Padding" Value="20" />
     </Style>
 
     <Style x:Key="MetricPanel" TargetType="Border">
-        <Setter Property="Background" Value="#8718263A" />
-        <Setter Property="BorderBrush" Value="#526D83A6" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelSoftBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="14" />
     </Style>
 
     <Style x:Key="FloatingPanelBorder" TargetType="Border">
-        <Setter Property="Background" Value="#E010172A" />
-        <Setter Property="BorderBrush" Value="#668EA3C5" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelStrongBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource PopupBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="14" />
@@ -135,14 +152,14 @@
     </Style>
 
     <Style x:Key="AiPanelBorder" TargetType="Border" BasedOn="{StaticResource FloatingPanelBorder}">
-        <Setter Property="Background" Value="#ED101827" />
-        <Setter Property="BorderBrush" Value="#708EA3C5" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelStrongBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource PopupBorderBrush}" />
         <Setter Property="Padding" Value="16" />
     </Style>
 
     <Style x:Key="EditorGlassPanelBorder" TargetType="Border">
-        <Setter Property="Background" Value="#D9141C2E" />
-        <Setter Property="BorderBrush" Value="#668EA3C5" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource PopupBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="8" />
@@ -158,8 +175,8 @@
     </Style>
 
     <Style x:Key="StatusBadge" TargetType="Border">
-        <Setter Property="Background" Value="#2634D399" />
-        <Setter Property="BorderBrush" Value="#6634D399" />
+        <Setter Property="Background" Value="{StaticResource SuccessSoftBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SuccessBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="10,4" />
@@ -176,7 +193,7 @@
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-        <Setter Property="Background" Value="#B818263A" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -196,8 +213,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#6DA6C7F3" />
-                            <Setter TargetName="Chrome" Property="Background" Value="#D222334A" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource HoverBorderBrush}" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlHoverBrush}" />
                             <Setter Property="Foreground" Value="#F8FAFC" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
@@ -218,7 +235,7 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="MinHeight" Value="46" />
-        <Setter Property="Background" Value="#9A18263A" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
     </Style>
 
     <Style x:Key="DashboardActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -226,13 +243,13 @@
         <Setter Property="MinWidth" Value="92" />
         <Setter Property="Padding" Value="8,8" />
         <Setter Property="Margin" Value="4" />
-        <Setter Property="Background" Value="#AA18263A" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
     <Style x:Key="PrimaryActionButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
         <Setter Property="Background" Value="{StaticResource AccentBrush}" />
-        <Setter Property="BorderBrush" Value="#7DD3FC" />
+        <Setter Property="BorderBrush" Value="{StaticResource FocusBorderBrush}" />
         <Setter Property="Foreground" Value="#07111F" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
@@ -246,8 +263,8 @@
         <Setter Property="Margin" Value="0,0,0,10" />
         <Setter Property="MinHeight" Value="44" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="Background" Value="#9918263A" />
-        <Setter Property="BorderBrush" Value="#704F6583" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
         <Setter Property="Foreground" Value="#F8FAFC" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Padding" Value="12,8" />
@@ -260,7 +277,7 @@
         <Setter Property="Padding" Value="8,6" />
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Background" Value="#B818263A" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
         <Setter Property="Foreground" Value="#F8FAFC" />
     </Style>
 
@@ -283,8 +300,8 @@
     </Style>
 
     <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="#4A18263A" />
-        <Setter Property="BorderBrush" Value="#586D83A6" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelSoftBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
         <Setter Property="MinHeight" Value="36" />
         <Setter Property="Padding" Value="12,7" />
     </Style>
@@ -316,12 +333,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ItemChrome" Property="Background" Value="#6618263A" />
-                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="#526D83A6" />
+                            <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource GlassPanelSoftBrush}" />
+                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="ItemChrome" Property="Background" Value="#A219324D" />
-                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="#7DD3FC" />
+                            <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource ControlSelectedBrush}" />
+                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="{StaticResource FocusBorderBrush}" />
                             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -357,7 +374,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="#6DA6C7F3" />
+                            <Setter TargetName="ItemChrome" Property="BorderBrush" Value="{StaticResource HoverBorderBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ItemChrome" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
@@ -396,16 +413,16 @@
         <Setter Property="Padding" Value="10,7" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Background" Value="#B818263A" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}" />
-        <Setter Property="SelectionBrush" Value="#6638BDF8" />
+        <Setter Property="SelectionBrush" Value="{StaticResource AccentSoftBrush}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
     <Style x:Key="ModernResponseTextBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
-        <Setter Property="Background" Value="#C9111A2D" />
-        <Setter Property="BorderBrush" Value="#667C93B4" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelStrongBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource PopupBorderBrush}" />
         <Setter Property="Padding" Value="12" />
         <Setter Property="VerticalContentAlignment" Value="Top" />
     </Style>
@@ -415,7 +432,7 @@
         <Setter Property="Padding" Value="8,5" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{StaticResource TextBrush}" />
-        <Setter Property="Background" Value="#B818263A" />
+        <Setter Property="Background" Value="{StaticResource ControlBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
@@ -473,8 +490,8 @@
                                IsOpen="{TemplateBinding IsDropDownOpen}"
                                Placement="Bottom"
                                PopupAnimation="Fade">
-                            <Border Background="#F0111A2D"
-                                    BorderBrush="#708EA3C5"
+                            <Border Background="{StaticResource PopupBrush}"
+                                    BorderBrush="{StaticResource PopupBorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Margin="0,4,0,0"
@@ -492,15 +509,15 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="#D222334A" />
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#6DA6C7F3" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlHoverBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource HoverBorderBrush}" />
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#7DD3FC" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource FocusBorderBrush}" />
                         </Trigger>
                         <Trigger Property="IsDropDownOpen" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="#D222334A" />
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#7DD3FC" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlHoverBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource FocusBorderBrush}" />
                         </Trigger>
                         <Trigger Property="HasItems" Value="False">
                             <Setter TargetName="PART_Popup" Property="MinHeight" Value="42" />
@@ -516,7 +533,7 @@
 
     <Style TargetType="ComboBoxItem">
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-        <Setter Property="Background" Value="#F0111A2D" />
+        <Setter Property="Background" Value="{StaticResource PopupBrush}" />
         <Setter Property="Padding" Value="10,7" />
         <Setter Property="Template">
             <Setter.Value>
@@ -530,12 +547,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="#D222334A" />
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#6DA6C7F3" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlHoverBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource HoverBorderBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="#C219324D" />
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#7DD3FC" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlSelectedBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource FocusBorderBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -570,8 +587,8 @@
                                 <Thumb>
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
-                                            <Border Background="#708EA3C5"
-                                                    BorderBrush="#8AA6C7F3"
+                                            <Border Background="{StaticResource PopupBorderBrush}"
+                                                    BorderBrush="{StaticResource HoverBorderBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="6" />
                                         </ControlTemplate>
@@ -611,8 +628,8 @@
         <Setter Property="Padding" Value="12" />
         <Setter Property="Margin" Value="0,0,0,8" />
         <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Background" Value="#8C18263A" />
-        <Setter Property="BorderBrush" Value="#526D83A6" />
+        <Setter Property="Background" Value="{StaticResource GlassPanelSoftBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 

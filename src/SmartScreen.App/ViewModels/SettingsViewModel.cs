@@ -22,6 +22,7 @@ public sealed class SettingsViewModel : ObservableObject
     private readonly IAiService _aiService;
     private readonly IAiSecretService _aiSecretService;
     private readonly IPromptTemplateService _promptTemplateService;
+    private readonly ILocalizationService _localizationService;
     private readonly ILoggingService _loggingService;
     private AppSettings? _settings;
     private SettingsSectionViewModel? _selectedSection;
@@ -44,6 +45,7 @@ public sealed class SettingsViewModel : ObservableObject
         IAiService aiService,
         IAiSecretService aiSecretService,
         IPromptTemplateService promptTemplateService,
+        ILocalizationService localizationService,
         ILoggingService loggingService)
     {
         _settingsService = settingsService;
@@ -53,6 +55,7 @@ public sealed class SettingsViewModel : ObservableObject
         _aiService = aiService;
         _aiSecretService = aiSecretService;
         _promptTemplateService = promptTemplateService;
+        _localizationService = localizationService;
         _loggingService = loggingService;
 
         Sections =
@@ -401,6 +404,7 @@ public sealed class SettingsViewModel : ObservableObject
             .ToList();
 
         await _settingsService.SaveAsync(Settings, cancellationToken);
+        await LocalizationResourceService.ApplyAsync(_localizationService, Settings.Language, cancellationToken);
         ThemeResourceService.Apply(Settings.Theme);
         await _hotkeySettingsService.SaveAsync(hotkeySettings, cancellationToken);
         await _hotkeyService.RegisterAsync(hotkeySettings, cancellationToken);

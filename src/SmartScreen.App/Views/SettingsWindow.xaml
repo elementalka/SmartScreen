@@ -1,7 +1,7 @@
 <Window x:Class="SmartScreen.App.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Налаштування SmartScreen"
+        Title="{DynamicResource Loc.settings.title}"
         Width="1080"
         Height="740"
         MinWidth="920"
@@ -28,12 +28,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#B818263A" />
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlBrush}" />
                                 <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource BorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#C219324D" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#7DD3FC" />
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlSelectedBrush}" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource FocusBorderBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -55,13 +55,13 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Margin="0,0,18,0">
-                <TextBlock Text="Налаштування" Style="{StaticResource TitleText}" />
+                <TextBlock Text="{DynamicResource Loc.settings.title}" Style="{StaticResource TitleText}" />
                 <TextBlock Text="Керування скріншотами, AI-маршрутами, prompt-шаблонами та глобальними клавішами"
                            Style="{StaticResource MutedText}"
                            TextWrapping="Wrap" />
             </StackPanel>
             <Button Grid.Column="1"
-                    Content="Зберегти"
+                    Content="{DynamicResource Loc.settings.save}"
                     Command="{Binding SaveCommand}"
                     Style="{StaticResource PrimarySmallButton}"
                     Width="148"

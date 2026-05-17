@@ -8,6 +8,8 @@ public sealed class LocalizationService(IStorageService storageService, ILogging
 {
     private readonly Dictionary<string, string> _strings = new(StringComparer.OrdinalIgnoreCase);
 
+    public IReadOnlyDictionary<string, string> CurrentStrings => _strings;
+
     public async Task LoadAsync(string cultureName, CancellationToken cancellationToken = default)
     {
         _strings.Clear();
@@ -49,4 +51,3 @@ public sealed class LocalizationService(IStorageService storageService, ILogging
     public string GetString(string key) =>
         _strings.TryGetValue(key, out var value) ? value : key;
 }
-

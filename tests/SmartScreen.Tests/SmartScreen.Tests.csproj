@@ -5,6 +5,7 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
@@ -19,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\SmartScreen.Application\SmartScreen.Application.csproj" />
+    <ProjectReference Include="..\..\src\SmartScreen.App\SmartScreen.App.csproj" />
     <ProjectReference Include="..\..\src\SmartScreen.Domain\SmartScreen.Domain.csproj" />
     <ProjectReference Include="..\..\src\SmartScreen.Infrastructure\SmartScreen.Infrastructure.csproj" />
   </ItemGroup>

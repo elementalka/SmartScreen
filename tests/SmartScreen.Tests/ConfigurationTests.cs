@@ -31,6 +31,8 @@ public sealed class ConfigurationTests
                 settings.Screenshots.AfterCaptureActions);
             Assert.IsTrue(File.Exists(Path.Combine(root, "config", "appsettings.json")));
             Assert.IsTrue(settings.Ai.Providers.Count >= 2);
+            Assert.AreEqual(3, settings.Screenshots.DelaySeconds);
+            Assert.AreEqual(0, settings.Screenshots.MonitorIndex);
         }
         finally
         {
@@ -205,6 +207,41 @@ public sealed class ConfigurationTests
             Assert.IsTrue(settings.Bindings.Any(binding =>
                 binding.Action == Domain.Enums.HotkeyAction.CaptureRegion &&
                 binding.Gesture.Equals("Ctrl+Shift+S", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(settings.Bindings.Any(binding =>
+                binding.Action == Domain.Enums.HotkeyAction.CaptureMonitor));
+            Assert.IsTrue(settings.Bindings.Any(binding =>
+                binding.Action == Domain.Enums.HotkeyAction.CaptureDelayed));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public async Task LocalizationServiceFallsBackToUkrainianFile()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var storage = new StorageService(root);
+            var logger = new FileLoggingService(storage);
+            var service = new LocalizationService(storage, logger);
+
+            await storage.EnsureDirectoriesAsync();
+            await File.WriteAllTextAsync(
+                Path.Combine(root, "localization", "uk-UA.json"),
+                """
+                {
+                  "app.title": "SmartScreen",
+                  "status.ready": "Готово"
+                }
+                """);
+
+            await service.LoadAsync("missing-CULTURE");
+
+            Assert.AreEqual("Готово", service.GetString("status.ready"));
+            Assert.AreEqual("missing.key", service.GetString("missing.key"));
         }
         finally
         {

@@ -1,7 +1,7 @@
 <Window x:Class="SmartScreen.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SmartScreen"
+        Title="{DynamicResource Loc.app.title}"
         Width="980"
         Height="690"
         MinWidth="900"
@@ -17,68 +17,68 @@
         <Border Grid.Column="0" Style="{StaticResource SideRail}">
             <DockPanel LastChildFill="True">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="SmartScreen"
+                    <TextBlock Text="{DynamicResource Loc.app.title}"
                                Foreground="White"
                                FontSize="24"
                                FontWeight="SemiBold" />
-                    <TextBlock Text="центр захоплень"
-                               Foreground="#A9B7CA"
+                    <TextBlock Text="{DynamicResource Loc.app.subtitle}"
+                               Foreground="{StaticResource MutedTextBrush}"
                                Margin="0,4,0,22" />
 
-                    <TextBlock Text="Захоплення"
-                               Foreground="#8EA0B8"
+                    <TextBlock Text="{DynamicResource Loc.main.captureSection}"
+                               Foreground="{StaticResource MutedTextBrush}"
                                FontSize="12"
                                FontWeight="SemiBold"
                                Margin="0,0,0,10" />
 
-                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureRegionCommand}" AutomationProperties.Name="Область">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureRegionCommand}" AutomationProperties.Name="{DynamicResource Loc.main.region}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
-                            <TextBlock Text="Область" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.region}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
-                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureFullScreenCommand}" AutomationProperties.Name="Весь екран">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureFullScreenCommand}" AutomationProperties.Name="{DynamicResource Loc.main.fullScreen}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
-                            <TextBlock Text="Весь екран" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.fullScreen}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
-                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureActiveWindowCommand}" AutomationProperties.Name="Активне вікно">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureActiveWindowCommand}" AutomationProperties.Name="{DynamicResource Loc.main.activeWindow}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="&#xE7C4;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
-                            <TextBlock Text="Активне вікно" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.activeWindow}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
-                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureMonitorCommand}" AutomationProperties.Name="Монітор">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureMonitorCommand}" AutomationProperties.Name="{DynamicResource Loc.main.monitor}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="&#xE772;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
-                            <TextBlock Text="Монітор" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.monitor}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
-                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureDelayedCommand}" AutomationProperties.Name="Із затримкою">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding CaptureDelayedCommand}" AutomationProperties.Name="{DynamicResource Loc.main.delay}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="&#xE916;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
-                            <TextBlock Text="Затримка" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.delay}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
-                    <Button Style="{StaticResource RailButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="Запитати AI">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="{DynamicResource Loc.main.askAi}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="AI" FontSize="13" FontWeight="Bold" Margin="0,0,10,0" />
-                            <TextBlock Text="Запитати AI" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.askAi}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Bottom">
-                    <Border Background="#D90B1220"
-                            BorderBrush="#42506A"
+                    <Border Background="{StaticResource RailBrush}"
+                            BorderBrush="{StaticResource GlassBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Padding="12"
                             Margin="0,0,0,14">
                         <StackPanel>
-                            <TextBlock Text="Основний хоткей"
-                                       Foreground="#9FB0C7"
+                            <TextBlock Text="{DynamicResource Loc.main.primaryHotkey}"
+                                       Foreground="{StaticResource MutedTextBrush}"
                                        FontSize="12"
                                        FontWeight="SemiBold" />
                             <TextBlock Text="Ctrl+Shift+S"
@@ -87,16 +87,16 @@
                                        FontWeight="SemiBold"
                                        Margin="0,4,0,0" />
                             <TextBlock Text="{Binding WorkflowSummary}"
-                                       Foreground="#B7C4D8"
+                                       Foreground="{StaticResource MutedTextBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,8,0,0" />
                         </StackPanel>
                     </Border>
 
-                    <Button Style="{StaticResource RailButton}" Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="Налаштування">
+                    <Button Style="{StaticResource RailButton}" Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="{DynamicResource Loc.main.settings}">
                         <DockPanel LastChildFill="True">
                             <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,10,0" />
-                            <TextBlock Text="Налаштування" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{DynamicResource Loc.main.settings}" TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                     </Button>
                 </StackPanel>
@@ -118,9 +118,9 @@
 
                 <StackPanel Margin="0,0,16,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Робочий центр" Style="{StaticResource TitleText}" />
+                        <TextBlock Text="{DynamicResource Loc.main.workspace}" Style="{StaticResource TitleText}" />
                         <Border Style="{StaticResource StatusBadge}" Margin="14,4,0,0">
-                            <TextBlock Text="у треї"
+                            <TextBlock Text="{DynamicResource Loc.main.inTray}"
                                        Foreground="{StaticResource SuccessBrush}"
                                        FontSize="12"
                                        FontWeight="SemiBold" />
@@ -136,21 +136,21 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                     <Button Style="{StaticResource GhostButton}"
                             Command="{Binding OpenScreenshotsFolderCommand}"
-                            AutomationProperties.Name="Скріншоти"
+                            AutomationProperties.Name="{DynamicResource Loc.main.openScreenshotsFolder}"
                             Width="42"
                             MinWidth="42"
                             Padding="0"
                             Margin="0,0,8,0"
-                            ToolTip="Відкрити папку скріншотів">
+                            ToolTip="{DynamicResource Loc.main.openScreenshotsFolder}">
                         <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" />
                     </Button>
                     <Button Style="{StaticResource SecondaryButton}"
                             Command="{Binding OpenSettingsCommand}"
-                            AutomationProperties.Name="Налаштування"
+                            AutomationProperties.Name="{DynamicResource Loc.main.settings}"
                             Width="42"
                             MinWidth="42"
                             Padding="0"
-                            ToolTip="Налаштування">
+                            ToolTip="{DynamicResource Loc.main.settings}">
                         <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" />
                     </Button>
                 </StackPanel>
@@ -169,7 +169,7 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel>
-                                <TextBlock Text="Поточний скріншот" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.main.currentScreenshot}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="{Binding SelectedCapture.Summary, TargetNullValue=Очікує захоплення}"
                                            Style="{StaticResource MutedText}"
                                            TextTrimming="CharacterEllipsis"
@@ -177,8 +177,8 @@
                             </StackPanel>
 
                             <Border Grid.Row="1"
-                                    Background="#F00B1220"
-                                    BorderBrush="#2E3A52"
+                                    Background="{StaticResource RailBrush}"
+                                    BorderBrush="{StaticResource GlassBorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     ClipToBounds="True"
@@ -190,13 +190,13 @@
                                     <StackPanel HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Visibility="{Binding EmptyPreviewVisibility}">
-                                        <TextBlock Text="Немає скріншоту"
-                                                   Foreground="#F8FAFC"
+                                        <TextBlock Text="{DynamicResource Loc.main.noScreenshot}"
+                                                   Foreground="{StaticResource TextBrush}"
                                                    FontSize="20"
                                                    FontWeight="SemiBold"
                                                    HorizontalAlignment="Center" />
                                         <TextBlock Text="Ctrl+Shift+S"
-                                                   Foreground="#A9B7CA"
+                                                   Foreground="{StaticResource MutedTextBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,6,0,0" />
                                     </StackPanel>
@@ -204,31 +204,31 @@
                             </Border>
 
                             <UniformGrid Grid.Row="2" Columns="5">
-                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureRegionCommand}" AutomationProperties.Name="Скріншот області" ToolTip="Скріншот області">
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureRegionCommand}" AutomationProperties.Name="{DynamicResource Loc.main.captureRegionTooltip}" ToolTip="{DynamicResource Loc.main.captureRegionTooltip}">
                                     <StackPanel>
                                         <TextBlock Text="&#xE8A7;" Style="{StaticResource ActionIconText}" />
-                                        <TextBlock Text="Область" Style="{StaticResource ActionCaptionText}" />
+                                        <TextBlock Text="{DynamicResource Loc.main.region}" Style="{StaticResource ActionCaptionText}" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureActiveWindowCommand}" AutomationProperties.Name="Скріншот активного вікна" ToolTip="Скріншот активного вікна">
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureActiveWindowCommand}" AutomationProperties.Name="{DynamicResource Loc.main.captureActiveWindowTooltip}" ToolTip="{DynamicResource Loc.main.captureActiveWindowTooltip}">
                                     <StackPanel>
                                         <TextBlock Text="&#xE7C4;" Style="{StaticResource ActionIconText}" />
-                                        <TextBlock Text="Вікно" Style="{StaticResource ActionCaptionText}" />
+                                        <TextBlock Text="{DynamicResource Loc.main.window}" Style="{StaticResource ActionCaptionText}" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureMonitorCommand}" AutomationProperties.Name="Скріншот монітора" ToolTip="Скріншот монітора">
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureMonitorCommand}" AutomationProperties.Name="{DynamicResource Loc.main.captureMonitorTooltip}" ToolTip="{DynamicResource Loc.main.captureMonitorTooltip}">
                                     <StackPanel>
                                         <TextBlock Text="&#xE772;" Style="{StaticResource ActionIconText}" />
-                                        <TextBlock Text="Монітор" Style="{StaticResource ActionCaptionText}" />
+                                        <TextBlock Text="{DynamicResource Loc.main.monitor}" Style="{StaticResource ActionCaptionText}" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureDelayedCommand}" AutomationProperties.Name="Скріншот із затримкою" ToolTip="Скріншот із затримкою">
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding CaptureDelayedCommand}" AutomationProperties.Name="{DynamicResource Loc.main.captureDelayedTooltip}" ToolTip="{DynamicResource Loc.main.captureDelayedTooltip}">
                                     <StackPanel>
                                         <TextBlock Text="&#xE916;" Style="{StaticResource ActionIconText}" />
-                                        <TextBlock Text="Таймер" Style="{StaticResource ActionCaptionText}" />
+                                        <TextBlock Text="{DynamicResource Loc.main.timer}" Style="{StaticResource ActionCaptionText}" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="Запитати AI про поточний скріншот" ToolTip="Запитати AI про поточний скріншот">
+                                <Button Style="{StaticResource DashboardActionButton}" Command="{Binding AskAiCommand}" AutomationProperties.Name="{DynamicResource Loc.main.askCurrentScreenshotTooltip}" ToolTip="{DynamicResource Loc.main.askCurrentScreenshotTooltip}">
                                     <StackPanel>
                                         <TextBlock Text="AI" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4" />
                                         <TextBlock Text="AI" Style="{StaticResource ActionCaptionText}" />
@@ -252,7 +252,7 @@
                                 </Grid.RowDefinitions>
 
                                 <StackPanel Margin="0,0,0,12">
-                                    <TextBlock Text="Останні скріншоти" Style="{StaticResource SectionTitleText}" />
+                                    <TextBlock Text="{DynamicResource Loc.main.recentScreenshots}" Style="{StaticResource SectionTitleText}" />
                                     <TextBlock Text="{Binding RecentCaptures.Count, StringFormat={}{0} у сесії}"
                                                Style="{StaticResource MutedText}"
                                                Margin="0,4,0,0" />
@@ -262,11 +262,11 @@
                                     <Border Style="{StaticResource MetricPanel}"
                                             Visibility="{Binding EmptyHistoryVisibility}">
                                         <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="Історія сесії порожня"
+                                            <TextBlock Text="{DynamicResource Loc.main.emptySession}"
                                                        FontWeight="SemiBold"
                                                        TextAlignment="Center"
                                                        HorizontalAlignment="Center" />
-                                            <TextBlock Text="Після захоплення тут з'явиться прев'ю."
+                                            <TextBlock Text="{DynamicResource Loc.main.emptySessionHint}"
                                                        Style="{StaticResource MutedText}"
                                                        TextAlignment="Center"
                                                        TextWrapping="Wrap"
@@ -289,7 +289,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <Border Width="62"
                                                                 Height="46"
-                                                                Background="#1E293B"
+                                                                Background="{StaticResource ThumbnailBrush}"
                                                                 CornerRadius="8"
                                                                 ClipToBounds="True">
                                                             <Image Source="{Binding PreviewImage}" Stretch="UniformToFill" />
@@ -297,7 +297,7 @@
                                                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                                             <TextBlock Text="{Binding Summary}" Style="{StaticResource MutedText}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                                                            <TextBlock Text="{Binding FileName}" Foreground="#8EA0B8" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                                                            <TextBlock Text="{Binding FileName}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -311,7 +311,7 @@
                         <StackPanel Grid.Column="1" Margin="8,0,0,0">
                             <Border Style="{StaticResource WorkspacePanel}">
                                 <StackPanel>
-                                    <TextBlock Text="Активний AI-маршрут" Style="{StaticResource SectionTitleText}" />
+                                    <TextBlock Text="{DynamicResource Loc.main.activeAiRoute}" Style="{StaticResource SectionTitleText}" />
                                     <TextBlock Text="{Binding ActiveProviderName}"
                                                FontSize="18"
                                                FontWeight="SemiBold"
@@ -321,13 +321,13 @@
                                                Style="{StaticResource MutedText}"
                                                TextWrapping="Wrap"
                                                Margin="0,4,0,0" />
-                                    <Border Background="#2CF59E0B"
-                                            BorderBrush="#66F59E0B"
+                                    <Border Background="{StaticResource WarningSoftBrush}"
+                                            BorderBrush="{StaticResource WarningBorderBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="10"
                                             Margin="0,14,0,0">
-                                        <TextBlock Text="лише за дією користувача"
+                                        <TextBlock Text="{DynamicResource Loc.main.userActionOnly}"
                                                    Foreground="{StaticResource WarningBrush}"
                                                    FontWeight="SemiBold"
                                                    FontSize="12"
@@ -338,14 +338,14 @@
 
                             <Border Style="{StaticResource WorkspacePanel}" Margin="0,16,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="Сценарій" Style="{StaticResource SectionTitleText}" />
+                                    <TextBlock Text="{DynamicResource Loc.main.workflow}" Style="{StaticResource SectionTitleText}" />
                                     <TextBlock Text="{Binding WorkflowSummary}"
                                                Style="{StaticResource MutedText}"
                                                TextWrapping="Wrap"
                                                Margin="0,8,0,14" />
-                                    <TextBlock Text="1. Захоплення" Style="{StaticResource CompactLine}" FontWeight="SemiBold" />
-                                    <TextBlock Text="2. Буфер або файл" Style="{StaticResource CompactLine}" FontWeight="SemiBold" />
-                                    <TextBlock Text="3. Редактор, AI, папка" Style="{StaticResource CompactLine}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{DynamicResource Loc.main.workflowStepCapture}" Style="{StaticResource CompactLine}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{DynamicResource Loc.main.workflowStepOutput}" Style="{StaticResource CompactLine}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{DynamicResource Loc.main.workflowStepTools}" Style="{StaticResource CompactLine}" FontWeight="SemiBold" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -368,7 +368,7 @@
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Grid.Column="1"
                                Text="{Binding StorageSummary}"
-                               Foreground="#8EA0B8"
+                               Foreground="{StaticResource MutedTextBrush}"
                                VerticalAlignment="Center"
                                Margin="16,0,0,0"
                                TextTrimming="CharacterEllipsis" />

@@ -54,9 +54,11 @@ public partial class App : System.Windows.Application
         var hotkeySettingsService = new JsonHotkeySettingsService(storageService, loggingService);
         var aiSecretService = new LocalAiSecretService(storageService, loggingService);
         var promptTemplateService = new PromptTemplateService(storageService, loggingService);
+        var localizationService = new LocalizationService(storageService, loggingService);
         var settings = await settingsService.LoadAsync();
         var hotkeySettings = await hotkeySettingsService.LoadAsync();
         await promptTemplateService.LoadAsync();
+        await LocalizationResourceService.ApplyAsync(localizationService, settings.Language);
         ThemeResourceService.Apply(settings.Theme);
 
         var screenshotService = new ScreenshotService();
@@ -79,6 +81,7 @@ public partial class App : System.Windows.Application
             aiService,
             aiSecretService,
             promptTemplateService,
+            localizationService,
             loggingService);
 
         var coordinator = new AppInteractionCoordinator(
@@ -102,6 +105,7 @@ public partial class App : System.Windows.Application
             var firstRunWizard = new FirstRunWizardWindow(new FirstRunWizardViewModel(settingsService));
             firstRunWizard.ShowDialog();
             settings = await settingsService.LoadAsync();
+            await LocalizationResourceService.ApplyAsync(localizationService, settings.Language);
             ThemeResourceService.Apply(settings.Theme);
         }
 

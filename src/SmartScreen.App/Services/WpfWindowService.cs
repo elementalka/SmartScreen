@@ -20,6 +20,7 @@ public sealed class WpfWindowService(
     IAiService aiService,
     IAiSecretService aiSecretService,
     IPromptTemplateService promptTemplateService,
+    ILocalizationService localizationService,
     ILoggingService loggingService) : IWindowService
 {
     public Task<ScreenRegion?> SelectRegionAsync()
@@ -78,6 +79,7 @@ public sealed class WpfWindowService(
             aiService,
             aiSecretService,
             promptTemplateService,
+            localizationService,
             loggingService);
         var window = new SettingsWindow(viewModel);
         AssignVisibleOwner(window);

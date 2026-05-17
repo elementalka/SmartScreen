@@ -25,6 +25,23 @@ public static class ThemeResourceService
         SetBrush("AccentBrush", palette.Accent);
         SetBrush("AccentSoftBrush", palette.AccentSoft);
         SetBrush("BorderBrush", palette.Border);
+        SetBrush("GlassPanelBrush", palette.GlassPanel);
+        SetBrush("GlassPanelStrongBrush", palette.GlassPanelStrong);
+        SetBrush("GlassPanelSoftBrush", palette.GlassPanelSoft);
+        SetBrush("RailBrush", palette.Rail);
+        SetBrush("ControlBrush", palette.Control);
+        SetBrush("ControlHoverBrush", palette.ControlHover);
+        SetBrush("ControlSelectedBrush", palette.ControlSelected);
+        SetBrush("PopupBrush", palette.Popup);
+        SetBrush("GlassBorderBrush", palette.GlassBorder);
+        SetBrush("PopupBorderBrush", palette.PopupBorder);
+        SetBrush("HoverBorderBrush", palette.HoverBorder);
+        SetBrush("FocusBorderBrush", palette.FocusBorder);
+        SetBrush("SuccessSoftBrush", palette.SuccessSoft);
+        SetBrush("SuccessBorderBrush", palette.SuccessBorder);
+        SetBrush("WarningSoftBrush", palette.WarningSoft);
+        SetBrush("WarningBorderBrush", palette.WarningBorder);
+        SetBrush("ThumbnailBrush", palette.Thumbnail);
         SetColor("AccentColor", palette.Accent);
         SetGlassBackground(palette);
     }
@@ -58,7 +75,24 @@ public static class ThemeResourceService
                 MediaColor.FromRgb(203, 213, 225),
                 MediaColor.FromRgb(239, 244, 250),
                 MediaColor.FromRgb(226, 233, 243),
-                MediaColor.FromRgb(247, 250, 252));
+                MediaColor.FromRgb(247, 250, 252),
+                MediaColor.FromArgb(236, 255, 255, 255),
+                MediaColor.FromArgb(246, 255, 255, 255),
+                MediaColor.FromArgb(202, 233, 240, 249),
+                MediaColor.FromArgb(246, 239, 244, 250),
+                MediaColor.FromArgb(224, 232, 239, 248),
+                MediaColor.FromArgb(244, 222, 235, 250),
+                MediaColor.FromArgb(78, accent.R, accent.G, accent.B),
+                MediaColor.FromArgb(250, 255, 255, 255),
+                MediaColor.FromRgb(203, 213, 225),
+                MediaColor.FromRgb(148, 163, 184),
+                MediaColor.FromArgb(206, accent.R, accent.G, accent.B),
+                accent,
+                MediaColor.FromArgb(44, 16, 185, 129),
+                MediaColor.FromArgb(132, 16, 185, 129),
+                MediaColor.FromArgb(42, 245, 158, 11),
+                MediaColor.FromArgb(120, 245, 158, 11),
+                MediaColor.FromRgb(226, 232, 240));
         }
 
         return new ThemePalette(
@@ -72,7 +106,24 @@ public static class ThemeResourceService
             MediaColor.FromRgb(51, 65, 85),
             MediaColor.FromRgb(7, 17, 31),
             MediaColor.FromRgb(14, 26, 45),
-            MediaColor.FromRgb(16, 26, 43));
+            MediaColor.FromRgb(16, 26, 43),
+            MediaColor.FromArgb(214, 18, 27, 45),
+            MediaColor.FromArgb(224, 16, 23, 42),
+            MediaColor.FromArgb(135, 24, 38, 58),
+            MediaColor.FromArgb(240, 11, 18, 32),
+            MediaColor.FromArgb(184, 24, 38, 58),
+            MediaColor.FromArgb(210, 34, 51, 74),
+            MediaColor.FromArgb(194, 25, 50, 77),
+            MediaColor.FromArgb(240, 17, 26, 45),
+            MediaColor.FromArgb(82, 109, 131, 166),
+            MediaColor.FromArgb(112, 142, 163, 197),
+            MediaColor.FromArgb(109, 166, 199, 243),
+            MediaColor.FromRgb(125, 211, 252),
+            MediaColor.FromArgb(38, 52, 211, 153),
+            MediaColor.FromArgb(102, 52, 211, 153),
+            MediaColor.FromArgb(44, 245, 158, 11),
+            MediaColor.FromArgb(102, 245, 158, 11),
+            MediaColor.FromRgb(30, 41, 59));
     }
 
     private static bool TryParseColor(string value, out MediaColor color)
@@ -205,5 +256,22 @@ public static class ThemeResourceService
         MediaColor Border,
         MediaColor GlassStart,
         MediaColor GlassMiddle,
-        MediaColor GlassEnd);
+        MediaColor GlassEnd,
+        MediaColor GlassPanel,
+        MediaColor GlassPanelStrong,
+        MediaColor GlassPanelSoft,
+        MediaColor Rail,
+        MediaColor Control,
+        MediaColor ControlHover,
+        MediaColor ControlSelected,
+        MediaColor Popup,
+        MediaColor GlassBorder,
+        MediaColor PopupBorder,
+        MediaColor HoverBorder,
+        MediaColor FocusBorder,
+        MediaColor SuccessSoft,
+        MediaColor SuccessBorder,
+        MediaColor WarningSoft,
+        MediaColor WarningBorder,
+        MediaColor Thumbnail);
 }
