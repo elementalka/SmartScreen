@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App.Commands;
+using SmartScreen.App.Services;
 using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 
@@ -23,9 +24,9 @@ public sealed class FirstRunWizardViewModel : ObservableObject
 
         ThemeModeOptions =
         [
-            new(ThemeMode.System, "Системна"),
-            new(ThemeMode.Light, "Світла"),
-            new(ThemeMode.Dark, "Темна")
+            new(ThemeMode.System, Text("settings.option.theme.system", "Системна")),
+            new(ThemeMode.Light, Text("settings.option.theme.light", "Світла")),
+            new(ThemeMode.Dark, Text("settings.option.theme.dark", "Темна"))
         ];
 
         LanguageOptions =
@@ -146,4 +147,7 @@ public sealed class FirstRunWizardViewModel : ObservableObject
         Status = "Перший запуск завершено";
         CloseRequested?.Invoke();
     }
+
+    private static string Text(string key, string fallback) =>
+        LocalizationResourceService.GetString(key, fallback);
 }

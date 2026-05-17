@@ -75,11 +75,11 @@ public sealed class SettingsViewModel : ObservableObject
 
         ScreenshotModeOptions =
         [
-            new(ScreenshotMode.Region, "Область"),
-            new(ScreenshotMode.FullScreen, "Весь екран"),
-            new(ScreenshotMode.ActiveWindow, "Активне вікно"),
-            new(ScreenshotMode.Monitor, "Монітор"),
-            new(ScreenshotMode.Delayed, "Із затримкою")
+            new(ScreenshotMode.Region, Text("settings.option.screenshot.region", "Область")),
+            new(ScreenshotMode.FullScreen, Text("settings.option.screenshot.fullScreen", "Весь екран")),
+            new(ScreenshotMode.ActiveWindow, Text("settings.option.screenshot.activeWindow", "Активне вікно")),
+            new(ScreenshotMode.Monitor, Text("settings.option.screenshot.monitor", "Монітор")),
+            new(ScreenshotMode.Delayed, Text("settings.option.screenshot.delayed", "Із затримкою"))
         ];
 
         ImageFormatOptions =
@@ -101,9 +101,9 @@ public sealed class SettingsViewModel : ObservableObject
 
         ThemeModeOptions =
         [
-            new(ThemeMode.System, "Системна"),
-            new(ThemeMode.Light, "Світла"),
-            new(ThemeMode.Dark, "Темна")
+            new(ThemeMode.System, Text("settings.option.theme.system", "Системна")),
+            new(ThemeMode.Light, Text("settings.option.theme.light", "Світла")),
+            new(ThemeMode.Dark, Text("settings.option.theme.dark", "Темна"))
         ];
 
         LanguageOptions =
@@ -805,6 +805,9 @@ public sealed class SettingsViewModel : ObservableObject
         var value = _localizationService.GetString(key);
         return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
     }
+
+    private static string Text(string key, string fallback) =>
+        LocalizationResourceService.GetString(key, fallback);
 
     private void NotifySectionVisibilityChanged()
     {

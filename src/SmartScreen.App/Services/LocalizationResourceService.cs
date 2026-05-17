@@ -70,6 +70,14 @@ public static class LocalizationResourceService
         ["settings.section.logs.description"] = "діагностика і конфіги",
         ["settings.promptEditing"] = "Редагування prompt",
         ["settings.logsAndFiles"] = "Логи та файли",
+        ["settings.option.screenshot.region"] = "Область",
+        ["settings.option.screenshot.fullScreen"] = "Весь екран",
+        ["settings.option.screenshot.activeWindow"] = "Активне вікно",
+        ["settings.option.screenshot.monitor"] = "Монітор",
+        ["settings.option.screenshot.delayed"] = "Із затримкою",
+        ["settings.option.theme.system"] = "Системна",
+        ["settings.option.theme.light"] = "Світла",
+        ["settings.option.theme.dark"] = "Темна",
         ["firstRun.title"] = "Перший запуск SmartScreen",
         ["firstRun.status"] = "Швидке налаштування SmartScreen",
         ["firstRun.behaviorTitle"] = "Базова поведінка",
@@ -156,6 +164,8 @@ public static class LocalizationResourceService
         ["ai.status.responseSaved"] = "Відповідь збережено: {0}",
         ["status.ready"] = "Готово до роботи"
     };
+
+    public static IReadOnlyCollection<string> BuiltInKeys { get; } = BuiltInFallback.Keys.ToArray();
 
     public static async Task ApplyAsync(
         ILocalizationService localizationService,
