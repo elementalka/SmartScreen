@@ -56,6 +56,8 @@ public sealed class UiSmokeTests
                     Assert.IsNotNull(application.Resources["TextBrush"]);
                     Assert.IsNotNull(application.Resources["Loc.main.workspace"]);
                     Assert.AreEqual("Скріншот готовий", application.Resources["Loc.quick.ready"]);
+                    Assert.AreEqual("Готово", application.Resources["Loc.quick.status.ready"]);
+                    Assert.AreEqual("Готово за {0:N1} с", application.Resources["Loc.ai.status.doneSeconds"]);
                     Assert.AreEqual("Олівець (P)", application.Resources["Loc.editor.pen"]);
                     Assert.AreEqual("AI-панель", application.Resources["Loc.ai.panel"]);
                     Assert.IsNotNull(window.Content);

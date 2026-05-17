@@ -163,7 +163,10 @@ public partial class QuickActionsWindow : Window
         }
         catch (Exception exception)
         {
-            _viewModel.ReportActionError(exception, "Could not apply edited screenshot.", "Не вдалося застосувати редагування");
+            _viewModel.ReportActionError(
+                exception,
+                "Could not apply edited screenshot.",
+                LocalizationResourceService.GetString("editor.status.applyFailed", "Не вдалося застосувати редагування"));
         }
     }
 
@@ -292,7 +295,9 @@ public partial class QuickActionsWindow : Window
             e.Key == Key.C &&
             !(_viewModel.IsAiPanelOpen && Keyboard.FocusedElement is TextBox))
         {
-            RunFinalAction(CopyAndCloseAsync, "Не вдалося скопіювати скріншот");
+            RunFinalAction(
+                CopyAndCloseAsync,
+                LocalizationResourceService.GetString("editor.status.copyFailed", "Не вдалося скопіювати скріншот"));
             e.Handled = true;
             return;
         }
@@ -301,7 +306,9 @@ public partial class QuickActionsWindow : Window
             e.Key == Key.S &&
             !(_viewModel.IsAiPanelOpen && Keyboard.FocusedElement is TextBox))
         {
-            RunFinalAction(SaveAndCloseAsync, "Не вдалося зберегти скріншот");
+            RunFinalAction(
+                SaveAndCloseAsync,
+                LocalizationResourceService.GetString("editor.status.saveFailed", "Не вдалося зберегти скріншот"));
             e.Handled = true;
             return;
         }
@@ -752,7 +759,7 @@ public partial class QuickActionsWindow : Window
     {
         var textBox = new TextBox
         {
-            Text = "Текст",
+            Text = LocalizationResourceService.GetString("editor.textPlaceholder", "Текст"),
             FontSize = ActiveTextSize,
             FontWeight = FontWeights.SemiBold,
             Foreground = new SolidColorBrush(_activeColor),

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -29,8 +30,8 @@ public sealed class QuickActionsViewModel : ObservableObject
     private AiPromptTemplate? _selectedPrompt;
     private string _customPrompt = string.Empty;
     private string _aiResponseText = string.Empty;
-    private string _aiStatus = "Готово";
-    private string _status = "Вибери дію";
+    private string _aiStatus = Text("quick.status.ready", "Готово");
+    private string _status = Text("quick.status.chooseAction", "Вибери дію");
     private string _editorDefaultColor = "#E53935";
     private double _editorDefaultStrokeThickness = 3;
     private double _editorDefaultTextSize = 18;
@@ -289,13 +290,13 @@ public sealed class QuickActionsViewModel : ObservableObject
             settings.Screenshots.JpegQuality,
             cancellationToken);
 
-        Status = $"Збережено: {Path.GetFileName(path)}";
+        Status = FormatText("quick.status.saved", "Збережено: {0}", Path.GetFileName(path));
     }
 
     public async Task CopyCurrentScreenshotAsync(CancellationToken cancellationToken)
     {
         await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
-        Status = "Скопійовано в буфер";
+        Status = Text("quick.status.copiedClipboard", "Скопійовано в буфер");
     }
 
     public async Task ApplyEditedScreenshotAsync(
@@ -308,23 +309,23 @@ public sealed class QuickActionsViewModel : ObservableObject
         if (copyToClipboard)
         {
             await _clipboardService.CopyImageAsync(Screenshot, cancellationToken);
-            Status = "Відредаговано і скопійовано";
+            Status = Text("quick.status.editedCopied", "Відредаговано і скопійовано");
             return;
         }
 
-        Status = "Відредаговано";
+        Status = Text("quick.status.edited", "Відредаговано");
     }
 
     private void OpenAiPanel()
     {
         IsAiPanelOpen = true;
-        AiStatus = "Вибери AI-дію або зміни prompt";
+        AiStatus = Text("ai.status.chooseAction", "Вибери AI-дію або зміни prompt");
     }
 
     private void CloseAiPanel()
     {
         IsAiPanelOpen = false;
-        Status = "AI-панель закрито";
+        Status = Text("ai.status.panelClosed", "AI-панель закрито");
     }
 
     private async Task RunAiAsync(CancellationToken cancellationToken)
@@ -335,33 +336,33 @@ public sealed class QuickActionsViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(prompt))
         {
-            AiStatus = "Вибери AI-дію або введи prompt";
+            AiStatus = Text("ai.status.choosePrompt", "Вибери AI-дію або введи prompt");
             return;
         }
 
         IsAiBusy = true;
         AiResponseText = string.Empty;
-        AiStatus = "AI аналізує скріншот...";
+        AiStatus = Text("ai.status.analyzing", "AI аналізує скріншот...");
         _aiRequestCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
         try
         {
             var response = await _aiService.AnalyzeCurrentScreenshotAsync(Screenshot, prompt, _aiRequestCts.Token);
             AiStatus = response.Success
-                ? $"Готово за {response.Duration.TotalSeconds:N1} с"
-                : response.ErrorMessage ?? "AI-помилка";
+                ? FormatText("ai.status.doneSeconds", "Готово за {0:N1} с", response.Duration.TotalSeconds)
+                : response.ErrorMessage ?? Text("ai.status.error", "AI-помилка");
             AiResponseText = response.Success ? response.Text ?? string.Empty : response.ErrorMessage ?? string.Empty;
         }
         catch (OperationCanceledException)
         {
-            AiStatus = "AI-запит скасовано";
+            AiStatus = Text("ai.status.cancelled", "AI-запит скасовано");
             AiResponseText = string.Empty;
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             _loggingService.Error(exception, "AI panel request failed.");
-            AiStatus = "AI-запит завершився помилкою";
-            AiResponseText = "Не вдалося виконати AI-запит. Деталі записано в logs/app.log.";
+            AiStatus = Text("ai.status.requestFailed", "AI-запит завершився помилкою");
+            AiResponseText = Text("ai.response.requestFailed", "Не вдалося виконати AI-запит. Деталі записано в logs/app.log.");
         }
         finally
         {
@@ -374,7 +375,7 @@ public sealed class QuickActionsViewModel : ObservableObject
     private void CancelAi()
     {
         _aiRequestCts?.Cancel();
-        AiStatus = "Скасування...";
+        AiStatus = Text("ai.status.cancelling", "Скасування...");
     }
 
     private async Task CopyAiResponseAsync(CancellationToken cancellationToken)
@@ -382,7 +383,7 @@ public sealed class QuickActionsViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(AiResponseText))
         {
             await _clipboardService.CopyTextAsync(AiResponseText, cancellationToken);
-            AiStatus = "Відповідь скопійовано";
+            AiStatus = Text("ai.status.responseCopied", "Відповідь скопійовано");
         }
     }
 
@@ -398,7 +399,7 @@ public sealed class QuickActionsViewModel : ObservableObject
         Directory.CreateDirectory(directory);
         var path = Path.Combine(directory, $"ai_response_{DateTimeOffset.Now:yyyy-MM-dd_HH-mm-ss}.txt");
         await File.WriteAllTextAsync(path, AiResponseText, cancellationToken);
-        AiStatus = $"Відповідь збережено: {Path.GetFileName(path)}";
+        AiStatus = FormatText("ai.status.responseSaved", "Відповідь збережено: {0}", Path.GetFileName(path));
     }
 
     private void OpenFolder()
@@ -411,9 +412,15 @@ public sealed class QuickActionsViewModel : ObservableObject
         catch (Exception exception)
         {
             _loggingService.Error(exception, "Could not open screenshots folder.");
-            Status = "Не вдалося відкрити папку";
+            Status = Text("quick.status.openFolderFailed", "Не вдалося відкрити папку");
         }
     }
+
+    private static string Text(string key, string fallback) =>
+        LocalizationResourceService.GetString(key, fallback);
+
+    private static string FormatText(string key, string fallback, params object[] args) =>
+        string.Format(CultureInfo.CurrentCulture, Text(key, fallback), args);
 
     private void RaiseAiResultCommands()
     {
