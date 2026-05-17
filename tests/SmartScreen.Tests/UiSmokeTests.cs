@@ -1,7 +1,11 @@
 using System.Runtime.ExceptionServices;
 using System.Windows;
+using SmartScreen.Application.Abstractions;
 using SmartScreen.App;
 using SmartScreen.App.Services;
+using SmartScreen.App.ViewModels;
+using SmartScreen.App.Views;
+using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 using DomainThemeMode = SmartScreen.Domain.Enums.ThemeMode;
 
@@ -32,7 +36,9 @@ public sealed class UiSmokeTests
                 LocalizationResourceService.Apply(new Dictionary<string, string>
                 {
                     ["app.title"] = "SmartScreen Test",
-                    ["main.workspace"] = "Workspace Test"
+                    ["main.workspace"] = "Workspace Test",
+                    ["firstRun.title"] = "First Run Test",
+                    ["firstRun.start"] = "Begin Test"
                 });
 
                 ThemeResourceService.Apply(new ThemeSettings
@@ -54,6 +60,19 @@ public sealed class UiSmokeTests
                 finally
                 {
                     window.Close();
+                }
+
+                var wizard = new FirstRunWizardWindow(new FirstRunWizardViewModel(new FakeSettingsService()));
+                try
+                {
+                    wizard.UpdateLayout();
+
+                    Assert.AreEqual("First Run Test", wizard.Title);
+                    Assert.IsNotNull(wizard.Content);
+                }
+                finally
+                {
+                    wizard.Close();
                 }
             }
             finally
@@ -82,5 +101,41 @@ public sealed class UiSmokeTests
         thread.Start();
         thread.Join();
         exception?.Throw();
+    }
+
+    private sealed class FakeSettingsService : ISettingsService
+    {
+        private readonly AppSettings _settings = new()
+        {
+            Screenshots =
+            {
+                AfterCaptureActions =
+                [
+                    AfterCaptureAction.CopyImageToClipboard,
+                    AfterCaptureAction.ShowQuickActions
+                ]
+            },
+            Ai =
+            {
+                Providers =
+                [
+                    new AiProviderSettings
+                    {
+                        Id = "test",
+                        DisplayName = "Test Provider",
+                        IsEnabled = true
+                    }
+                ]
+            }
+        };
+
+        public Task<AppSettings> LoadAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(_settings);
+
+        public Task SaveAsync(AppSettings settings, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task<AppSettings> ResetAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(_settings);
     }
 }

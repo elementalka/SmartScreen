@@ -56,7 +56,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel Margin="0,0,18,0">
                 <TextBlock Text="{DynamicResource Loc.settings.title}" Style="{StaticResource TitleText}" />
-                <TextBlock Text="Керування скріншотами, AI-маршрутами, prompt-шаблонами та глобальними клавішами"
+                <TextBlock Text="{DynamicResource Loc.settings.subtitle}"
                            Style="{StaticResource MutedText}"
                            TextWrapping="Wrap" />
             </StackPanel>
@@ -77,8 +77,8 @@
             <Border Style="{StaticResource PanelBorder}" Margin="0,0,16,0">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
-                        <TextBlock Text="Розділи" Style="{StaticResource SectionTitleText}" />
-                        <TextBlock Text="Усе важливе без ручного JSON"
+                        <TextBlock Text="{DynamicResource Loc.settings.sections}" Style="{StaticResource SectionTitleText}" />
+                        <TextBlock Text="{DynamicResource Loc.settings.sectionsHint}"
                                    Style="{StaticResource MutedText}"
                                    Margin="0,4,0,0" />
                     </StackPanel>
@@ -113,7 +113,7 @@
                     <StackPanel Visibility="{Binding GeneralSectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Загальні" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.section.general.title}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="SmartScreen залишається tray-first утилітою: головне вікно відкривається тоді, коли треба щось налаштувати."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18"
@@ -153,7 +153,7 @@
                     <StackPanel Visibility="{Binding ScreenshotsSectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Скріншоти" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.section.screenshots.title}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="Формат, папка, назва файлу та дії після захоплення."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
@@ -286,7 +286,7 @@
                     <StackPanel Visibility="{Binding EditorSectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Редактор" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.section.editor.title}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="Базові параметри інструментів для позначок на скріншоті."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
@@ -333,7 +333,7 @@
                             <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,16,0">
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                        <TextBlock Text="AI-провайдери" Style="{StaticResource SectionTitleText}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.section.ai.title}" Style="{StaticResource SectionTitleText}" />
                                         <TextBlock Text="Активний маршрут для AI-відповідей"
                                                    Style="{StaticResource MutedText}"
                                                    Margin="0,4,0,0" />
@@ -474,7 +474,7 @@
                             <Border Style="{StaticResource WorkspacePanel}" Margin="0,0,16,0">
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-                                        <TextBlock Text="Prompt-шаблони" Style="{StaticResource SectionTitleText}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.section.prompts.title}" Style="{StaticResource SectionTitleText}" />
                                         <TextBlock Text="{Binding PromptTemplateCount, StringFormat={}{0} шаблонів}"
                                                    Style="{StaticResource MutedText}"
                                                    Margin="0,4,0,0" />
@@ -556,7 +556,7 @@
                                 <StackPanel>
                                     <DockPanel>
                                         <StackPanel>
-                                            <TextBlock Text="Редагування prompt" Style="{StaticResource SectionTitleText}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.promptEditing}" Style="{StaticResource SectionTitleText}" />
                                             <TextBlock Text="Зміни зберігаються у config/prompts.json"
                                                        Style="{StaticResource MutedText}"
                                                        Margin="0,4,0,0" />
@@ -625,7 +625,7 @@
                                 <StackPanel DockPanel.Dock="Top">
                                     <DockPanel>
                                         <StackPanel>
-                                            <TextBlock Text="Гарячі клавіші" Style="{StaticResource SectionTitleText}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.section.hotkeys.title}" Style="{StaticResource SectionTitleText}" />
                                             <TextBlock Text="{Binding EnabledHotkeyCount, StringFormat={}{0} активних комбінацій}"
                                                        Style="{StaticResource MutedText}"
                                                        Margin="0,4,0,0" />
@@ -711,7 +711,7 @@
                     <StackPanel Visibility="{Binding InterfaceSectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Інтерфейс" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.section.interface.title}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="Тема, accent color і поведінка вікон."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
@@ -742,7 +742,7 @@
                     <StackPanel Visibility="{Binding LanguagesSectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Мови" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.section.languages.title}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="Файли локалізації лежать поруч із застосунком, тому нові мови можна додавати через JSON."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18"
@@ -777,7 +777,7 @@
                     <StackPanel Visibility="{Binding SecuritySectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Безпека" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.section.security.title}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="AI-запит виконується тільки після явної дії користувача, ключі зберігаються окремо від git-конфігів."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18"
@@ -800,7 +800,7 @@
                     <StackPanel Visibility="{Binding LogsSectionVisibility}">
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
-                                <TextBlock Text="Логи та файли" Style="{StaticResource SectionTitleText}" />
+                                <TextBlock Text="{DynamicResource Loc.settings.logsAndFiles}" Style="{StaticResource SectionTitleText}" />
                                 <TextBlock Text="Швидкий доступ до portable-директорій для діагностики."
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />

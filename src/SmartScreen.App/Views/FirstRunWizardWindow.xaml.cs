@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Controls;
+using SmartScreen.App.Services;
 using SmartScreen.App.ViewModels;
 
 namespace SmartScreen.App.Views;
@@ -25,5 +27,13 @@ public partial class FirstRunWizardWindow : Window
     private void CloseWizard()
     {
         DialogResult = true;
+    }
+
+    private void ThemeModeComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_viewModel.Settings is not null)
+        {
+            ThemeResourceService.Apply(_viewModel.Settings.Theme);
+        }
     }
 }
