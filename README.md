@@ -53,7 +53,7 @@ Optional local install:
 .\scripts\install-portable.ps1
 ```
 
-The installer copies the portable build to `%LOCALAPPDATA%\Programs\SmartScreen`, creates Start Menu shortcuts, and writes `uninstall.ps1` into the install folder. Use `-CreateDesktopShortcut` when a desktop shortcut is needed or `-NoStartMenuShortcut` for a copy-only install.
+The installer copies the portable build to `%LOCALAPPDATA%\Programs\SmartScreen`, creates Start Menu shortcuts, and writes `uninstall.ps1` into the install folder. Use `-CreateDesktopShortcut` when a desktop shortcut is needed, `-CreateStartupShortcut` for Windows startup, or `-NoStartMenuShortcut` for a copy-only install.
 
 ## Default Hotkeys
 

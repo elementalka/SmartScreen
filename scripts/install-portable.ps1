@@ -3,9 +3,11 @@ param(
     [string]$Runtime = "win-x64",
     [string]$InstallDir = (Join-Path $env:LOCALAPPDATA "Programs\SmartScreen"),
     [string]$StartMenuDirectory = (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\SmartScreen"),
+    [string]$StartupDirectory = (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup"),
     [string]$DesktopDirectory = [Environment]::GetFolderPath("DesktopDirectory"),
     [switch]$NoStartMenuShortcut,
     [switch]$CreateDesktopShortcut,
+    [switch]$CreateStartupShortcut,
     [switch]$SkipPublish,
     [switch]$Launch
 )
@@ -54,8 +56,30 @@ param(
 $ErrorActionPreference = "Stop"
 
 $installRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$startMenuDirectory = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\SmartScreen"
-$desktopShortcut = Join-Path ([Environment]::GetFolderPath("DesktopDirectory")) "SmartScreen.lnk"
+$metadataPath = Join-Path $installRoot "install.json"
+$metadata = $null
+
+if (Test-Path -LiteralPath $metadataPath) {
+    $metadata = Get-Content -Raw -Path $metadataPath | ConvertFrom-Json
+}
+
+$startMenuDirectory = if ($metadata -and $metadata.StartMenuDirectory) {
+    [string]$metadata.StartMenuDirectory
+} else {
+    Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\SmartScreen"
+}
+
+$desktopShortcut = if ($metadata -and $metadata.DesktopShortcut) {
+    [string]$metadata.DesktopShortcut
+} else {
+    Join-Path ([Environment]::GetFolderPath("DesktopDirectory")) "SmartScreen.lnk"
+}
+
+$startupShortcut = if ($metadata -and $metadata.StartupShortcut) {
+    [string]$metadata.StartupShortcut
+} else {
+    Join-Path (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup") "SmartScreen.lnk"
+}
 
 if (Test-Path -LiteralPath $startMenuDirectory) {
     Remove-Item -LiteralPath $startMenuDirectory -Recurse -Force
@@ -63,6 +87,10 @@ if (Test-Path -LiteralPath $startMenuDirectory) {
 
 if (Test-Path -LiteralPath $desktopShortcut) {
     Remove-Item -LiteralPath $desktopShortcut -Force
+}
+
+if (Test-Path -LiteralPath $startupShortcut) {
+    Remove-Item -LiteralPath $startupShortcut -Force
 }
 
 if ($KeepData) {
@@ -132,6 +160,24 @@ if ($CreateDesktopShortcut) {
         -Description "SmartScreen screenshot tool"
 }
 
+if ($CreateStartupShortcut) {
+    New-SmartScreenShortcut `
+        -Path (Join-Path $StartupDirectory "SmartScreen.lnk") `
+        -TargetPath $targetExe `
+        -Description "Start SmartScreen with Windows"
+}
+
+$installMetadata = [ordered]@{
+    InstallDir = $InstallDir
+    StartMenuDirectory = if (-not $NoStartMenuShortcut) { $StartMenuDirectory } else { $null }
+    DesktopShortcut = if ($CreateDesktopShortcut) { Join-Path $DesktopDirectory "SmartScreen.lnk" } else { $null }
+    StartupShortcut = if ($CreateStartupShortcut) { Join-Path $StartupDirectory "SmartScreen.lnk" } else { $null }
+}
+
+$installMetadata |
+    ConvertTo-Json |
+    Set-Content -Encoding UTF8 -Path (Join-Path $InstallDir "install.json")
+
 Write-Host "SmartScreen installed:" $InstallDir
 if (-not $NoStartMenuShortcut) {
     Write-Host "Start Menu shortcuts:" $StartMenuDirectory
@@ -139,6 +185,10 @@ if (-not $NoStartMenuShortcut) {
 
 if ($CreateDesktopShortcut) {
     Write-Host "Desktop shortcut:" (Join-Path $DesktopDirectory "SmartScreen.lnk")
+}
+
+if ($CreateStartupShortcut) {
+    Write-Host "Startup shortcut:" (Join-Path $StartupDirectory "SmartScreen.lnk")
 }
 
 if ($Launch) {
