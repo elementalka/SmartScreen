@@ -76,12 +76,66 @@ public sealed class UiSmokeTests
                 }
 
                 AssertQuickActionsWorkspaceLoads(application);
+                AssertSettingsWindowThemePreview(application);
             }
             finally
             {
                 application.Shutdown();
             }
         });
+    }
+
+    private static void AssertSettingsWindowThemePreview(System.Windows.Application application)
+    {
+        var storageService = new FakeStorageService();
+
+        try
+        {
+            var settings = new AppSettings
+            {
+                Theme =
+                {
+                    Mode = DomainThemeMode.Dark,
+                    AccentColor = "#38BDF8"
+                }
+            };
+
+            var viewModel = new SettingsViewModel(
+                new FakeSettingsService(settings),
+                new FakeHotkeySettingsService(),
+                new FakeHotkeyService(),
+                storageService,
+                new FakeAiService(),
+                new FakeAiSecretService(),
+                new FakePromptTemplateService(),
+                new FakeLocalizationService(),
+                new FakeLoggingService());
+
+            var window = new SettingsWindow(viewModel);
+            try
+            {
+                window.Show();
+                PumpDispatcher();
+
+                var themeComboBox = FindLogicalDescendants<WpfComboBox>(window)
+                    .First(comboBox => comboBox.Name == "ThemeModeComboBox");
+
+                themeComboBox.SelectedValue = DomainThemeMode.Light;
+                PumpDispatcher();
+
+                Assert.AreEqual(DomainThemeMode.Light, settings.Theme.Mode);
+                Assert.AreEqual(System.Windows.Media.Color.FromRgb(17, 24, 39), GetSolidColor(application.Resources["TextBrush"]));
+                Assert.AreEqual(System.Windows.Media.Color.FromRgb(245, 247, 251), GetSolidColor(application.Resources["AppBackgroundBrush"]));
+            }
+            finally
+            {
+                window.Close();
+            }
+        }
+        finally
+        {
+            storageService.Cleanup();
+        }
     }
 
     private static void AssertQuickActionsWorkspaceLoads(System.Windows.Application application)
@@ -282,6 +336,17 @@ public sealed class UiSmokeTests
         }
     }
 
+    private static void PumpDispatcher() =>
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+            System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+            new Action(() => { }));
+
+    private static System.Windows.Media.Color GetSolidColor(object resource)
+    {
+        Assert.IsInstanceOfType(resource, typeof(SolidColorBrush));
+        return ((SolidColorBrush)resource).Color;
+    }
+
     private static void AssertSameBrushColor(object expected, WpfBrush actual)
     {
         Assert.IsInstanceOfType(expected, typeof(SolidColorBrush));
@@ -333,6 +398,34 @@ public sealed class UiSmokeTests
 
         public Task<AppSettings> ResetAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(_settings);
+    }
+
+    private sealed class FakeHotkeySettingsService : IHotkeySettingsService
+    {
+        public Task<HotkeySettings> LoadAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new HotkeySettings());
+
+        public Task SaveAsync(HotkeySettings settings, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+    }
+
+    private sealed class FakeHotkeyService : IHotkeyService
+    {
+        public event EventHandler<HotkeyPressedEventArgs>? HotkeyPressed
+        {
+            add { }
+            remove { }
+        }
+
+        public Task RegisterAsync(HotkeySettings settings, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task UnregisterAllAsync(CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public void Dispose()
+        {
+        }
     }
 
     private sealed class FakeClipboardService : IClipboardService
@@ -445,6 +538,28 @@ public sealed class UiSmokeTests
 
         public Task ResetToDefaultsAsync(CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
+    }
+
+    private sealed class FakeAiSecretService : IAiSecretService
+    {
+        public Task ApplySecretsAsync(AiProviderSettings settings, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task SaveApiKeyAsync(string providerId, string apiKey, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public string GetEnvironmentVariableName(string providerId) =>
+            $"SMARTSCREEN_AI_{providerId.ToUpperInvariant()}_KEY";
+    }
+
+    private sealed class FakeLocalizationService : ILocalizationService
+    {
+        public IReadOnlyDictionary<string, string> CurrentStrings { get; } = new Dictionary<string, string>();
+
+        public Task LoadAsync(string cultureName, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public string GetString(string key) => key;
     }
 
     private sealed class FakeAiService : IAiService

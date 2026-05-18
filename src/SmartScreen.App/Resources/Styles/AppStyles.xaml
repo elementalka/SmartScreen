@@ -242,7 +242,6 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource HoverBorderBrush}" />
                             <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ControlHoverBrush}" />
-                            <Setter Property="Foreground" Value="#F8FAFC" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.86" />
@@ -292,7 +291,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="Background" Value="{StaticResource ControlBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}" />
-        <Setter Property="Foreground" Value="#F8FAFC" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Padding" Value="12,8" />
     </Style>
@@ -305,7 +304,7 @@
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Background" Value="{StaticResource ControlBrush}" />
-        <Setter Property="Foreground" Value="#F8FAFC" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
     </Style>
 
     <Style x:Key="ActionIconText" TargetType="TextBlock">

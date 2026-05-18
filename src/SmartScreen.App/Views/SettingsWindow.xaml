@@ -732,15 +732,19 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Loc.settings.interface.theme}" Style="{StaticResource FieldLabel}" />
-                                        <ComboBox ItemsSource="{Binding ThemeModeOptions}"
+                                        <ComboBox x:Name="ThemeModeComboBox"
+                                                  ItemsSource="{Binding ThemeModeOptions}"
                                                   SelectedValue="{Binding Settings.Theme.Mode}"
                                                   SelectedValuePath="Value"
                                                   DisplayMemberPath="Label"
-                                                  MinHeight="38" />
+                                                  MinHeight="38"
+                                                  SelectionChanged="ThemeModeComboBox_OnSelectionChanged" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="14,0,0,0">
                                         <TextBlock Text="{DynamicResource Loc.settings.interface.accentColor}" Style="{StaticResource FieldLabel}" />
-                                        <TextBox Text="{Binding Settings.Theme.AccentColor, UpdateSourceTrigger=PropertyChanged}"
+                                        <TextBox x:Name="AccentColorTextBox"
+                                                 Text="{Binding Settings.Theme.AccentColor, UpdateSourceTrigger=PropertyChanged}"
+                                                 TextChanged="AccentColorTextBox_OnTextChanged"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                 </Grid>
