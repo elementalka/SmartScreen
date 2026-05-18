@@ -1,5 +1,7 @@
 using System.Runtime.ExceptionServices;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.App;
 using SmartScreen.App.Services;
@@ -8,6 +10,11 @@ using SmartScreen.App.Views;
 using SmartScreen.Domain.Enums;
 using SmartScreen.Domain.Models;
 using DomainThemeMode = SmartScreen.Domain.Enums.ThemeMode;
+using WpfBrush = System.Windows.Media.Brush;
+using WpfButton = System.Windows.Controls.Button;
+using WpfComboBox = System.Windows.Controls.ComboBox;
+using WpfInkCanvas = System.Windows.Controls.InkCanvas;
+using WpfSlider = System.Windows.Controls.Slider;
 
 namespace SmartScreen.Tests;
 
@@ -19,34 +26,16 @@ public sealed class UiSmokeTests
     {
         RunOnSta(() =>
         {
-            var application = new System.Windows.Application
+            var application = CreateTestApplication(new Dictionary<string, string>
             {
-                ShutdownMode = ShutdownMode.OnExplicitShutdown
-            };
+                ["app.title"] = "SmartScreen Test",
+                ["main.workspace"] = "Workspace Test",
+                ["firstRun.title"] = "First Run Test",
+                ["firstRun.start"] = "Begin Test"
+            });
 
             try
             {
-                application.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri(
-                        "pack://application:,,,/SmartScreen.App;component/Resources/Styles/AppStyles.xaml",
-                        UriKind.Absolute)
-                });
-
-                LocalizationResourceService.Apply(new Dictionary<string, string>
-                {
-                    ["app.title"] = "SmartScreen Test",
-                    ["main.workspace"] = "Workspace Test",
-                    ["firstRun.title"] = "First Run Test",
-                    ["firstRun.start"] = "Begin Test"
-                });
-
-                ThemeResourceService.Apply(new ThemeSettings
-                {
-                    Mode = DomainThemeMode.Dark,
-                    AccentColor = "#38BDF8"
-                });
-
                 var window = new MainWindow();
                 try
                 {
@@ -85,12 +74,84 @@ public sealed class UiSmokeTests
                 {
                     wizard.Close();
                 }
+
+                AssertQuickActionsWorkspaceLoads(application);
             }
             finally
             {
                 application.Shutdown();
             }
         });
+    }
+
+    private static void AssertQuickActionsWorkspaceLoads(System.Windows.Application application)
+    {
+        var storageService = new FakeStorageService();
+
+        try
+        {
+            var viewModel = new QuickActionsViewModel(
+                CreateScreenshot(),
+                new FakeClipboardService(),
+                new FakeImageFileService(),
+                new FakeSettingsService(CreateWorkspaceSettings()),
+                storageService,
+                new FakePromptTemplateService(),
+                new FakeAiService(),
+                new FakeLoggingService(),
+                startupMode: CaptureWorkspaceStartupMode.Ai,
+                initialPromptTemplateId: "privacy");
+
+            viewModel.LoadAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+            var window = new QuickActionsWindow(viewModel)
+            {
+                WindowState = WindowState.Normal,
+                Width = 960,
+                Height = 640,
+                Topmost = false
+            };
+
+            try
+            {
+                window.UpdateLayout();
+
+                var actionButtons = FindLogicalDescendants<WpfButton>(window).ToList();
+                var comboBoxes = FindLogicalDescendants<WpfComboBox>(window).ToList();
+                var sliders = FindLogicalDescendants<WpfSlider>(window).ToList();
+                var inkCanvases = FindLogicalDescendants<WpfInkCanvas>(window).ToList();
+
+                Assert.AreSame(viewModel, window.DataContext);
+                Assert.IsNotNull(window.Content);
+                Assert.AreEqual("120 x 80px", viewModel.ScreenshotInfo);
+                Assert.AreEqual(Visibility.Visible, viewModel.AiPanelVisibility);
+                Assert.AreEqual("#22C55E", viewModel.EditorDefaultColor);
+                Assert.AreEqual(5, viewModel.EditorDefaultStrokeThickness);
+                Assert.AreEqual(22, viewModel.EditorDefaultTextSize);
+                Assert.AreEqual(2, viewModel.Prompts.Count);
+                Assert.IsTrue(actionButtons.Count >= 18);
+                Assert.IsTrue(actionButtons.Any(button => Equals(button.ToolTip, "Копіювати в буфер")));
+                Assert.IsTrue(actionButtons.Any(button => Equals(button.ToolTip, "Застосувати (Ctrl+S або Enter)")));
+                Assert.IsTrue(actionButtons.Any(button => Equals(button.ToolTip, "Надіслати AI-запит")));
+                Assert.IsTrue(comboBoxes.Count >= 1);
+                Assert.IsTrue(sliders.Count >= 2);
+                Assert.IsTrue(inkCanvases.Count >= 1);
+                AssertSameBrushColor(application.Resources["TextBrush"], comboBoxes[0].Foreground);
+                Assert.IsInstanceOfType(application.Resources["QuickWorkspaceScrimBrush"], typeof(SolidColorBrush));
+                Assert.IsInstanceOfType(application.Resources["EditorToolButtonBrush"], typeof(SolidColorBrush));
+                Assert.IsInstanceOfType(application.Resources["PopupBrush"], typeof(SolidColorBrush));
+                Assert.AreEqual("AI-панель", application.Resources["Loc.ai.panel"]);
+                Assert.AreEqual("Приватність", viewModel.SelectedPrompt?.Title);
+            }
+            finally
+            {
+                window.Close();
+            }
+        }
+        finally
+        {
+            storageService.Cleanup();
+        }
     }
 
     private static void RunOnSta(Action action)
@@ -114,31 +175,155 @@ public sealed class UiSmokeTests
         exception?.Throw();
     }
 
-    private sealed class FakeSettingsService : ISettingsService
+    private static System.Windows.Application CreateTestApplication(
+        IReadOnlyDictionary<string, string>? localizedStrings = null)
     {
-        private readonly AppSettings _settings = new()
+        var application = new System.Windows.Application
         {
-            Screenshots =
+            ShutdownMode = ShutdownMode.OnExplicitShutdown
+        };
+
+        application.Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri(
+                "pack://application:,,,/SmartScreen.App;component/Resources/Styles/AppStyles.xaml",
+                UriKind.Absolute)
+        });
+
+        LocalizationResourceService.Apply(localizedStrings ?? new Dictionary<string, string>());
+
+        ThemeResourceService.Apply(new ThemeSettings
+        {
+            Mode = DomainThemeMode.Dark,
+            AccentColor = "#38BDF8"
+        });
+
+        return application;
+    }
+
+    private static ScreenshotResult CreateScreenshot()
+    {
+        const int width = 120;
+        const int height = 80;
+        const int bytesPerPixel = 4;
+        var stride = width * bytesPerPixel;
+        var pixels = new byte[stride * height];
+
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
             {
-                AfterCaptureActions =
-                [
-                    AfterCaptureAction.CopyImageToClipboard,
-                    AfterCaptureAction.ShowQuickActions
-                ]
+                var offset = y * stride + x * bytesPerPixel;
+                pixels[offset] = (byte)(40 + x);
+                pixels[offset + 1] = (byte)(80 + y);
+                pixels[offset + 2] = 180;
+                pixels[offset + 3] = 255;
+            }
+        }
+
+        var bitmap = BitmapSource.Create(
+            width,
+            height,
+            96,
+            96,
+            PixelFormats.Bgra32,
+            null,
+            pixels,
+            stride);
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+        using var stream = new MemoryStream();
+        encoder.Save(stream);
+
+        return new ScreenshotResult
+        {
+            ImageBytes = stream.ToArray(),
+            MimeType = "image/png",
+            Width = width,
+            Height = height,
+            CreatedAt = DateTimeOffset.UtcNow,
+            SuggestedFileName = "smoke.png",
+            SourceName = "Smoke test"
+        };
+    }
+
+    private static AppSettings CreateWorkspaceSettings() =>
+        new()
+        {
+            Editor =
+            {
+                DefaultColor = "#22C55E",
+                DefaultStrokeThickness = 5,
+                DefaultTextSize = 22,
+                HighlighterOpacity = 0.4
             },
-            Ai =
+            Theme =
             {
-                Providers =
-                [
-                    new AiProviderSettings
-                    {
-                        Id = "test",
-                        DisplayName = "Test Provider",
-                        IsEnabled = true
-                    }
-                ]
+                Mode = DomainThemeMode.Dark,
+                AccentColor = "#38BDF8"
             }
         };
+
+    private static IEnumerable<T> FindLogicalDescendants<T>(DependencyObject root)
+        where T : DependencyObject
+    {
+        foreach (var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())
+        {
+            if (child is T match)
+            {
+                yield return match;
+            }
+
+            foreach (var descendant in FindLogicalDescendants<T>(child))
+            {
+                yield return descendant;
+            }
+        }
+    }
+
+    private static void AssertSameBrushColor(object expected, WpfBrush actual)
+    {
+        Assert.IsInstanceOfType(expected, typeof(SolidColorBrush));
+        Assert.IsInstanceOfType(actual, typeof(SolidColorBrush));
+        Assert.AreEqual(((SolidColorBrush)expected).Color, ((SolidColorBrush)actual).Color);
+    }
+
+    private sealed class FakeSettingsService : ISettingsService
+    {
+        private readonly AppSettings _settings;
+
+        public FakeSettingsService()
+            : this(new AppSettings
+            {
+                Screenshots =
+                {
+                    AfterCaptureActions =
+                    [
+                        AfterCaptureAction.CopyImageToClipboard,
+                        AfterCaptureAction.ShowQuickActions
+                    ]
+                },
+                Ai =
+                {
+                    Providers =
+                    [
+                        new AiProviderSettings
+                        {
+                            Id = "test",
+                            DisplayName = "Test Provider",
+                            IsEnabled = true
+                        }
+                    ]
+                }
+            })
+        {
+        }
+
+        public FakeSettingsService(AppSettings settings)
+        {
+            _settings = settings;
+        }
 
         public Task<AppSettings> LoadAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(_settings);
@@ -148,5 +333,148 @@ public sealed class UiSmokeTests
 
         public Task<AppSettings> ResetAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(_settings);
+    }
+
+    private sealed class FakeClipboardService : IClipboardService
+    {
+        public Task CopyImageAsync(ScreenshotResult screenshot, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task CopyTextAsync(string text, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+    }
+
+    private sealed class FakeImageFileService : IImageFileService
+    {
+        public Task<string> SaveAsync(
+            ScreenshotResult screenshot,
+            string? directory,
+            ScreenshotImageFormat format,
+            int jpegQuality,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(Path.Combine(directory ?? Path.GetTempPath(), screenshot.SuggestedFileName));
+    }
+
+    private sealed class FakeStorageService : IStorageService
+    {
+        public FakeStorageService()
+        {
+            var baseDirectory = Path.Combine(Path.GetTempPath(), "SmartScreen.UiSmoke", Guid.NewGuid().ToString("N"));
+            Paths = new AppPaths
+            {
+                BaseDirectory = baseDirectory,
+                ConfigDirectory = Path.Combine(baseDirectory, "config"),
+                ScreenshotsDirectory = Path.Combine(baseDirectory, "screenshots"),
+                LogsDirectory = Path.Combine(baseDirectory, "logs"),
+                LocalizationDirectory = Path.Combine(baseDirectory, "localization"),
+                ThemesDirectory = Path.Combine(baseDirectory, "themes"),
+                FallbackDirectory = Path.Combine(baseDirectory, "fallback")
+            };
+        }
+
+        public AppPaths Paths { get; }
+
+        public Task EnsureDirectoriesAsync(CancellationToken cancellationToken = default)
+        {
+            Directory.CreateDirectory(Paths.BaseDirectory);
+            Directory.CreateDirectory(Paths.ConfigDirectory);
+            Directory.CreateDirectory(Paths.ScreenshotsDirectory);
+            Directory.CreateDirectory(Paths.LogsDirectory);
+            Directory.CreateDirectory(Paths.LocalizationDirectory);
+            Directory.CreateDirectory(Paths.ThemesDirectory);
+            return Task.CompletedTask;
+        }
+
+        public string ResolveWritableScreenshotsDirectory(string? configuredDirectory) =>
+            Paths.ScreenshotsDirectory;
+
+        public string GetConfigFilePath(string fileName) =>
+            Path.Combine(Paths.ConfigDirectory, fileName);
+
+        public void Cleanup()
+        {
+            if (Directory.Exists(Paths.BaseDirectory))
+            {
+                Directory.Delete(Paths.BaseDirectory, recursive: true);
+            }
+        }
+    }
+
+    private sealed class FakePromptTemplateService : IPromptTemplateService
+    {
+        private readonly AiPromptLibrary _library = new()
+        {
+            Categories =
+            [
+                new AiPromptCategory
+                {
+                    Id = "general",
+                    Name = "Загальні",
+                    IsSystem = true,
+                    Order = 0
+                }
+            ],
+            Templates =
+            [
+                new AiPromptTemplate
+                {
+                    Id = "privacy",
+                    CategoryId = "general",
+                    Title = "Приватність",
+                    Prompt = "Знайди приватні дані на скріншоті.",
+                    IsSystem = true,
+                    Order = 0
+                },
+                new AiPromptTemplate
+                {
+                    Id = "describe",
+                    CategoryId = "general",
+                    Title = "Опис",
+                    Prompt = "Опиши скріншот.",
+                    IsSystem = true,
+                    Order = 1
+                }
+            ]
+        };
+
+        public Task<AiPromptLibrary> LoadAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(_library);
+
+        public Task SaveAsync(AiPromptLibrary library, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task ResetToDefaultsAsync(CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+    }
+
+    private sealed class FakeAiService : IAiService
+    {
+        public Task<AiResponse> AnalyzeCurrentScreenshotAsync(
+            ScreenshotResult screenshot,
+            string prompt,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(AiResponse.Ok("AI smoke response", TimeSpan.FromMilliseconds(25)));
+
+        public Task<bool> TestActiveProviderAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(true);
+    }
+
+    private sealed class FakeLoggingService : ILoggingService
+    {
+        public void Info(string message)
+        {
+        }
+
+        public void Warning(string message)
+        {
+        }
+
+        public void Error(Exception exception, string message)
+        {
+        }
+
+        public void Error(string message)
+        {
+        }
     }
 }
