@@ -612,7 +612,7 @@
                                     </Grid>
 
                                     <StackPanel Margin="0,16,0,0">
-                                        <TextBlock Text="Prompt" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.prompts.prompt}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding SelectedPromptTemplate.Prompt, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}"
                                                  AcceptsReturn="True"

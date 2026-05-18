@@ -60,8 +60,6 @@ public sealed class JsonSettingsService(IStorageService storageService, ILogging
     {
         var defaults = DefaultAppSettingsFactory.Create();
 
-        settings.StartMinimizedToTray = true;
-        settings.MinimizeToTrayOnClose = true;
         NormalizeScreenshotSettings(settings.Screenshots);
 
         foreach (var defaultProvider in defaults.Ai.Providers)

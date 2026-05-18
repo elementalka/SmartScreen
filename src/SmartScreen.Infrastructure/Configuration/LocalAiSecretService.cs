@@ -37,7 +37,16 @@ public sealed class LocalAiSecretService(IStorageService storageService, ILoggin
     public async Task SaveApiKeyAsync(string providerId, string apiKey, CancellationToken cancellationToken = default)
     {
         var secrets = await LoadAsync(cancellationToken);
-        secrets.ProviderApiKeys[providerId] = Protect(apiKey);
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            secrets.ProviderApiKeys.Remove(providerId);
+        }
+        else
+        {
+            secrets.ProviderApiKeys[providerId] = Protect(apiKey);
+        }
+
         await SaveAsync(secrets, cancellationToken);
     }
 

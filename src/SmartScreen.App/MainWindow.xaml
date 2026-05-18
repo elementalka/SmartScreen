@@ -18,7 +18,7 @@
             <DockPanel LastChildFill="True">
                 <StackPanel DockPanel.Dock="Top">
                     <TextBlock Text="{DynamicResource Loc.app.title}"
-                               Foreground="White"
+                               Foreground="{StaticResource TextBrush}"
                                FontSize="24"
                                FontWeight="SemiBold" />
                     <TextBlock Text="{DynamicResource Loc.app.subtitle}"
@@ -82,7 +82,7 @@
                                        FontSize="12"
                                        FontWeight="SemiBold" />
                             <TextBlock Text="Ctrl+Shift+S"
-                                       Foreground="White"
+                                       Foreground="{StaticResource TextBrush}"
                                        FontSize="18"
                                        FontWeight="SemiBold"
                                        Margin="0,4,0,0" />

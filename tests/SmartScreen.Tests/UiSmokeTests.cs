@@ -85,6 +85,41 @@ public sealed class UiSmokeTests
         });
     }
 
+    [TestMethod]
+    public void ApplyingEditorChangesDoesNotCopyUntilFinalCopyAction()
+    {
+        RunOnSta(() =>
+        {
+            var clipboardService = new FakeClipboardService();
+            var storageService = new FakeStorageService();
+
+            try
+            {
+                var viewModel = new QuickActionsViewModel(
+                    CreateScreenshot(),
+                    clipboardService,
+                    new FakeImageFileService(),
+                    new FakeSettingsService(CreateWorkspaceSettings()),
+                    storageService,
+                    new FakePromptTemplateService(),
+                    new FakeAiService(),
+                    new FakeLoggingService());
+
+                viewModel.ApplyEditedScreenshotAsync(CreateScreenshot()).GetAwaiter().GetResult();
+                Assert.AreEqual(0, clipboardService.CopiedImageCount);
+                Assert.AreEqual("Відредаговано", viewModel.Status);
+
+                viewModel.ApplyEditedScreenshotAsync(CreateScreenshot(), copyToClipboard: true).GetAwaiter().GetResult();
+                Assert.AreEqual(1, clipboardService.CopiedImageCount);
+                Assert.AreEqual("Відредаговано і скопійовано", viewModel.Status);
+            }
+            finally
+            {
+                storageService.Cleanup();
+            }
+        });
+    }
+
     private static void AssertSettingsWindowThemePreview(System.Windows.Application application)
     {
         var storageService = new FakeStorageService();
@@ -430,8 +465,13 @@ public sealed class UiSmokeTests
 
     private sealed class FakeClipboardService : IClipboardService
     {
-        public Task CopyImageAsync(ScreenshotResult screenshot, CancellationToken cancellationToken = default) =>
-            Task.CompletedTask;
+        public int CopiedImageCount { get; private set; }
+
+        public Task CopyImageAsync(ScreenshotResult screenshot, CancellationToken cancellationToken = default)
+        {
+            CopiedImageCount++;
+            return Task.CompletedTask;
+        }
 
         public Task CopyTextAsync(string text, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;

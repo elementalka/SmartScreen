@@ -301,7 +301,7 @@ public sealed class QuickActionsViewModel : ObservableObject
 
     public async Task ApplyEditedScreenshotAsync(
         ScreenshotResult screenshot,
-        bool copyToClipboard = true,
+        bool copyToClipboard = false,
         CancellationToken cancellationToken = default)
     {
         Screenshot = screenshot;

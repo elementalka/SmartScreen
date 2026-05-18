@@ -25,6 +25,7 @@ public sealed class SettingsViewModel : ObservableObject
     private readonly IPromptTemplateService _promptTemplateService;
     private readonly ILocalizationService _localizationService;
     private readonly ILoggingService _loggingService;
+    private readonly HashSet<string> _deletedProviderIds = new(StringComparer.OrdinalIgnoreCase);
     private AppSettings? _settings;
     private SettingsSectionViewModel? _selectedSection;
     private AiProviderSettings? _selectedProvider;
@@ -388,10 +389,12 @@ public sealed class SettingsViewModel : ObservableObject
 
         foreach (var provider in Providers)
         {
-            if (!string.IsNullOrWhiteSpace(provider.ApiKey))
-            {
-                await _aiSecretService.SaveApiKeyAsync(provider.Id, provider.ApiKey, cancellationToken);
-            }
+            await _aiSecretService.SaveApiKeyAsync(provider.Id, provider.ApiKey, cancellationToken);
+        }
+
+        foreach (var providerId in _deletedProviderIds.Where(id => Providers.All(provider => provider.Id != id)))
+        {
+            await _aiSecretService.SaveApiKeyAsync(providerId, string.Empty, cancellationToken);
         }
 
         Settings.Ai.Providers = Providers
@@ -419,6 +422,7 @@ public sealed class SettingsViewModel : ObservableObject
         await _hotkeySettingsService.SaveAsync(hotkeySettings, cancellationToken);
         await _hotkeyService.RegisterAsync(hotkeySettings, cancellationToken);
         await SavePromptsAsync(cancellationToken);
+        _deletedProviderIds.Clear();
 
         OnPropertyChanged(nameof(EnabledHotkeyCount));
         Status = Text("settings.status.saved", "Налаштування збережено, hotkeys перереєстровано");
@@ -553,8 +557,10 @@ public sealed class SettingsViewModel : ObservableObject
             return;
         }
 
-        var index = Math.Max(0, Providers.IndexOf(SelectedProvider) - 1);
-        Providers.Remove(SelectedProvider);
+        var deletedProvider = SelectedProvider;
+        var index = Math.Max(0, Providers.IndexOf(deletedProvider) - 1);
+        _deletedProviderIds.Add(deletedProvider.Id);
+        Providers.Remove(deletedProvider);
         SelectedProvider = Providers.ElementAtOrDefault(index);
         Status = Text("settings.status.providerDeleted", "AI-провайдера видалено. Натисни «Зберегти», щоб застосувати");
         if (DeleteProviderCommand is RelayCommand command)

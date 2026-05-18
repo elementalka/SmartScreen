@@ -94,6 +94,32 @@ public sealed class ConfigurationTests
     }
 
     [TestMethod]
+    public async Task SettingsServicePreservesWindowBehaviorPreferences()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var storage = new StorageService(root);
+            var logger = new FileLoggingService(storage);
+            var service = new JsonSettingsService(storage, logger);
+
+            var settings = await service.LoadAsync();
+            settings.StartMinimizedToTray = false;
+            settings.MinimizeToTrayOnClose = false;
+            await service.SaveAsync(settings);
+
+            var reloaded = await service.LoadAsync();
+
+            Assert.IsFalse(reloaded.StartMinimizedToTray);
+            Assert.IsFalse(reloaded.MinimizeToTrayOnClose);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public async Task PromptServiceCreatesDefaultPromptsWhenFileIsMissing()
     {
         var root = CreateTempDirectory();
@@ -161,6 +187,35 @@ public sealed class ConfigurationTests
             var secretsJson = await File.ReadAllTextAsync(secretsPath);
             Assert.IsFalse(secretsJson.Contains("secret-test-key", StringComparison.Ordinal));
             Assert.IsTrue(secretsJson.Contains("dpapi:", StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public async Task LocalAiSecretServiceRemovesKeyWhenSavedEmpty()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var storage = new StorageService(root);
+            var logger = new FileLoggingService(storage);
+            var service = new LocalAiSecretService(storage, logger);
+            var settings = new AiProviderSettings
+            {
+                Id = "gemini-pro",
+                DisplayName = "Google Gemini Pro"
+            };
+
+            await service.SaveApiKeyAsync(settings.Id, "secret-test-key");
+            await service.SaveApiKeyAsync(settings.Id, string.Empty);
+            await service.ApplySecretsAsync(settings);
+
+            Assert.AreEqual(string.Empty, settings.ApiKey);
+            var secretsJson = await File.ReadAllTextAsync(Path.Combine(root, "config", "secrets.local.json"));
+            Assert.IsFalse(secretsJson.Contains("gemini-pro", StringComparison.Ordinal));
         }
         finally
         {

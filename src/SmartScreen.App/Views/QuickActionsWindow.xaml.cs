@@ -153,7 +153,7 @@ public partial class QuickActionsWindow : Window
         try
         {
             var edited = RenderEditedScreenshot();
-            await _viewModel.ApplyEditedScreenshotAsync(edited);
+            await _viewModel.ApplyEditedScreenshotAsync(edited, copyToClipboard: false);
             ClearAllAnnotations();
             InitializeSurface(edited);
         }
