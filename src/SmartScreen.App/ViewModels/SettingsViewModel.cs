@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows.Input;
 using SmartScreen.Application.Abstractions;
@@ -30,7 +31,7 @@ public sealed class SettingsViewModel : ObservableObject
     private AiPromptCategory? _selectedPromptCategory;
     private AiPromptTemplate? _selectedPromptTemplate;
     private string _apiKeyInput = string.Empty;
-    private string _status = "Налаштування";
+    private string _status = Text("settings.status.initial", "Налаштування");
     private bool _copyAfterCapture;
     private bool _saveAfterCapture;
     private bool _quickActionsAfterCapture;
@@ -127,28 +128,32 @@ public sealed class SettingsViewModel : ObservableObject
             quickActions: false,
             openEditor: false,
             askAi: false,
-            status: "Сценарій: копіювати скріншот у буфер"));
+            statusKey: "settings.status.workflowCopy",
+            statusFallback: "Сценарій: копіювати скріншот у буфер"));
         ApplyEditWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
             copy: false,
             save: true,
             quickActions: true,
             openEditor: true,
             askAi: false,
-            status: "Сценарій: відкрити редактор після скріншоту"));
+            statusKey: "settings.status.workflowEditor",
+            statusFallback: "Сценарій: відкрити редактор після скріншоту"));
         ApplyAiWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
             copy: false,
             save: true,
             quickActions: true,
             openEditor: false,
             askAi: true,
-            status: "Сценарій: зберегти та запитати AI"));
+            statusKey: "settings.status.workflowAi",
+            statusFallback: "Сценарій: зберегти та запитати AI"));
         ApplySilentSaveWorkflowCommand = new RelayCommand(() => ApplyWorkflowPreset(
             copy: false,
             save: true,
             quickActions: false,
             openEditor: false,
             askAi: false,
-            status: "Сценарій: тихе збереження у файл"));
+            statusKey: "settings.status.workflowSilent",
+            statusFallback: "Сценарій: тихе збереження у файл"));
         AddPromptCommand = new RelayCommand(AddPrompt);
         DeletePromptCommand = new RelayCommand(DeletePrompt, () => SelectedPromptTemplate is not null);
         AddPromptCategoryCommand = new RelayCommand(AddPromptCategory);
@@ -359,7 +364,7 @@ public sealed class SettingsViewModel : ObservableObject
         ApplyWorkflowToView(Settings.Screenshots.AfterCaptureActions);
         await LoadHotkeysAsync(cancellationToken);
         await LoadPromptsAsync(cancellationToken);
-        Status = "Налаштування завантажено";
+        Status = Text("settings.status.loaded", "Налаштування завантажено");
     }
 
     private async Task SaveAsync(CancellationToken cancellationToken)
@@ -407,22 +412,25 @@ public sealed class SettingsViewModel : ObservableObject
         await _settingsService.SaveAsync(Settings, cancellationToken);
         await LocalizationResourceService.ApplyAsync(_localizationService, Settings.Language, cancellationToken);
         RefreshSectionTexts();
+        RefreshMonitorOptions();
+        RefreshOptionTexts();
+        RefreshHotkeyTexts();
         ThemeResourceService.Apply(Settings.Theme);
         await _hotkeySettingsService.SaveAsync(hotkeySettings, cancellationToken);
         await _hotkeyService.RegisterAsync(hotkeySettings, cancellationToken);
         await SavePromptsAsync(cancellationToken);
 
         OnPropertyChanged(nameof(EnabledHotkeyCount));
-        Status = "Налаштування збережено, hotkeys перереєстровано";
+        Status = Text("settings.status.saved", "Налаштування збережено, hotkeys перереєстровано");
     }
 
     private async Task TestAiAsync(CancellationToken cancellationToken)
     {
         await SaveAsync(cancellationToken);
-        Status = "Перевіряю підключення...";
+        Status = Text("settings.status.checkingAi", "Перевіряю підключення...");
         Status = await _aiService.TestActiveProviderAsync(cancellationToken)
-            ? "Підключення працює"
-            : "Підключення не вдалося перевірити";
+            ? Text("settings.status.aiConnected", "Підключення працює")
+            : Text("settings.status.aiConnectionFailed", "Підключення не вдалося перевірити");
     }
 
     private async Task LoadHotkeysAsync(CancellationToken cancellationToken)
@@ -483,14 +491,15 @@ public sealed class SettingsViewModel : ObservableObject
 
         ClearValidationMessages();
         OnPropertyChanged(nameof(EnabledHotkeyCount));
-        Status = "Стандартні hotkeys відновлено. Натисни «Зберегти», щоб застосувати";
+        RefreshHotkeyTexts();
+        Status = Text("settings.status.hotkeysRestored", "Стандартні hotkeys відновлено. Натисни «Зберегти», щоб застосувати");
     }
 
     private void ValidateHotkeys()
     {
         if (TryBuildHotkeySettings(out _))
         {
-            Status = "Hotkeys валідні";
+            Status = Text("settings.status.hotkeysValid", "Hotkeys валідні");
         }
     }
 
@@ -501,8 +510,8 @@ public sealed class SettingsViewModel : ObservableObject
         var template = new AiPromptTemplate
         {
             CategoryId = category.Id,
-            Title = "Новий prompt",
-            Prompt = "Опиши, що потрібно зробити зі скріншотом.",
+            Title = Text("settings.default.promptTitle", "Новий prompt"),
+            Prompt = Text("settings.default.promptText", "Опиши, що потрібно зробити зі скріншотом."),
             IsSystem = false,
             Order = nextOrder
         };
@@ -510,7 +519,7 @@ public sealed class SettingsViewModel : ObservableObject
         PromptTemplates.Add(template);
         SelectedPromptTemplate = template;
         OnPropertyChanged(nameof(PromptTemplateCount));
-        Status = "Prompt додано. Натисни «Зберегти», щоб записати";
+        Status = Text("settings.status.promptAdded", "Prompt додано. Натисни «Зберегти», щоб записати");
     }
 
     private void AddProvider()
@@ -530,7 +539,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         Providers.Add(provider);
         SelectedProvider = provider;
-        Status = "AI-провайдера додано. Заповни endpoint, model і ключ";
+        Status = Text("settings.status.providerAdded", "AI-провайдера додано. Заповни endpoint, model і ключ");
         if (DeleteProviderCommand is RelayCommand command)
         {
             command.RaiseCanExecuteChanged();
@@ -547,7 +556,7 @@ public sealed class SettingsViewModel : ObservableObject
         var index = Math.Max(0, Providers.IndexOf(SelectedProvider) - 1);
         Providers.Remove(SelectedProvider);
         SelectedProvider = Providers.ElementAtOrDefault(index);
-        Status = "AI-провайдера видалено. Натисни «Зберегти», щоб застосувати";
+        Status = Text("settings.status.providerDeleted", "AI-провайдера видалено. Натисни «Зберегти», щоб застосувати");
         if (DeleteProviderCommand is RelayCommand command)
         {
             command.RaiseCanExecuteChanged();
@@ -560,14 +569,14 @@ public sealed class SettingsViewModel : ObservableObject
         var category = new AiPromptCategory
         {
             Id = $"custom-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}",
-            Name = "Нова категорія",
+            Name = Text("settings.default.categoryName", "Нова категорія"),
             IsSystem = false,
             Order = nextOrder
         };
 
         PromptCategories.Add(category);
         SelectedPromptCategory = category;
-        Status = "Категорію prompt-ів додано. Перейменуй і натисни «Зберегти»";
+        Status = Text("settings.status.categoryAdded", "Категорію prompt-ів додано. Перейменуй і натисни «Зберегти»");
     }
 
     private void DeletePromptCategory()
@@ -588,7 +597,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         PromptCategories.Remove(SelectedPromptCategory);
         SelectedPromptCategory = fallback;
-        Status = "Категорію видалено, її prompt-и перенесено в іншу категорію";
+        Status = Text("settings.status.categoryDeleted", "Категорію видалено, її prompt-и перенесено в іншу категорію");
     }
 
     private void DeletePrompt()
@@ -602,14 +611,14 @@ public sealed class SettingsViewModel : ObservableObject
         PromptTemplates.Remove(SelectedPromptTemplate);
         SelectedPromptTemplate = PromptTemplates.ElementAtOrDefault(nextSelectionIndex);
         OnPropertyChanged(nameof(PromptTemplateCount));
-        Status = "Prompt видалено. Стандартні можна повернути кнопкою «Відновити»";
+        Status = Text("settings.status.promptDeleted", "Prompt видалено. Стандартні можна повернути кнопкою «Відновити»");
     }
 
     private async Task ResetPromptsAsync(CancellationToken cancellationToken)
     {
         await _promptTemplateService.ResetToDefaultsAsync(cancellationToken);
         await LoadPromptsAsync(cancellationToken);
-        Status = "Стандартні prompt-шаблони відновлено";
+        Status = Text("settings.status.promptsRestored", "Стандартні prompt-шаблони відновлено");
     }
 
     private AiPromptCategory EnsureCustomPromptCategory()
@@ -624,7 +633,7 @@ public sealed class SettingsViewModel : ObservableObject
         var category = new AiPromptCategory
         {
             Id = "custom",
-            Name = "Користувацькі",
+            Name = Text("settings.default.customCategoryName", "Користувацькі"),
             IsSystem = false,
             Order = nextOrder
         };
@@ -643,7 +652,7 @@ public sealed class SettingsViewModel : ObservableObject
         for (var index = 0; index < screens.Length; index++)
         {
             var screen = screens[index];
-            var primary = screen.Primary ? " · основний" : string.Empty;
+            var primary = screen.Primary ? Text("settings.monitor.primarySuffix", " · основний") : string.Empty;
             MonitorOptions.Add(new Option<int>(
                 index,
                 $"{index + 1}: {screen.Bounds.Width}x{screen.Bounds.Height}{primary}"));
@@ -651,7 +660,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         if (MonitorOptions.Count == 0)
         {
-            MonitorOptions.Add(new Option<int>(0, "1: основний монітор"));
+            MonitorOptions.Add(new Option<int>(0, Text("settings.monitor.fallback", "1: основний монітор")));
         }
     }
 
@@ -673,19 +682,29 @@ public sealed class SettingsViewModel : ObservableObject
 
             if (!HotkeyGestureParser.TryParse(gesture, out var parsed))
             {
-                ValidationMessages.Add($"{hotkey.ActionDisplayName}: комбінація має бути на кшталт Ctrl+Shift+S або Ctrl+Alt+F1.");
+                ValidationMessages.Add(FormatText(
+                    "settings.validation.hotkeyFormat",
+                    "{0}: комбінація має бути на кшталт Ctrl+Shift+S або Ctrl+Alt+F1.",
+                    hotkey.ActionDisplayName));
                 continue;
             }
 
             if (parsed.NormalizedGesture.Equals("PrintScreen", StringComparison.OrdinalIgnoreCase))
             {
-                ValidationMessages.Add($"{hotkey.ActionDisplayName}: PrintScreen без модифікаторів не використовуємо, щоб не конфліктувати з Windows.");
+                ValidationMessages.Add(FormatText(
+                    "settings.validation.printScreen",
+                    "{0}: PrintScreen без модифікаторів не використовуємо, щоб не конфліктувати з Windows.",
+                    hotkey.ActionDisplayName));
                 continue;
             }
 
             if (seenGestures.TryGetValue(parsed.NormalizedGesture, out var conflictingHotkey))
             {
-                ValidationMessages.Add($"{hotkey.ActionDisplayName}: комбінація вже використовується для «{conflictingHotkey.ActionDisplayName}».");
+                ValidationMessages.Add(FormatText(
+                    "settings.validation.duplicate",
+                    "{0}: комбінація вже використовується для «{1}».",
+                    hotkey.ActionDisplayName,
+                    conflictingHotkey.ActionDisplayName));
                 continue;
             }
 
@@ -702,7 +721,7 @@ public sealed class SettingsViewModel : ObservableObject
             return true;
         }
 
-        Status = "Виправ hotkeys перед збереженням";
+        Status = Text("settings.status.invalidHotkeys", "Виправ hotkeys перед збереженням");
         return false;
     }
 
@@ -721,14 +740,18 @@ public sealed class SettingsViewModel : ObservableObject
         bool quickActions,
         bool openEditor,
         bool askAi,
-        string status)
+        string statusKey,
+        string statusFallback)
     {
         CopyAfterCapture = copy;
         SaveAfterCapture = save;
         QuickActionsAfterCapture = quickActions;
         OpenEditorAfterCapture = openEditor;
         AskAiAfterCapture = askAi;
-        Status = $"{status}. Натисни «Зберегти», щоб застосувати";
+        Status = FormatText(
+            "settings.status.workflowSaveHint",
+            "{0}. Натисни «Зберегти», щоб застосувати",
+            Text(statusKey, statusFallback));
     }
 
     private void ApplyWorkflowToSettings(ScreenshotSettings screenshots)
@@ -788,6 +811,36 @@ public sealed class SettingsViewModel : ObservableObject
         SetSectionText("logs", "Логи", "діагностика і конфіги");
     }
 
+    private void RefreshOptionTexts()
+    {
+        SetOptionLabel(ScreenshotModeOptions, ScreenshotMode.Region, "settings.option.screenshot.region", "Область");
+        SetOptionLabel(ScreenshotModeOptions, ScreenshotMode.FullScreen, "settings.option.screenshot.fullScreen", "Весь екран");
+        SetOptionLabel(ScreenshotModeOptions, ScreenshotMode.ActiveWindow, "settings.option.screenshot.activeWindow", "Активне вікно");
+        SetOptionLabel(ScreenshotModeOptions, ScreenshotMode.Monitor, "settings.option.screenshot.monitor", "Монітор");
+        SetOptionLabel(ScreenshotModeOptions, ScreenshotMode.Delayed, "settings.option.screenshot.delayed", "Із затримкою");
+        SetOptionLabel(ThemeModeOptions, ThemeMode.System, "settings.option.theme.system", "Системна");
+        SetOptionLabel(ThemeModeOptions, ThemeMode.Light, "settings.option.theme.light", "Світла");
+        SetOptionLabel(ThemeModeOptions, ThemeMode.Dark, "settings.option.theme.dark", "Темна");
+    }
+
+    private static void SetOptionLabel<T>(IEnumerable<Option<T>> options, T value, string key, string fallback)
+        where T : notnull
+    {
+        var option = options.FirstOrDefault(item => EqualityComparer<T>.Default.Equals(item.Value, value));
+        if (option is not null)
+        {
+            option.Label = Text(key, fallback);
+        }
+    }
+
+    private void RefreshHotkeyTexts()
+    {
+        foreach (var hotkey in Hotkeys)
+        {
+            hotkey.RefreshLocalization();
+        }
+    }
+
     private void SetSectionText(string key, string fallbackTitle, string fallbackDescription)
     {
         var section = Sections.FirstOrDefault(item => item.Key == key);
@@ -808,6 +861,9 @@ public sealed class SettingsViewModel : ObservableObject
 
     private static string Text(string key, string fallback) =>
         LocalizationResourceService.GetString(key, fallback);
+
+    private static string FormatText(string key, string fallback, params object[] args) =>
+        string.Format(CultureInfo.CurrentCulture, Text(key, fallback), args);
 
     private void NotifySectionVisibilityChanged()
     {
@@ -833,7 +889,7 @@ public sealed class SettingsViewModel : ObservableObject
         catch (Exception exception)
         {
             _loggingService.Error(exception, $"Could not open folder: {path}");
-            Status = "Не вдалося відкрити папку";
+            Status = Text("settings.status.openFolderFailed", "Не вдалося відкрити папку");
         }
     }
 }
@@ -889,33 +945,13 @@ public sealed class HotkeyBindingViewModel : ObservableObject
         set => SetProperty(ref _promptTemplateId, value);
     }
 
-    public string ActionDisplayName => Action switch
-    {
-        HotkeyAction.CaptureDefault => "Скріншот за замовчуванням",
-        HotkeyAction.CaptureRegion => "Скріншот області",
-        HotkeyAction.CaptureFullScreen => "Весь екран",
-        HotkeyAction.CaptureActiveWindow => "Активне вікно",
-        HotkeyAction.CaptureMonitor => "Монітор",
-        HotkeyAction.CaptureDelayed => "Із затримкою",
-        HotkeyAction.AskAiForCurrentScreenshot => "AI для поточного скріншота",
-        HotkeyAction.OpenMainWindow => "Відкрити головне вікно",
-        HotkeyAction.OpenSettings => "Відкрити налаштування",
-        _ => Action.ToString()
-    };
+    public string ActionDisplayName => LocalizationResourceService.GetString(
+        $"settings.hotkey.{ActionKey}.name",
+        FallbackActionDisplayName);
 
-    public string Description => Action switch
-    {
-        HotkeyAction.CaptureDefault => "Запускає режим, вибраний у налаштуваннях скріншотів.",
-        HotkeyAction.CaptureRegion => "Основний сценарій: виділення області та quick actions.",
-        HotkeyAction.CaptureFullScreen => "Захоплення всіх екранів одним натисканням.",
-        HotkeyAction.CaptureActiveWindow => "Знімок активного вікна без ручного виділення.",
-        HotkeyAction.CaptureMonitor => "Захоплення монітора, вибраного в налаштуваннях.",
-        HotkeyAction.CaptureDelayed => "Таймер перед скріншотом, корисно для меню і hover-станів.",
-        HotkeyAction.AskAiForCurrentScreenshot => "AI-запит тільки для вже створеного скріншота.",
-        HotkeyAction.OpenMainWindow => "Повернення до dashboard.",
-        HotkeyAction.OpenSettings => "Швидкий доступ до конфігурації.",
-        _ => string.Empty
-    };
+    public string Description => LocalizationResourceService.GetString(
+        $"settings.hotkey.{ActionKey}.description",
+        FallbackDescription);
 
     public static HotkeyBindingViewModel FromModel(HotkeyBinding binding) => new(binding.Action)
     {
@@ -931,10 +967,65 @@ public sealed class HotkeyBindingViewModel : ObservableObject
         IsEnabled = IsEnabled,
         PromptTemplateId = PromptTemplateId
     };
+
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(ActionDisplayName));
+        OnPropertyChanged(nameof(Description));
+    }
+
+    private string ActionKey => Action switch
+    {
+        HotkeyAction.CaptureDefault => "captureDefault",
+        HotkeyAction.CaptureRegion => "captureRegion",
+        HotkeyAction.CaptureFullScreen => "captureFullScreen",
+        HotkeyAction.CaptureActiveWindow => "captureActiveWindow",
+        HotkeyAction.CaptureMonitor => "captureMonitor",
+        HotkeyAction.CaptureDelayed => "captureDelayed",
+        HotkeyAction.AskAiForCurrentScreenshot => "askAiForCurrentScreenshot",
+        HotkeyAction.OpenMainWindow => "openMainWindow",
+        HotkeyAction.OpenSettings => "openSettings",
+        _ => Action.ToString()
+    };
+
+    private string FallbackActionDisplayName => Action switch
+    {
+        HotkeyAction.CaptureDefault => "Скріншот за замовчуванням",
+        HotkeyAction.CaptureRegion => "Скріншот області",
+        HotkeyAction.CaptureFullScreen => "Весь екран",
+        HotkeyAction.CaptureActiveWindow => "Активне вікно",
+        HotkeyAction.CaptureMonitor => "Монітор",
+        HotkeyAction.CaptureDelayed => "Із затримкою",
+        HotkeyAction.AskAiForCurrentScreenshot => "AI для поточного скріншота",
+        HotkeyAction.OpenMainWindow => "Відкрити головне вікно",
+        HotkeyAction.OpenSettings => "Відкрити налаштування",
+        _ => Action.ToString()
+    };
+
+    private string FallbackDescription => Action switch
+    {
+        HotkeyAction.CaptureDefault => "Запускає режим, вибраний у налаштуваннях скріншотів.",
+        HotkeyAction.CaptureRegion => "Основний сценарій: виділення області та quick actions.",
+        HotkeyAction.CaptureFullScreen => "Захоплення всіх екранів одним натисканням.",
+        HotkeyAction.CaptureActiveWindow => "Знімок активного вікна без ручного виділення.",
+        HotkeyAction.CaptureMonitor => "Захоплення монітора, вибраного в налаштуваннях.",
+        HotkeyAction.CaptureDelayed => "Таймер перед скріншотом, корисно для меню і hover-станів.",
+        HotkeyAction.AskAiForCurrentScreenshot => "AI-запит тільки для вже створеного скріншота.",
+        HotkeyAction.OpenMainWindow => "Повернення до dashboard.",
+        HotkeyAction.OpenSettings => "Швидкий доступ до конфігурації.",
+        _ => string.Empty
+    };
 }
 
-public sealed class Option<T>(T value, string label)
+public sealed class Option<T>(T value, string label) : ObservableObject
 {
+    private string _label = label;
+
     public T Value { get; } = value;
-    public string Label { get; } = label;
+
+    public string Label
+    {
+        get => _label;
+        set => SetProperty(ref _label, value);
+    }
 }

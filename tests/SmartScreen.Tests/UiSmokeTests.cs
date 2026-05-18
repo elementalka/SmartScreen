@@ -60,6 +60,9 @@ public sealed class UiSmokeTests
                     Assert.AreEqual("Готово за {0:N1} с", application.Resources["Loc.ai.status.doneSeconds"]);
                     Assert.AreEqual("Олівець (P)", application.Resources["Loc.editor.pen"]);
                     Assert.AreEqual("AI-панель", application.Resources["Loc.ai.panel"]);
+                    Assert.AreEqual("Запускати згорнуто в трей", application.Resources["Loc.settings.general.startMinimized"]);
+                    Assert.AreEqual("Комбінація", application.Resources["Loc.settings.hotkeys.gesture"]);
+                    Assert.AreEqual("AI-провайдера додано. Заповни endpoint, model і ключ", application.Resources["Loc.settings.status.providerAdded"]);
                     Assert.IsNotNull(window.Content);
                 }
                 finally

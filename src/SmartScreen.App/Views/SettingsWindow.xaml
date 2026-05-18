@@ -114,7 +114,7 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.section.general.title}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="SmartScreen залишається tray-first утилітою: головне вікно відкривається тоді, коли треба щось налаштувати."
+                                <TextBlock Text="{DynamicResource Loc.settings.general.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18"
                                            TextWrapping="Wrap" />
@@ -122,23 +122,23 @@
                                 <UniformGrid Columns="2">
                                     <Border Style="{StaticResource MetricPanel}" Margin="0,0,8,0">
                                         <StackPanel>
-                                            <CheckBox Content="Запускати згорнуто в трей"
+                                            <CheckBox Content="{DynamicResource Loc.settings.general.startMinimized}"
                                                       IsChecked="{Binding Settings.StartMinimizedToTray}" />
-                                            <CheckBox Content="Закривати вікно в трей"
+                                            <CheckBox Content="{DynamicResource Loc.settings.general.closeToTray}"
                                                       IsChecked="{Binding Settings.MinimizeToTrayOnClose}"
                                                       Margin="0,12,0,0" />
-                                            <CheckBox Content="Перший запуск завершено"
+                                            <CheckBox Content="{DynamicResource Loc.settings.general.firstRunCompleted}"
                                                       IsChecked="{Binding Settings.FirstRunCompleted}"
                                                       Margin="0,12,0,0" />
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource MetricPanel}" Margin="8,0,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="Portable storage" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.general.portableStorage}" Style="{StaticResource FieldLabel}" />
                                             <TextBlock Text="{Binding ConfigDirectory}"
                                                        TextWrapping="Wrap"
                                                        FontWeight="SemiBold" />
-                                            <Button Content="Відкрити config"
+                                            <Button Content="{DynamicResource Loc.settings.openConfig}"
                                                     Command="{Binding OpenConfigFolderCommand}"
                                                     Style="{StaticResource GhostButton}"
                                                     HorizontalAlignment="Left"
@@ -154,7 +154,7 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.section.screenshots.title}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="Формат, папка, назва файлу та дії після захоплення."
+                                <TextBlock Text="{DynamicResource Loc.settings.screenshots.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
 
@@ -165,7 +165,7 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Margin="0,0,10,0">
-                                        <TextBlock Text="Режим за замовчуванням" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.defaultMode}" Style="{StaticResource FieldLabel}" />
                                         <ComboBox ItemsSource="{Binding ScreenshotModeOptions}"
                                                   SelectedValue="{Binding Settings.Screenshots.DefaultMode}"
                                                   SelectedValuePath="Value"
@@ -173,7 +173,7 @@
                                                   MinHeight="38" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                                        <TextBlock Text="Формат" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.format}" Style="{StaticResource FieldLabel}" />
                                         <ComboBox ItemsSource="{Binding ImageFormatOptions}"
                                                   SelectedValue="{Binding Settings.Screenshots.DefaultFormat}"
                                                   SelectedValuePath="Value"
@@ -181,7 +181,7 @@
                                                   MinHeight="38" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                                        <TextBlock Text="Монітор" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.monitor}" Style="{StaticResource FieldLabel}" />
                                         <ComboBox ItemsSource="{Binding MonitorOptions}"
                                                   SelectedValue="{Binding Settings.Screenshots.MonitorIndex}"
                                                   SelectedValuePath="Value"
@@ -197,31 +197,31 @@
                                         <ColumnDefinition Width="180" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="Папка збереження" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.saveFolder}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Screenshots.SaveDirectory, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                        <TextBlock Text="JPG якість" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.jpegQuality}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Screenshots.JpegQuality, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Margin="14,0,0,0">
-                                        <TextBlock Text="Затримка, сек" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.delaySeconds}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Screenshots.DelaySeconds, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                 </Grid>
 
                                 <StackPanel Margin="0,16,0,0">
-                                    <TextBlock Text="Шаблон імені файлу" Style="{StaticResource FieldLabel}" />
+                                    <TextBlock Text="{DynamicResource Loc.settings.screenshots.fileNameTemplate}" Style="{StaticResource FieldLabel}" />
                                     <TextBox Text="{Binding Settings.Screenshots.FileNameTemplate, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBox}" />
                                 </StackPanel>
 
                                 <Border Style="{StaticResource MetricPanel}" Margin="0,18,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="Pipeline після скріншоту" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.screenshots.pipeline}" Style="{StaticResource FieldLabel}" />
                                         <WrapPanel Margin="0,0,0,12">
                                             <Button Command="{Binding ApplyQuickCopyWorkflowCommand}"
                                                     Style="{StaticResource GhostButton}"
@@ -229,7 +229,7 @@
                                                     Margin="0,0,8,8">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" />
-                                                    <TextBlock Text="Копія" />
+                                                    <TextBlock Text="{DynamicResource Loc.settings.workflow.copy}" />
                                                 </StackPanel>
                                             </Button>
                                             <Button Command="{Binding ApplyEditWorkflowCommand}"
@@ -238,7 +238,7 @@
                                                     Margin="0,0,8,8">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" />
-                                                    <TextBlock Text="Редактор" />
+                                                    <TextBlock Text="{DynamicResource Loc.settings.workflow.editor}" />
                                                 </StackPanel>
                                             </Button>
                                             <Button Command="{Binding ApplyAiWorkflowCommand}"
@@ -247,7 +247,7 @@
                                                     Margin="0,0,8,8">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="AI" FontWeight="Bold" Margin="0,0,7,0" />
-                                                    <TextBlock Text="Запит" />
+                                                    <TextBlock Text="{DynamicResource Loc.settings.workflow.ask}" />
                                                 </StackPanel>
                                             </Button>
                                             <Button Command="{Binding ApplySilentSaveWorkflowCommand}"
@@ -256,24 +256,24 @@
                                                     Margin="0,0,0,8">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" Margin="0,0,7,0" />
-                                                    <TextBlock Text="Тихий файл" />
+                                                    <TextBlock Text="{DynamicResource Loc.settings.workflow.silentFile}" />
                                                 </StackPanel>
                                             </Button>
                                         </WrapPanel>
                                         <UniformGrid Columns="3">
-                                            <CheckBox Content="Буфер обміну"
+                                            <CheckBox Content="{DynamicResource Loc.settings.workflow.clipboard}"
                                                       IsChecked="{Binding CopyAfterCapture}"
                                                       Margin="0,0,10,10" />
-                                            <CheckBox Content="Зберегти файл"
+                                            <CheckBox Content="{DynamicResource Loc.settings.workflow.saveFile}"
                                                       IsChecked="{Binding SaveAfterCapture}"
                                                       Margin="0,0,10,10" />
-                                            <CheckBox Content="Швидке меню"
+                                            <CheckBox Content="{DynamicResource Loc.settings.workflow.quickMenu}"
                                                       IsChecked="{Binding QuickActionsAfterCapture}"
                                                       Margin="0,0,0,10" />
-                                            <CheckBox Content="Відкрити редактор"
+                                            <CheckBox Content="{DynamicResource Loc.settings.workflow.openEditor}"
                                                       IsChecked="{Binding OpenEditorAfterCapture}"
                                                       Margin="0,0,10,0" />
-                                            <CheckBox Content="Запитати AI"
+                                            <CheckBox Content="{DynamicResource Loc.settings.workflow.askAi}"
                                                       IsChecked="{Binding AskAiAfterCapture}"
                                                       Margin="0,0,10,0" />
                                         </UniformGrid>
@@ -287,7 +287,7 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.section.editor.title}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="Базові параметри інструментів для позначок на скріншоті."
+                                <TextBlock Text="{DynamicResource Loc.settings.editor.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
 
@@ -299,22 +299,22 @@
                                         <ColumnDefinition Width="180" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="Колір" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.editor.color}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Editor.DefaultColor, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                        <TextBlock Text="Товщина" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.editor.thickness}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Editor.DefaultStrokeThickness, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Margin="14,0,0,0">
-                                        <TextBlock Text="Розмір тексту" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.editor.textSize}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Editor.DefaultTextSize, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="3" Margin="14,0,0,0">
-                                        <TextBlock Text="Маркер opacity" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.editor.highlighterOpacity}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Editor.HighlighterOpacity, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
@@ -334,17 +334,17 @@
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
                                         <TextBlock Text="{DynamicResource Loc.settings.section.ai.title}" Style="{StaticResource SectionTitleText}" />
-                                        <TextBlock Text="Активний маршрут для AI-відповідей"
+                                        <TextBlock Text="{DynamicResource Loc.settings.ai.activeRoute}"
                                                    Style="{StaticResource MutedText}"
                                                    Margin="0,4,0,0" />
                                     </StackPanel>
 
                                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
-                                        <Button Content="Додати"
+                                        <Button Content="{DynamicResource Loc.settings.add}"
                                                 Command="{Binding AddProviderCommand}"
                                                 Style="{StaticResource GhostButton}"
                                                 Margin="0,0,8,0" />
-                                        <Button Content="Видалити"
+                                        <Button Content="{DynamicResource Loc.settings.delete}"
                                                 Command="{Binding DeleteProviderCommand}"
                                                 Style="{StaticResource GhostButton}" />
                                     </StackPanel>
@@ -374,14 +374,14 @@
                                 <StackPanel>
                                     <DockPanel>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding SelectedProvider.DisplayName, TargetNullValue=AI provider}"
+                                            <TextBlock Text="{Binding SelectedProvider.DisplayName}"
                                                        FontSize="22"
                                                        FontWeight="SemiBold" />
                                             <TextBlock Text="{Binding SelectedProvider.Kind}"
                                                        Style="{StaticResource MutedText}" />
                                         </StackPanel>
                                         <CheckBox DockPanel.Dock="Right"
-                                                  Content="Увімкнено"
+                                                  Content="{DynamicResource Loc.settings.enabled}"
                                                   VerticalAlignment="Center"
                                                   IsChecked="{Binding SelectedProvider.IsEnabled}" />
                                     </DockPanel>
@@ -392,12 +392,12 @@
                                             <ColumnDefinition Width="220" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="Назва" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.field.name}" Style="{StaticResource FieldLabel}" />
                                             <TextBox Text="{Binding SelectedProvider.DisplayName, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBox}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                            <TextBlock Text="Тип" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.field.type}" Style="{StaticResource FieldLabel}" />
                                             <ComboBox ItemsSource="{Binding AiProviderKindOptions}"
                                                       SelectedValue="{Binding SelectedProvider.Kind}"
                                                       SelectedValuePath="Value"
@@ -412,19 +412,19 @@
                                             <ColumnDefinition Width="176" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="Endpoint" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.ai.endpoint}" Style="{StaticResource FieldLabel}" />
                                             <TextBox Text="{Binding SelectedProvider.Endpoint, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBox}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                            <TextBlock Text="Timeout, sec" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.ai.timeoutSeconds}" Style="{StaticResource FieldLabel}" />
                                             <TextBox Text="{Binding SelectedProvider.TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBox}" />
                                         </StackPanel>
                                     </Grid>
 
                                     <StackPanel Margin="0,16,0,0">
-                                        <TextBlock Text="Model" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.ai.model}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding SelectedProvider.Model, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
@@ -435,23 +435,26 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="API key" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.ai.apiKey}" Style="{StaticResource FieldLabel}" />
                                             <TextBox Text="{Binding ApiKeyInput, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBox}" />
-                                            <TextBlock Text="{Binding SelectedProviderEnvironmentVariable, StringFormat=Env var: {0}}"
-                                                       Style="{StaticResource MutedText}"
+                                            <TextBlock Style="{StaticResource MutedText}"
                                                        FontSize="12"
-                                                       Margin="0,6,0,0" />
+                                                       Margin="0,6,0,0">
+                                                <Run Text="{DynamicResource Loc.settings.ai.envVar}" />
+                                                <Run Text=": " />
+                                                <Run Text="{Binding SelectedProviderEnvironmentVariable, Mode=OneWay}" />
+                                            </TextBlock>
                                         </StackPanel>
                                         <Button Grid.Column="1"
-                                                Content="Тест"
+                                                Content="{DynamicResource Loc.settings.test}"
                                                 Command="{Binding TestAiCommand}"
                                                 Style="{StaticResource PrimarySmallButton}"
                                                 Margin="14,22,0,0" />
                                     </Grid>
 
                                     <StackPanel Margin="0,18,0,0">
-                                        <TextBlock Text="System prompt" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.ai.systemPrompt}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding SelectedProvider.SystemPrompt, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}"
                                                  AcceptsReturn="True"
@@ -475,9 +478,12 @@
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
                                         <TextBlock Text="{DynamicResource Loc.settings.section.prompts.title}" Style="{StaticResource SectionTitleText}" />
-                                        <TextBlock Text="{Binding PromptTemplateCount, StringFormat={}{0} шаблонів}"
-                                                   Style="{StaticResource MutedText}"
-                                                   Margin="0,4,0,0" />
+                                        <TextBlock Style="{StaticResource MutedText}"
+                                                   Margin="0,4,0,0">
+                                            <Run Text="{Binding PromptTemplateCount, Mode=OneWay}" />
+                                            <Run Text=" " />
+                                            <Run Text="{DynamicResource Loc.settings.prompts.templatesSuffix}" />
+                                        </TextBlock>
                                     </StackPanel>
 
                                     <Border DockPanel.Dock="Top"
@@ -485,7 +491,7 @@
                                             Margin="0,0,0,12">
                                         <StackPanel>
                                             <DockPanel Margin="0,0,0,8">
-                                                <TextBlock Text="Категорії"
+                                                <TextBlock Text="{DynamicResource Loc.settings.prompts.categories}"
                                                            Style="{StaticResource FieldLabel}"
                                                            DockPanel.Dock="Left" />
                                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
@@ -496,14 +502,14 @@
                                                             MinWidth="34"
                                                             Padding="0"
                                                             Margin="0,0,6,0"
-                                                            ToolTip="Додати категорію" />
+                                                            ToolTip="{DynamicResource Loc.settings.prompts.addCategory}" />
                                                     <Button Content="−"
                                                             Command="{Binding DeletePromptCategoryCommand}"
                                                             Style="{StaticResource GhostButton}"
                                                             Width="34"
                                                             MinWidth="34"
                                                             Padding="0"
-                                                            ToolTip="Видалити власну категорію" />
+                                                            ToolTip="{DynamicResource Loc.settings.prompts.deleteCategory}" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <ListBox ItemsSource="{Binding PromptCategories}"
@@ -522,11 +528,11 @@
                                     </Border>
 
                                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
-                                        <Button Content="Додати"
+                                        <Button Content="{DynamicResource Loc.settings.add}"
                                                 Command="{Binding AddPromptCommand}"
                                                 Style="{StaticResource GhostButton}"
                                                 Margin="0,0,8,0" />
-                                        <Button Content="Видалити"
+                                        <Button Content="{DynamicResource Loc.settings.delete}"
                                                 Command="{Binding DeletePromptCommand}"
                                                 Style="{StaticResource GhostButton}" />
                                     </StackPanel>
@@ -557,12 +563,12 @@
                                     <DockPanel>
                                         <StackPanel>
                                             <TextBlock Text="{DynamicResource Loc.settings.promptEditing}" Style="{StaticResource SectionTitleText}" />
-                                            <TextBlock Text="Зміни зберігаються у config/prompts.json"
+                                            <TextBlock Text="{DynamicResource Loc.settings.prompts.savedToConfig}"
                                                        Style="{StaticResource MutedText}"
                                                        Margin="0,4,0,0" />
                                         </StackPanel>
                                         <Button DockPanel.Dock="Right"
-                                                Content="Відновити"
+                                                Content="{DynamicResource Loc.settings.restore}"
                                                 Command="{Binding ResetPromptsCommand}"
                                                 Style="{StaticResource GhostButton}" />
                                     </DockPanel>
@@ -573,12 +579,12 @@
                                             <ColumnDefinition Width="150" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="Назва категорії" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.prompts.categoryName}" Style="{StaticResource FieldLabel}" />
                                             <TextBox Text="{Binding SelectedPromptCategory.Name, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBox}" />
                                         </StackPanel>
                                         <CheckBox Grid.Column="1"
-                                                  Content="Системна"
+                                                  Content="{DynamicResource Loc.settings.prompts.system}"
                                                   IsChecked="{Binding SelectedPromptCategory.IsSystem}"
                                                   IsEnabled="False"
                                                   VerticalAlignment="Bottom"
@@ -591,12 +597,12 @@
                                             <ColumnDefinition Width="220" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="Назва" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.field.name}" Style="{StaticResource FieldLabel}" />
                                             <TextBox Text="{Binding SelectedPromptTemplate.Title, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource ModernTextBox}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                            <TextBlock Text="Категорія" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.field.category}" Style="{StaticResource FieldLabel}" />
                                             <ComboBox ItemsSource="{Binding PromptCategories}"
                                                       SelectedValue="{Binding SelectedPromptTemplate.CategoryId}"
                                                       SelectedValuePath="Id"
@@ -626,16 +632,19 @@
                                     <DockPanel>
                                         <StackPanel>
                                             <TextBlock Text="{DynamicResource Loc.settings.section.hotkeys.title}" Style="{StaticResource SectionTitleText}" />
-                                            <TextBlock Text="{Binding EnabledHotkeyCount, StringFormat={}{0} активних комбінацій}"
-                                                       Style="{StaticResource MutedText}"
-                                                       Margin="0,4,0,0" />
+                                            <TextBlock Style="{StaticResource MutedText}"
+                                                       Margin="0,4,0,0">
+                                                <Run Text="{Binding EnabledHotkeyCount, Mode=OneWay}" />
+                                                <Run Text=" " />
+                                                <Run Text="{DynamicResource Loc.settings.hotkeys.activeSuffix}" />
+                                            </TextBlock>
                                         </StackPanel>
                                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                            <Button Content="Перевірити"
+                                            <Button Content="{DynamicResource Loc.settings.hotkeys.validate}"
                                                     Command="{Binding ValidateHotkeysCommand}"
                                                     Style="{StaticResource GhostButton}"
                                                     Margin="0,0,8,0" />
-                                            <Button Content="Defaults"
+                                            <Button Content="{DynamicResource Loc.settings.hotkeys.defaults}"
                                                     Command="{Binding RestoreDefaultHotkeysCommand}"
                                                     Style="{StaticResource GhostButton}" />
                                         </StackPanel>
@@ -686,13 +695,13 @@
                                                     </StackPanel>
 
                                                     <StackPanel Grid.Column="2" Margin="16,0,0,0">
-                                                        <TextBlock Text="Комбінація" Style="{StaticResource FieldLabel}" />
+                                                        <TextBlock Text="{DynamicResource Loc.settings.hotkeys.gesture}" Style="{StaticResource FieldLabel}" />
                                                         <TextBox Text="{Binding Gesture, UpdateSourceTrigger=PropertyChanged}"
                                                                  Style="{StaticResource ModernTextBox}" />
                                                     </StackPanel>
 
                                                     <StackPanel Grid.Column="3" Margin="16,0,0,0">
-                                                        <TextBlock Text="AI prompt для швидкої дії" Style="{StaticResource FieldLabel}" />
+                                                        <TextBlock Text="{DynamicResource Loc.settings.hotkeys.quickAiPrompt}" Style="{StaticResource FieldLabel}" />
                                                         <ComboBox ItemsSource="{Binding DataContext.PromptTemplates, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                   SelectedValue="{Binding PromptTemplateId}"
                                                                   SelectedValuePath="Id"
@@ -712,7 +721,7 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.section.interface.title}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="Тема, accent color і поведінка вікон."
+                                <TextBlock Text="{DynamicResource Loc.settings.interface.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
 
@@ -722,7 +731,7 @@
                                         <ColumnDefinition Width="220" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="Тема" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.interface.theme}" Style="{StaticResource FieldLabel}" />
                                         <ComboBox ItemsSource="{Binding ThemeModeOptions}"
                                                   SelectedValue="{Binding Settings.Theme.Mode}"
                                                   SelectedValuePath="Value"
@@ -730,7 +739,7 @@
                                                   MinHeight="38" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                                        <TextBlock Text="Accent color" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.interface.accentColor}" Style="{StaticResource FieldLabel}" />
                                         <TextBox Text="{Binding Settings.Theme.AccentColor, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBox}" />
                                     </StackPanel>
@@ -743,7 +752,7 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.section.languages.title}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="Файли локалізації лежать поруч із застосунком, тому нові мови можна додавати через JSON."
+                                <TextBlock Text="{DynamicResource Loc.settings.languages.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18"
                                            TextWrapping="Wrap" />
@@ -754,7 +763,7 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="Мова UI" Style="{StaticResource FieldLabel}" />
+                                        <TextBlock Text="{DynamicResource Loc.settings.languages.uiLanguage}" Style="{StaticResource FieldLabel}" />
                                         <ComboBox ItemsSource="{Binding LanguageOptions}"
                                                   SelectedValue="{Binding Settings.Language}"
                                                   SelectedValuePath="Value"
@@ -763,7 +772,7 @@
                                     </StackPanel>
                                     <Border Grid.Column="1" Style="{StaticResource MetricPanel}" Margin="18,0,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="Папка локалізації" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.languages.folder}" Style="{StaticResource FieldLabel}" />
                                             <TextBlock Text="{Binding LocalizationDirectory}"
                                                        TextWrapping="Wrap"
                                                        FontWeight="SemiBold" />
@@ -778,19 +787,22 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.section.security.title}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="AI-запит виконується тільки після явної дії користувача, ключі зберігаються окремо від git-конфігів."
+                                <TextBlock Text="{DynamicResource Loc.settings.security.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18"
                                            TextWrapping="Wrap" />
 
                                 <Border Style="{StaticResource MetricPanel}">
                                     <StackPanel>
-                                        <CheckBox Content="Надсилати скріншоти до AI тільки після підтвердження користувача"
+                                        <CheckBox Content="{DynamicResource Loc.settings.security.confirmBeforeSending}"
                                                   IsChecked="{Binding Settings.Ai.SendScreenshotsOnlyAfterConfirmation}" />
-                                        <TextBlock Text="{Binding SecretsFilePath, StringFormat=Secrets: {0}}"
-                                                   Style="{StaticResource MutedText}"
+                                        <TextBlock Style="{StaticResource MutedText}"
                                                    Margin="0,12,0,0"
-                                                   TextWrapping="Wrap" />
+                                                   TextWrapping="Wrap">
+                                            <Run Text="{DynamicResource Loc.settings.security.secrets}" />
+                                            <Run Text=": " />
+                                            <Run Text="{Binding SecretsFilePath, Mode=OneWay}" />
+                                        </TextBlock>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -801,18 +813,18 @@
                         <Border Style="{StaticResource WorkspacePanel}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.settings.logsAndFiles}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="Швидкий доступ до portable-директорій для діагностики."
+                                <TextBlock Text="{DynamicResource Loc.settings.logs.description}"
                                            Style="{StaticResource MutedText}"
                                            Margin="0,6,0,18" />
 
                                 <UniformGrid Columns="3">
                                     <Border Style="{StaticResource MetricPanel}" Margin="0,0,10,0">
                                         <StackPanel>
-                                            <TextBlock Text="Logs" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.logs.logs}" Style="{StaticResource FieldLabel}" />
                                             <TextBlock Text="{Binding LogDirectory}"
                                                        TextWrapping="Wrap"
                                                        FontWeight="SemiBold" />
-                                            <Button Content="Відкрити"
+                                            <Button Content="{DynamicResource Loc.settings.open}"
                                                     Command="{Binding OpenLogsFolderCommand}"
                                                     Style="{StaticResource GhostButton}"
                                                     HorizontalAlignment="Left"
@@ -821,11 +833,11 @@
                                     </Border>
                                     <Border Style="{StaticResource MetricPanel}" Margin="10,0,10,0">
                                         <StackPanel>
-                                            <TextBlock Text="Screenshots" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.logs.screenshots}" Style="{StaticResource FieldLabel}" />
                                             <TextBlock Text="{Binding ScreenshotsDirectory}"
                                                        TextWrapping="Wrap"
                                                        FontWeight="SemiBold" />
-                                            <Button Content="Відкрити"
+                                            <Button Content="{DynamicResource Loc.settings.open}"
                                                     Command="{Binding OpenScreenshotsFolderCommand}"
                                                     Style="{StaticResource GhostButton}"
                                                     HorizontalAlignment="Left"
@@ -834,7 +846,7 @@
                                     </Border>
                                     <Border Style="{StaticResource MetricPanel}" Margin="10,0,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="Themes" Style="{StaticResource FieldLabel}" />
+                                            <TextBlock Text="{DynamicResource Loc.settings.logs.themes}" Style="{StaticResource FieldLabel}" />
                                             <TextBlock Text="{Binding ThemesDirectory}"
                                                        TextWrapping="Wrap"
                                                        FontWeight="SemiBold" />
@@ -853,10 +865,13 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{Binding ConfigDirectory, StringFormat=Config: {0}}"
-                       Style="{StaticResource MutedText}"
+            <TextBlock Style="{StaticResource MutedText}"
                        VerticalAlignment="Center"
-                       TextTrimming="CharacterEllipsis" />
+                       TextTrimming="CharacterEllipsis">
+                <Run Text="{DynamicResource Loc.settings.general.config}" />
+                <Run Text=": " />
+                <Run Text="{Binding ConfigDirectory, Mode=OneWay}" />
+            </TextBlock>
             <TextBlock Grid.Column="1"
                        Text="{Binding Status}"
                        Style="{StaticResource MutedText}"
