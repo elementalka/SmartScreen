@@ -33,6 +33,12 @@ dotnet build
 dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj
 ```
 
+To open settings immediately:
+
+```powershell
+dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj -- --settings
+```
+
 ## Portable Publish
 
 ```powershell
@@ -67,18 +73,22 @@ The portable build is written to `artifacts/SmartScreen-win-x64/`.
 - Friendly AI provider errors with safe secret masking
 - DPAPI-protected local API key storage
 - Runtime theme resources for dark/light/system modes
-- Runtime localization resources for the main shell, with JSON fallback
+- Runtime localization resources for the main shell, settings, tray, overlay, and workspace
+- First-run wizard
+- Global hotkey settings with conflict validation
+- AI provider add/edit/delete UI
+- Prompt template and category management
 - Gemini provider
 - OpenAI-compatible provider for NVIDIA NIM, OpenRouter, local endpoints, and similar APIs
 - Local JSON settings
 - Safe logging without API keys
-- Unit and smoke tests for configuration, AI image pipeline, localization, and WPF resource loading
+- Unit, smoke, and workflow-level acceptance tests for configuration, AI image pipeline, localization, WPF resource loading, and after-capture pipelines
 
 AI requests are sent only after an explicit user action.
 
 ## AI Setup
 
-Open settings and fill in an API key for one of the configured providers:
+Open settings and fill in an API key for one of the configured providers. Keys are saved separately from normal JSON settings.
 
 - Google Gemini Pro: `gemini-3-pro-preview`
 - Google Gemini Flash: `gemini-flash-latest`
@@ -111,6 +121,14 @@ Configuration, logs, localization files, themes, and screenshots live next to th
 ```text
 %LOCALAPPDATA%/SmartScreen/screenshots
 ```
+
+## Tests
+
+```powershell
+dotnet test
+```
+
+The test suite covers configuration fallback, prompt templates, hotkey validation, secret masking, AI image optimization, localization completeness, WPF resource smoke tests, and coordinator-level after-capture workflows.
 
 ## Documentation
 
