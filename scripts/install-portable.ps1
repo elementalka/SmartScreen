@@ -1,6 +1,7 @@
 param(
     [string]$Configuration = "Release",
     [string]$Runtime = "win-x64",
+    [string]$PortableDir = "",
     [string]$InstallDir = (Join-Path $env:LOCALAPPDATA "Programs\SmartScreen"),
     [string]$StartMenuDirectory = (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\SmartScreen"),
     [string]$StartupDirectory = (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup"),
@@ -14,10 +15,22 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$publishDir = Join-Path $repoRoot "artifacts\SmartScreen-$Runtime"
-$sourceExe = Join-Path $publishDir "SmartScreen.App.exe"
-$targetExe = Join-Path $InstallDir "SmartScreen.App.exe"
+$scriptParent = Split-Path -Parent $PSScriptRoot
+$repoRoot = if (Test-Path -LiteralPath (Join-Path $scriptParent "SmartScreen.sln")) {
+    $scriptParent
+} else {
+    $null
+}
+
+if ([string]::IsNullOrWhiteSpace($PortableDir)) {
+    $artifactRoot = if ($repoRoot) {
+        Join-Path $repoRoot "artifacts"
+    } else {
+        $scriptParent
+    }
+
+    $PortableDir = Join-Path $artifactRoot "SmartScreen Portable"
+}
 
 function New-SmartScreenShortcut {
     param(
@@ -120,16 +133,46 @@ Write-Host "SmartScreen uninstall scheduled:" $installRoot
 '@ | Set-Content -Encoding UTF8 -Path $Path
 }
 
-if (-not $SkipPublish) {
-    & (Join-Path $PSScriptRoot "publish-portable.ps1") -Configuration $Configuration -Runtime $Runtime
+function Resolve-SmartScreenSourceExe {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Directory
+    )
+
+    $preferredExe = Join-Path $Directory "SmartScreen.exe"
+    if (Test-Path -LiteralPath $preferredExe) {
+        return $preferredExe
+    }
+
+    $fallbackExe = Join-Path $Directory "SmartScreen.App.exe"
+    if (Test-Path -LiteralPath $fallbackExe) {
+        return $fallbackExe
+    }
+
+    return $preferredExe
 }
 
-if (-not (Test-Path -LiteralPath $sourceExe)) {
-    throw "Portable build was not found: $sourceExe. Run scripts\publish-portable.ps1 first or remove -SkipPublish."
+if (-not $SkipPublish) {
+    if ($repoRoot) {
+        & (Join-Path $PSScriptRoot "publish-portable.ps1") -Configuration $Configuration -Runtime $Runtime
+    }
+    elseif (Test-Path -LiteralPath (Resolve-SmartScreenSourceExe -Directory $PortableDir)) {
+        Write-Host "Using sibling portable build:" $PortableDir
+    }
+    else {
+        throw "Publishing is only available from the source repository. Use -SkipPublish when running from the setup package."
+    }
 }
+
+$sourceExe = Resolve-SmartScreenSourceExe -Directory $PortableDir
+if (-not (Test-Path -LiteralPath $sourceExe)) {
+    throw "Portable build was not found: $sourceExe. Keep the setup folder next to 'SmartScreen Portable' or pass -PortableDir."
+}
+
+$targetExe = Join-Path $InstallDir (Split-Path -Leaf $sourceExe)
 
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-Copy-Item -Path (Join-Path $publishDir "*") -Destination $InstallDir -Recurse -Force
+Copy-Item -Path (Join-Path $PortableDir "*") -Destination $InstallDir -Recurse -Force
 
 $uninstallScript = Join-Path $InstallDir "uninstall.ps1"
 Write-UninstallScript -Path $uninstallScript

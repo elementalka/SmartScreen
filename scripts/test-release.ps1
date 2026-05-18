@@ -8,7 +8,9 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$publishDir = Join-Path $repoRoot "artifacts\SmartScreen-$Runtime"
+$artifactsDir = Join-Path $repoRoot "artifacts"
+$publishDir = Join-Path $artifactsDir "SmartScreen Portable"
+$setupDir = Join-Path $artifactsDir "SmartScreen Setup"
 $smokeRoot = Join-Path $env:TEMP "SmartScreenReleaseAcceptance-$([Guid]::NewGuid().ToString('N'))"
 
 function Assert-True {
@@ -73,6 +75,8 @@ function Test-PortableArtifact {
     )
 
     $requiredFiles = @(
+        "SmartScreen.exe",
+        "SmartScreen.ico",
         "SmartScreen.App.exe",
         "SmartScreen.App.dll",
         "SmartScreen.Application.dll",
@@ -86,6 +90,7 @@ function Test-PortableArtifact {
         "localization\uk-UA.json",
         "localization\en-US.json",
         "themes\themes.json",
+        "release.json",
         "checksums.sha256"
     )
 
@@ -101,6 +106,18 @@ function Test-PortableArtifact {
     Test-ChecksumManifest -Root $Root
 }
 
+function Test-SetupArtifact {
+    param(
+        [string]$Root
+    )
+
+    foreach ($relativePath in @("Install SmartScreen.ps1", "README.txt", "SmartScreen.ico", "checksums.sha256")) {
+        Assert-PathExists (Join-Path $Root $relativePath) "Setup artifact file"
+    }
+
+    Test-ChecksumManifest -Root $Root
+}
+
 function Test-InstallSmoke {
     param(
         [string]$Root
@@ -111,7 +128,7 @@ function Test-InstallSmoke {
     $desktopDir = Join-Path $Root "desktop"
     $startupDir = Join-Path $Root "startup"
 
-    & (Join-Path $PSScriptRoot "install-portable.ps1") `
+    & (Join-Path $setupDir "Install SmartScreen.ps1") `
         -SkipPublish `
         -InstallDir $installDir `
         -StartMenuDirectory $startMenuDir `
@@ -121,7 +138,7 @@ function Test-InstallSmoke {
         -CreateStartupShortcut
 
     $requiredPaths = @(
-        (Join-Path $installDir "SmartScreen.App.exe"),
+        (Join-Path $installDir "SmartScreen.exe"),
         (Join-Path $installDir "checksums.sha256"),
         (Join-Path $installDir "install.json"),
         (Join-Path $installDir "uninstall.ps1"),
@@ -145,7 +162,8 @@ function Test-InstallSmoke {
 
     & (Join-Path $installDir "uninstall.ps1") -KeepData
 
-    Assert-PathMissing (Join-Path $installDir "SmartScreen.App.exe") "Uninstalled executable"
+    Assert-PathMissing (Join-Path $installDir "SmartScreen.exe") "Uninstalled executable"
+    Assert-PathMissing (Join-Path $installDir "SmartScreen.App.exe") "Uninstalled app host"
     Assert-PathMissing (Join-Path $startMenuDir "SmartScreen.lnk") "Uninstalled Start Menu shortcut"
     Assert-PathMissing (Join-Path $desktopDir "SmartScreen.lnk") "Uninstalled desktop shortcut"
     Assert-PathMissing (Join-Path $startupDir "SmartScreen.lnk") "Uninstalled startup shortcut"
@@ -160,6 +178,7 @@ try {
     & (Join-Path $PSScriptRoot "publish-portable.ps1") -Configuration $Configuration -Runtime $Runtime
 
     Test-PortableArtifact -Root $publishDir
+    Test-SetupArtifact -Root $setupDir
     Test-InstallSmoke -Root $smokeRoot
 
     Write-Host "Release acceptance passed."
