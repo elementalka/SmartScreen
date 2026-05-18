@@ -45,7 +45,15 @@ dotnet run --project src/SmartScreen.App/SmartScreen.App.csproj -- --settings
 .\scripts\publish-portable.ps1
 ```
 
-The portable build is written to `artifacts/SmartScreen-win-x64/`.
+The portable build is written to `artifacts/SmartScreen-win-x64/` and includes default `config`, `localization`, `themes`, `logs`, and `screenshots` folders plus `checksums.sha256`.
+
+Optional local install:
+
+```powershell
+.\scripts\install-portable.ps1
+```
+
+The installer copies the portable build to `%LOCALAPPDATA%\Programs\SmartScreen`, creates Start Menu shortcuts, and writes `uninstall.ps1` into the install folder. Use `-CreateDesktopShortcut` when a desktop shortcut is needed or `-NoStartMenuShortcut` for a copy-only install.
 
 ## Default Hotkeys
 
