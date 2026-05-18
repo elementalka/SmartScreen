@@ -38,6 +38,33 @@
     <SolidColorBrush x:Key="WarningSoftBrush" Color="#2CF59E0B" />
     <SolidColorBrush x:Key="WarningBorderBrush" Color="#66F59E0B" />
     <SolidColorBrush x:Key="ThumbnailBrush" Color="#1E293B" />
+    <SolidColorBrush x:Key="QuickWorkspaceScrimBrush" Color="#990B1220" />
+    <SolidColorBrush x:Key="OverlayScrimBrush" Color="#33000000" />
+    <SolidColorBrush x:Key="OverlayHintBrush" Color="#F5FFFFFF" />
+    <SolidColorBrush x:Key="OverlayHintBorderBrush" Color="#80FFFFFF" />
+    <SolidColorBrush x:Key="OverlayHintTextBrush" Color="#1E2430" />
+    <SolidColorBrush x:Key="OverlayHintMutedTextBrush" Color="#657084" />
+    <SolidColorBrush x:Key="OverlaySelectionStrokeBrush" Color="#2F7DFF" />
+    <SolidColorBrush x:Key="OverlaySelectionFillBrush" Color="#332F7DFF" />
+    <SolidColorBrush x:Key="EditorToolButtonBrush" Color="#1F2937" />
+    <SolidColorBrush x:Key="EditorToolButtonBorderBrush" Color="#38475F" />
+    <SolidColorBrush x:Key="EditorToolButtonForegroundBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="EditorToolButtonActiveBorderBrush" Color="#86A5FF" />
+    <SolidColorBrush x:Key="EditorToolButtonActiveForegroundBrush" Color="#07111F" />
+    <SolidColorBrush x:Key="EditorCommitButtonBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="EditorCommitButtonBorderBrush" Color="#5B8AF4" />
+    <SolidColorBrush x:Key="EditorCancelButtonBrush" Color="#2A3446" />
+    <SolidColorBrush x:Key="EditorCancelButtonBorderBrush" Color="#4A5C76" />
+    <SolidColorBrush x:Key="EditorCancelButtonForegroundBrush" Color="#DCE5F2" />
+    <SolidColorBrush x:Key="EditorDividerBrush" Color="#4B5C76" />
+    <SolidColorBrush x:Key="EditorOptionLabelBrush" Color="#CBD5E1" />
+    <SolidColorBrush x:Key="EditorSwatchBorderBrush" Color="#7C93B4" />
+    <SolidColorBrush x:Key="EditorSwatchActiveBorderBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="EditorCropStrokeBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="EditorCropFillBrush" Color="#222563EB" />
+    <SolidColorBrush x:Key="EditorEffectStrokeBrush" Color="#D97706" />
+    <SolidColorBrush x:Key="EditorEffectFillBrush" Color="#26D97706" />
+    <SolidColorBrush x:Key="EditorTextInputBackgroundBrush" Color="#D2FFFFFF" />
     <LinearGradientBrush x:Key="GlassWindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#07111F" Offset="0" />
         <GradientStop Color="#0E1A2D" Offset="0.45" />
@@ -641,9 +668,9 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="FontSize" Value="17" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Background" Value="#1F2937" />
-        <Setter Property="BorderBrush" Value="#38475F" />
-        <Setter Property="Foreground" Value="#F8FAFC" />
+        <Setter Property="Background" Value="{StaticResource EditorToolButtonBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource EditorToolButtonBorderBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource EditorToolButtonForegroundBrush}" />
     </Style>
 
     <Style x:Key="EditorOptionButton" TargetType="Button" BasedOn="{StaticResource EditorToolButton}">
@@ -655,16 +682,16 @@
     </Style>
 
     <Style x:Key="EditorCommitButton" TargetType="Button" BasedOn="{StaticResource EditorToolButton}">
-        <Setter Property="Background" Value="#2563EB" />
-        <Setter Property="BorderBrush" Value="#5B8AF4" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="{StaticResource EditorCommitButtonBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource EditorCommitButtonBorderBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource EditorToolButtonActiveForegroundBrush}" />
         <Setter Property="Margin" Value="0,8,0,6" />
     </Style>
 
     <Style x:Key="EditorCancelButton" TargetType="Button" BasedOn="{StaticResource EditorToolButton}">
-        <Setter Property="Background" Value="#2A3446" />
-        <Setter Property="BorderBrush" Value="#4A5C76" />
-        <Setter Property="Foreground" Value="#DCE5F2" />
+        <Setter Property="Background" Value="{StaticResource EditorCancelButtonBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource EditorCancelButtonBorderBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource EditorCancelButtonForegroundBrush}" />
     </Style>
 
     <Style x:Key="ColorSwatchButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -673,7 +700,7 @@
         <Setter Property="MinHeight" Value="26" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0,0,7,7" />
-        <Setter Property="BorderBrush" Value="#7C93B4" />
+        <Setter Property="BorderBrush" Value="{StaticResource EditorSwatchBorderBrush}" />
         <Setter Property="BorderThickness" Value="2" />
     </Style>
 </ResourceDictionary>

@@ -6,7 +6,7 @@
         ResizeMode="NoResize"
         Topmost="True"
         ShowInTaskbar="False"
-        Background="#33000000"
+        Background="{StaticResource OverlayScrimBrush}"
         Cursor="Cross">
     <Canvas x:Name="OverlayCanvas"
             Background="Transparent"
@@ -17,34 +17,34 @@
             Focusable="True">
         <Border x:Name="HintPanel"
                 Canvas.Top="28"
-                Background="#F5FFFFFF"
-                BorderBrush="#80FFFFFF"
+                Background="{StaticResource OverlayHintBrush}"
+                BorderBrush="{StaticResource OverlayHintBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="12"
                 Padding="18,10">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="SmartScreen" FontWeight="SemiBold" Foreground="#1E2430" />
+                <TextBlock Text="SmartScreen" FontWeight="SemiBold" Foreground="{StaticResource OverlayHintTextBrush}" />
                 <TextBlock Text="{DynamicResource Loc.overlay.selectRegionHint}"
                            Margin="8,0,0,0"
-                           Foreground="#657084" />
+                           Foreground="{StaticResource OverlayHintMutedTextBrush}" />
             </StackPanel>
         </Border>
 
         <Rectangle x:Name="SelectionRectangle"
-                   Stroke="#2F7DFF"
+                   Stroke="{StaticResource OverlaySelectionStrokeBrush}"
                    StrokeThickness="2"
-                   Fill="#332F7DFF"
+                   Fill="{StaticResource OverlaySelectionFillBrush}"
                    Visibility="Collapsed" />
 
         <Border x:Name="SizeBadge"
-                Background="#F5FFFFFF"
-                BorderBrush="#80FFFFFF"
+                Background="{StaticResource OverlayHintBrush}"
+                BorderBrush="{StaticResource OverlayHintBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
                 Padding="10,5"
                 Visibility="Collapsed">
             <TextBlock x:Name="SizeBadgeText"
-                       Foreground="#1E2430"
+                       Foreground="{StaticResource OverlayHintTextBrush}"
                        FontWeight="SemiBold"
                        FontSize="12" />
         </Border>

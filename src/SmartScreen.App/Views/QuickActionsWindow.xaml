@@ -8,7 +8,7 @@
         WindowState="Maximized"
         Topmost="True"
         ShowInTaskbar="False"
-        Background="#990B1220">
+        Background="{StaticResource QuickWorkspaceScrimBrush}">
     <Grid>
         <Viewbox Stretch="Uniform" Margin="28,28,28,98">
             <Grid x:Name="EditingSurface" Background="Transparent">
@@ -118,7 +118,7 @@
                     <Button x:Name="BlurToolButton" Content="◌" Click="BlurButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.blur}" />
                     <Button x:Name="PixelateToolButton" Content="▦" Click="PixelateButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.pixelate}" />
                     <Button Content="◐" Click="ToggleEditorChromeButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.hidePanels}" />
-                    <Rectangle Height="1" Fill="#4B5C76" Margin="4,4,4,10" />
+                    <Rectangle Height="1" Fill="{StaticResource EditorDividerBrush}" Margin="4,4,4,10" />
                     <Button Content="↶" Click="UndoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.undo}" />
                     <Button Content="↷" Click="RedoButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.redo}" />
                     <Button Content="⌫" Click="ClearButton_OnClick" Style="{StaticResource EditorToolButton}" ToolTip="{DynamicResource Loc.editor.clear}" />
@@ -154,7 +154,7 @@
                                 Height="32"
                                 CornerRadius="8"
                                 Background="#E53935"
-                                BorderBrush="#E5F0FF"
+                                BorderBrush="{StaticResource EditorSwatchActiveBorderBrush}"
                                 BorderThickness="2"
                                 Margin="0,0,10,0" />
 
@@ -188,9 +188,9 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{DynamicResource Loc.editor.lineLabel}" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Loc.editor.lineLabel}" Foreground="{StaticResource EditorOptionLabelBrush}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <Slider x:Name="StrokeSlider" Grid.Column="1" Minimum="1" Maximum="32" Value="4" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Loc.editor.textLabel}" Foreground="#CBD5E1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,8,0" />
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Loc.editor.textLabel}" Foreground="{StaticResource EditorOptionLabelBrush}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,8,0" />
                         <Slider x:Name="TextSizeSlider" Grid.Column="3" Minimum="12" Maximum="64" Value="24" VerticalAlignment="Center" ValueChanged="EditorSlider_OnValueChanged" />
                         <Button x:Name="ShapeFillButton"
                                 Grid.Column="4"

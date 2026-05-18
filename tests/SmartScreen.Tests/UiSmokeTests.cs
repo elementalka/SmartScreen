@@ -54,6 +54,9 @@ public sealed class UiSmokeTests
 
                     Assert.AreEqual("SmartScreen Test", window.Title);
                     Assert.IsNotNull(application.Resources["TextBrush"]);
+                    Assert.IsInstanceOfType(application.Resources["QuickWorkspaceScrimBrush"], typeof(System.Windows.Media.SolidColorBrush));
+                    Assert.IsInstanceOfType(application.Resources["OverlayHintBrush"], typeof(System.Windows.Media.SolidColorBrush));
+                    Assert.IsInstanceOfType(application.Resources["EditorToolButtonBrush"], typeof(System.Windows.Media.SolidColorBrush));
                     Assert.IsNotNull(application.Resources["Loc.main.workspace"]);
                     Assert.AreEqual("Скріншот готовий", application.Resources["Loc.quick.ready"]);
                     Assert.AreEqual("Готово", application.Resources["Loc.quick.status.ready"]);

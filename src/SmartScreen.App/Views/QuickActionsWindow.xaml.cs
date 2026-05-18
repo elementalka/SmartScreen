@@ -103,10 +103,6 @@ public partial class QuickActionsWindow : Window
             Resources["AccentBrush"] = new SolidColorBrush(accent);
             Resources["AccentColor"] = accent;
         }
-
-        Background = _viewModel.ThemeMode == DomainThemeMode.Light
-            ? new SolidColorBrush(MediaColor.FromArgb(86, 248, 250, 252))
-            : new SolidColorBrush(MediaColor.FromArgb(150, 11, 18, 32));
     }
 
     private void SetEditMode(bool isEditMode)
@@ -482,12 +478,12 @@ public partial class QuickActionsWindow : Window
 
     private void UpdateToolButtonStates()
     {
-        var activeBackground = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(37, 99, 235));
-        var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(31, 41, 55));
-        var activeBorder = new SolidColorBrush(MediaColor.FromRgb(134, 165, 255));
-        var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(56, 71, 95));
-        var activeForeground = new SolidColorBrush(MediaColor.FromRgb(7, 17, 31));
-        var inactiveForeground = new SolidColorBrush(MediaColor.FromRgb(226, 232, 240));
+        var activeBackground = ResourceBrush("AccentBrush", new SolidColorBrush(MediaColor.FromRgb(37, 99, 235)));
+        var inactiveBackground = ResourceBrush("EditorToolButtonBrush", new SolidColorBrush(MediaColor.FromRgb(31, 41, 55)));
+        var activeBorder = ResourceBrush("EditorToolButtonActiveBorderBrush", new SolidColorBrush(MediaColor.FromRgb(134, 165, 255)));
+        var inactiveBorder = ResourceBrush("EditorToolButtonBorderBrush", new SolidColorBrush(MediaColor.FromRgb(56, 71, 95)));
+        var activeForeground = ResourceBrush("EditorToolButtonActiveForegroundBrush", new SolidColorBrush(MediaColor.FromRgb(7, 17, 31)));
+        var inactiveForeground = ResourceBrush("EditorToolButtonForegroundBrush", new SolidColorBrush(MediaColor.FromRgb(226, 232, 240)));
 
         foreach (var (button, tool) in ToolButtons())
         {
@@ -500,8 +496,8 @@ public partial class QuickActionsWindow : Window
 
     private void UpdateColorButtonStates()
     {
-        var activeBorder = Brushes.White;
-        var inactiveBorder = new SolidColorBrush(MediaColor.FromRgb(120, 137, 162));
+        var activeBorder = ResourceBrush("EditorSwatchActiveBorderBrush", Brushes.White);
+        var inactiveBorder = ResourceBrush("EditorSwatchBorderBrush", new SolidColorBrush(MediaColor.FromRgb(120, 137, 162)));
         var activeHex = ToHex(_activeColor);
         ActiveColorPreview.Background = new SolidColorBrush(_activeColor);
 
@@ -515,15 +511,15 @@ public partial class QuickActionsWindow : Window
 
     private void UpdateShapeFillButtonState()
     {
-        var activeBackground = TryFindResource("AccentBrush") as MediaBrush ?? new SolidColorBrush(MediaColor.FromRgb(56, 189, 248));
-        var inactiveBackground = new SolidColorBrush(MediaColor.FromRgb(31, 41, 55));
+        var activeBackground = ResourceBrush("AccentBrush", new SolidColorBrush(MediaColor.FromRgb(56, 189, 248)));
+        var inactiveBackground = ResourceBrush("EditorToolButtonBrush", new SolidColorBrush(MediaColor.FromRgb(31, 41, 55)));
         ShapeFillButton.Background = _useShapeFill ? activeBackground : inactiveBackground;
         ShapeFillButton.BorderBrush = _useShapeFill
-            ? new SolidColorBrush(MediaColor.FromRgb(125, 211, 252))
-            : new SolidColorBrush(MediaColor.FromRgb(56, 71, 95));
+            ? ResourceBrush("EditorToolButtonActiveBorderBrush", new SolidColorBrush(MediaColor.FromRgb(125, 211, 252)))
+            : ResourceBrush("EditorToolButtonBorderBrush", new SolidColorBrush(MediaColor.FromRgb(56, 71, 95)));
         ShapeFillButton.Foreground = _useShapeFill
-            ? new SolidColorBrush(MediaColor.FromRgb(7, 17, 31))
-            : new SolidColorBrush(MediaColor.FromRgb(226, 232, 240));
+            ? ResourceBrush("EditorToolButtonActiveForegroundBrush", new SolidColorBrush(MediaColor.FromRgb(7, 17, 31)))
+            : ResourceBrush("EditorToolButtonForegroundBrush", new SolidColorBrush(MediaColor.FromRgb(226, 232, 240)));
     }
 
     private (Button Button, EditorTool Tool)[] ToolButtons() =>
@@ -729,27 +725,27 @@ public partial class QuickActionsWindow : Window
             ? new SolidColorBrush(MediaColor.FromArgb(46, _activeColor.R, _activeColor.G, _activeColor.B))
             : Brushes.Transparent;
 
-    private static RectangleShape CreateCropRectangle(Point start, Point end)
+    private RectangleShape CreateCropRectangle(Point start, Point end)
     {
         var rectangle = new RectangleShape
         {
-            Stroke = new SolidColorBrush(MediaColor.FromRgb(37, 99, 235)),
+            Stroke = ResourceBrush("EditorCropStrokeBrush", new SolidColorBrush(MediaColor.FromRgb(37, 99, 235))),
             StrokeThickness = 2,
             StrokeDashArray = [7, 4],
-            Fill = new SolidColorBrush(MediaColor.FromArgb(34, 37, 99, 235))
+            Fill = ResourceBrush("EditorCropFillBrush", new SolidColorBrush(MediaColor.FromArgb(34, 37, 99, 235)))
         };
         PositionShape(rectangle, start, end);
         return rectangle;
     }
 
-    private static RectangleShape CreateEffectRectangle(Point start, Point end)
+    private RectangleShape CreateEffectRectangle(Point start, Point end)
     {
         var rectangle = new RectangleShape
         {
-            Stroke = new SolidColorBrush(MediaColor.FromRgb(217, 119, 6)),
+            Stroke = ResourceBrush("EditorEffectStrokeBrush", new SolidColorBrush(MediaColor.FromRgb(217, 119, 6))),
             StrokeThickness = 2,
             StrokeDashArray = [5, 3],
-            Fill = new SolidColorBrush(MediaColor.FromArgb(38, 217, 119, 6))
+            Fill = ResourceBrush("EditorEffectFillBrush", new SolidColorBrush(MediaColor.FromArgb(38, 217, 119, 6)))
         };
         PositionShape(rectangle, start, end);
         return rectangle;
@@ -763,7 +759,7 @@ public partial class QuickActionsWindow : Window
             FontSize = ActiveTextSize,
             FontWeight = FontWeights.SemiBold,
             Foreground = new SolidColorBrush(_activeColor),
-            Background = new SolidColorBrush(MediaColor.FromArgb(210, 255, 255, 255)),
+            Background = ResourceBrush("EditorTextInputBackgroundBrush", new SolidColorBrush(MediaColor.FromArgb(210, 255, 255, 255))),
             BorderBrush = new SolidColorBrush(_activeColor),
             BorderThickness = new Thickness(1),
             MinWidth = 120,
@@ -911,6 +907,9 @@ public partial class QuickActionsWindow : Window
         command.Execute(null);
         return true;
     }
+
+    private MediaBrush ResourceBrush(string key, MediaBrush fallback) =>
+        TryFindResource(key) as MediaBrush ?? fallback;
 
     private static bool TryParseColor(string value, out MediaColor color)
     {
