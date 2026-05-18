@@ -7,7 +7,8 @@ public sealed class AiService(
     ISettingsService settingsService,
     IAiSecretService aiSecretService,
     IAiProviderFactory providerFactory,
-    ILoggingService loggingService) : IAiService
+    ILoggingService loggingService,
+    ITextLocalizer textLocalizer) : IAiService
 {
     public async Task<AiResponse> AnalyzeCurrentScreenshotAsync(
         ScreenshotResult screenshot,
@@ -16,7 +17,9 @@ public sealed class AiService(
     {
         if (string.IsNullOrWhiteSpace(prompt))
         {
-            return AiResponse.Fail("Prompt порожній. Обери AI-дію або введи власний запит.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                Text("ai.error.emptyPrompt", "Prompt порожній. Обери AI-дію або введи власний запит."),
+                TimeSpan.Zero);
         }
 
         var settings = await settingsService.LoadAsync(cancellationToken);
@@ -26,20 +29,30 @@ public sealed class AiService(
 
         if (providerSettings is null)
         {
-            return AiResponse.Fail("AI-провайдера не налаштовано.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                Text("ai.error.providerNotConfigured", "AI-провайдера не налаштовано."),
+                TimeSpan.Zero);
         }
 
         await aiSecretService.ApplySecretsAsync(providerSettings, cancellationToken);
 
         if (string.IsNullOrWhiteSpace(providerSettings.Model))
         {
-            return AiResponse.Fail($"Для {providerSettings.DisplayName} не вказано модель.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                FormatText("ai.error.modelMissing", "Для {0} не вказано модель.", providerSettings.DisplayName),
+                TimeSpan.Zero);
         }
 
         if (string.IsNullOrWhiteSpace(providerSettings.ApiKey))
         {
             var envName = aiSecretService.GetEnvironmentVariableName(providerSettings.Id);
-            return AiResponse.Fail($"API-ключ для {providerSettings.DisplayName} не вказано. Додай ключ у Налаштуваннях або через {envName}.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                FormatText(
+                    "ai.error.apiKeyMissing",
+                    "API-ключ для {0} не вказано. Додай ключ у Налаштуваннях або через {1}.",
+                    providerSettings.DisplayName,
+                    envName),
+                TimeSpan.Zero);
         }
 
         var preparedImage = AiImagePreprocessor.Prepare(screenshot);
@@ -67,20 +80,28 @@ public sealed class AiService(
         catch (HttpRequestException exception)
         {
             loggingService.Error(exception, "AI network request failed.");
-            return AiResponse.Fail("Не вдалося підключитися до AI-провайдера. Перевір інтернет, endpoint і доступність сервісу.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                Text("ai.error.network", "Не вдалося підключитися до AI-провайдера. Перевір інтернет, endpoint і доступність сервісу."),
+                TimeSpan.Zero);
         }
         catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
         {
-            return AiResponse.Fail("AI-запит перевищив ліміт очікування.", TimeSpan.FromSeconds(providerSettings.TimeoutSeconds));
+            return AiResponse.Fail(
+                Text("ai.error.timeout", "AI-запит перевищив ліміт очікування."),
+                TimeSpan.FromSeconds(providerSettings.TimeoutSeconds));
         }
         catch (OperationCanceledException)
         {
-            return AiResponse.Fail("AI-запит скасовано.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                Text("ai.error.cancelled", "AI-запит скасовано."),
+                TimeSpan.Zero);
         }
         catch (Exception exception)
         {
             loggingService.Error(exception, "AI request failed.");
-            return AiResponse.Fail("Не вдалося виконати AI-запит. Перевір налаштування провайдера та інтернет.", TimeSpan.Zero);
+            return AiResponse.Fail(
+                Text("ai.error.requestFailed", "Не вдалося виконати AI-запит. Перевір налаштування провайдера та інтернет."),
+                TimeSpan.Zero);
         }
     }
 
@@ -116,4 +137,10 @@ public sealed class AiService(
             return false;
         }
     }
+
+    private string Text(string key, string fallback) =>
+        textLocalizer.GetString(key, fallback);
+
+    private string FormatText(string key, string fallback, params object[] args) =>
+        textLocalizer.Format(key, fallback, args);
 }

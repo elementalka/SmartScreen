@@ -13,7 +13,7 @@ public sealed class FirstRunWizardViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private AppSettings? _settings;
     private AiProviderSettings? _selectedProvider;
-    private string _status = "Швидке налаштування SmartScreen";
+    private string _status = Text("firstRun.status", "Швидке налаштування SmartScreen");
     private bool _copyAfterCapture;
     private bool _quickActionsAfterCapture;
     private bool _openEditorAfterCapture;
@@ -144,7 +144,7 @@ public sealed class FirstRunWizardViewModel : ObservableObject
         Settings.Screenshots.ShowQuickActionsAfterCapture = QuickActionsAfterCapture;
 
         await _settingsService.SaveAsync(Settings, cancellationToken);
-        Status = "Перший запуск завершено";
+        Status = Text("firstRun.status.completed", "Перший запуск завершено");
         CloseRequested?.Invoke();
     }
 

@@ -1,16 +1,21 @@
 using System.Net;
 using System.Text.Json;
+using SmartScreen.Application.Abstractions;
 using SmartScreen.Infrastructure.Logging;
 
 namespace SmartScreen.Infrastructure.Ai;
 
 internal static class AiProviderErrorFormatter
 {
-    public static string Format(string providerName, HttpStatusCode statusCode, string responseBody)
+    public static string Format(
+        string providerName,
+        HttpStatusCode statusCode,
+        string responseBody,
+        ITextLocalizer? textLocalizer = null)
     {
         var detail = ExtractErrorDetail(responseBody);
         var status = (int)statusCode;
-        var friendlyMessage = FriendlyStatusMessage(statusCode);
+        var friendlyMessage = FriendlyStatusMessage(statusCode, textLocalizer);
 
         if (string.IsNullOrWhiteSpace(detail))
         {
@@ -20,19 +25,22 @@ internal static class AiProviderErrorFormatter
         return $"{providerName}: {friendlyMessage} ({status}) - {detail}";
     }
 
-    private static string FriendlyStatusMessage(HttpStatusCode statusCode) =>
+    private static string FriendlyStatusMessage(HttpStatusCode statusCode, ITextLocalizer? textLocalizer) =>
         statusCode switch
         {
-            HttpStatusCode.Unauthorized => "ключ не прийнято або він не вказаний",
-            HttpStatusCode.Forbidden => "немає доступу до моделі або endpoint",
-            HttpStatusCode.NotFound => "модель або endpoint не знайдено",
-            HttpStatusCode.RequestTimeout => "провайдер не дочекався запиту",
-            HttpStatusCode.RequestEntityTooLarge => "скріншот завеликий для провайдера",
-            (HttpStatusCode)422 => "провайдер не зміг обробити формат запиту",
-            (HttpStatusCode)429 => "перевищено ліміт запитів або квоту",
-            >= HttpStatusCode.InternalServerError => "тимчасова помилка на стороні провайдера",
-            _ => "провайдер повернув помилку"
+            HttpStatusCode.Unauthorized => Text(textLocalizer, "ai.providerError.unauthorized", "ключ не прийнято або він не вказаний"),
+            HttpStatusCode.Forbidden => Text(textLocalizer, "ai.providerError.forbidden", "немає доступу до моделі або endpoint"),
+            HttpStatusCode.NotFound => Text(textLocalizer, "ai.providerError.notFound", "модель або endpoint не знайдено"),
+            HttpStatusCode.RequestTimeout => Text(textLocalizer, "ai.providerError.timeout", "провайдер не дочекався запиту"),
+            HttpStatusCode.RequestEntityTooLarge => Text(textLocalizer, "ai.providerError.tooLarge", "скріншот завеликий для провайдера"),
+            (HttpStatusCode)422 => Text(textLocalizer, "ai.providerError.unprocessable", "провайдер не зміг обробити формат запиту"),
+            (HttpStatusCode)429 => Text(textLocalizer, "ai.providerError.rateLimited", "перевищено ліміт запитів або квоту"),
+            >= HttpStatusCode.InternalServerError => Text(textLocalizer, "ai.providerError.server", "тимчасова помилка на стороні провайдера"),
+            _ => Text(textLocalizer, "ai.providerError.generic", "провайдер повернув помилку")
         };
+
+    private static string Text(ITextLocalizer? textLocalizer, string key, string fallback) =>
+        textLocalizer?.GetString(key, fallback) ?? fallback;
 
     private static string ExtractErrorDetail(string responseBody)
     {

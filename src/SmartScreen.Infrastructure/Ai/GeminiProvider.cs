@@ -8,7 +8,7 @@ using SmartScreen.Domain.Models;
 
 namespace SmartScreen.Infrastructure.Ai;
 
-public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
+public sealed class GeminiProvider(HttpClient httpClient, ITextLocalizer textLocalizer) : IAiProvider
 {
     public string Name => "Google Gemini";
 
@@ -32,7 +32,7 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         if (!response.IsSuccessStatusCode)
         {
             return AiResponse.Fail(
-                AiProviderErrorFormatter.Format("Gemini", response.StatusCode, body),
+                AiProviderErrorFormatter.Format("Gemini", response.StatusCode, body, textLocalizer),
                 stopwatch.Elapsed);
         }
 
@@ -45,7 +45,7 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         var failureReason = ExtractFailureReason(body);
         return AiResponse.Fail(
             string.IsNullOrWhiteSpace(failureReason)
-                ? "Gemini не повернув текстову відповідь."
+                ? Text("ai.error.geminiNoText", "Gemini не повернув текстову відповідь.")
                 : failureReason,
             stopwatch.Elapsed);
     }
@@ -172,7 +172,7 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         }
     }
 
-    private static string ExtractFailureReason(string json)
+    private string ExtractFailureReason(string json)
     {
         try
         {
@@ -188,7 +188,10 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
                 candidates.GetArrayLength() > 0 &&
                 candidates[0].TryGetProperty("finishReason", out var finishReason))
             {
-                return $"Gemini завершив відповідь без тексту: {finishReason.GetString()}.";
+                return FormatText(
+                    "ai.error.geminiFinishNoText",
+                    "Gemini завершив відповідь без тексту: {0}.",
+                    finishReason.GetString() ?? string.Empty);
             }
         }
         catch (JsonException)
@@ -198,10 +201,19 @@ public sealed class GeminiProvider(HttpClient httpClient) : IAiProvider
         return string.Empty;
     }
 
-    private static string ExtractPromptFeedback(JsonElement feedback)
+    private string ExtractPromptFeedback(JsonElement feedback)
     {
         return feedback.TryGetProperty("blockReason", out var blockReason)
-            ? $"Gemini заблокував запит: {blockReason.GetString()}."
+            ? textLocalizer.Format(
+                "ai.error.geminiBlocked",
+                "Gemini заблокував запит: {0}.",
+                blockReason.GetString() ?? string.Empty)
             : string.Empty;
     }
+
+    private string Text(string key, string fallback) =>
+        textLocalizer.GetString(key, fallback);
+
+    private string FormatText(string key, string fallback, params object[] args) =>
+        textLocalizer.Format(key, fallback, args);
 }

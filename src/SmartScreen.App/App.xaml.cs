@@ -65,11 +65,12 @@ public partial class App : System.Windows.Application
 
         var screenshotService = new ScreenshotService();
         var imageFileService = new ImageFileService(storageService);
-        var clipboardService = new WpfClipboardService();
+        var textLocalizer = new WpfTextLocalizer();
+        var clipboardService = new WpfClipboardService(textLocalizer);
 
         _httpClient = new HttpClient();
-        var providerFactory = new AiProviderFactory(_httpClient);
-        var aiService = new AiService(settingsService, aiSecretService, providerFactory, loggingService);
+        var providerFactory = new AiProviderFactory(_httpClient, textLocalizer);
+        var aiService = new AiService(settingsService, aiSecretService, providerFactory, loggingService, textLocalizer);
         var hotkeyService = new WpfHotkeyService(loggingService);
         _hotkeyService = hotkeyService;
 

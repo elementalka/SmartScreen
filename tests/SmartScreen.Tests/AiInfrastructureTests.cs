@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net;
+using SmartScreen.Application.Abstractions;
 using SmartScreen.Domain.Models;
 using SmartScreen.Infrastructure.Ai;
 using SmartScreen.Infrastructure.Configuration;
@@ -102,10 +103,40 @@ public sealed class AiInfrastructureTests
         Assert.IsTrue(message.Contains("***", StringComparison.Ordinal));
     }
 
+    [TestMethod]
+    public void AiProviderErrorFormatterUsesInjectedLocalization()
+    {
+        var localizer = new DictionaryTextLocalizer(new Dictionary<string, string>
+        {
+            ["ai.providerError.unauthorized"] = "the key was rejected or is missing"
+        });
+
+        var message = AiProviderErrorFormatter.Format(
+            "Provider",
+            HttpStatusCode.Unauthorized,
+            """
+            { "error": { "message": "bad apiKey=SECRET_VALUE_SHOULD_NOT_LEAK" } }
+            """,
+            localizer);
+
+        Assert.IsTrue(message.Contains("the key was rejected or is missing", StringComparison.OrdinalIgnoreCase));
+        Assert.IsFalse(message.Contains("SECRET_VALUE_SHOULD_NOT_LEAK", StringComparison.Ordinal));
+        Assert.IsTrue(message.Contains("***", StringComparison.Ordinal));
+    }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "SmartScreen.Tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(path);
         return path;
+    }
+
+    private sealed class DictionaryTextLocalizer(IReadOnlyDictionary<string, string> values) : ITextLocalizer
+    {
+        public string GetString(string key, string fallback) =>
+            values.TryGetValue(key, out var value) ? value : fallback;
+
+        public string Format(string key, string fallback, params object[] args) =>
+            string.Format(GetString(key, fallback), args);
     }
 }

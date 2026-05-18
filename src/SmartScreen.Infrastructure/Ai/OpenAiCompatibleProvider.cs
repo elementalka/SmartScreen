@@ -8,7 +8,7 @@ using SmartScreen.Domain.Models;
 
 namespace SmartScreen.Infrastructure.Ai;
 
-public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvider
+public sealed class OpenAiCompatibleProvider(HttpClient httpClient, ITextLocalizer textLocalizer) : IAiProvider
 {
     public string Name => "OpenAI-compatible";
 
@@ -31,13 +31,17 @@ public sealed class OpenAiCompatibleProvider(HttpClient httpClient) : IAiProvide
         if (!response.IsSuccessStatusCode)
         {
             return AiResponse.Fail(
-                AiProviderErrorFormatter.Format(settings.DisplayName, response.StatusCode, body),
+                AiProviderErrorFormatter.Format(settings.DisplayName, response.StatusCode, body, textLocalizer),
                 stopwatch.Elapsed);
         }
 
         var text = ExtractText(body);
         return string.IsNullOrWhiteSpace(text)
-            ? AiResponse.Fail("AI-провайдер не повернув текстову відповідь.", stopwatch.Elapsed)
+            ? AiResponse.Fail(
+                textLocalizer.GetString(
+                    "ai.error.noTextResponse",
+                    "AI-провайдер не повернув текстову відповідь."),
+                stopwatch.Elapsed)
             : AiResponse.Ok(text, stopwatch.Elapsed);
     }
 

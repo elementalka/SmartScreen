@@ -5,7 +5,7 @@ using SmartScreen.Domain.Models;
 
 namespace SmartScreen.App.Services;
 
-public sealed class WpfClipboardService : IClipboardService
+public sealed class WpfClipboardService(ITextLocalizer textLocalizer) : IClipboardService
 {
     private const int MaxClipboardAttempts = 6;
     private static readonly TimeSpan ClipboardRetryDelay = TimeSpan.FromMilliseconds(90);
@@ -29,7 +29,7 @@ public sealed class WpfClipboardService : IClipboardService
             cancellationToken);
     }
 
-    private static async Task SetClipboardWithRetryAsync(Action action, CancellationToken cancellationToken)
+    private async Task SetClipboardWithRetryAsync(Action action, CancellationToken cancellationToken)
     {
         Exception? lastException = null;
 
@@ -49,7 +49,11 @@ public sealed class WpfClipboardService : IClipboardService
             }
         }
 
-        throw new InvalidOperationException("Буфер обміну тимчасово зайнятий іншою програмою.", lastException);
+        throw new InvalidOperationException(
+            textLocalizer.GetString(
+                "clipboard.error.busy",
+                "Буфер обміну тимчасово зайнятий іншою програмою."),
+            lastException);
     }
 
     private static bool IsClipboardBusyException(Exception exception) =>
