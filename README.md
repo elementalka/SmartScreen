@@ -138,6 +138,14 @@ dotnet test
 
 The test suite covers configuration fallback, prompt templates, hotkey validation, secret masking, AI image optimization, localization completeness, WPF resource smoke tests, and coordinator-level after-capture workflows.
 
+Release acceptance:
+
+```powershell
+.\scripts\test-release.ps1
+```
+
+This runs the automated tests, builds the portable artifact, verifies checksums, and performs install/uninstall smoke checks in a temporary folder.
+
 ## Documentation
 
 Course documents are stored in `docs/`:
@@ -146,3 +154,4 @@ Course documents are stored in `docs/`:
 - `Інструкція для Codex.md`
 - `План звіту.md`
 - `Статус реалізації.md`
+- `Приймальне тестування.md`
