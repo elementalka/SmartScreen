@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using SmartScreen.Application.Abstractions;
 using SmartScreen.Domain.Enums;
@@ -36,12 +37,12 @@ public sealed class AppInteractionCoordinator(
 
     private async Task CaptureRegionCoreAsync(CancellationToken cancellationToken)
     {
-        SetStatus("Очікую виділення області...");
+        SetStatus(Text("capture.status.waitingRegion", "Очікую виділення області..."));
         var region = await windowService.SelectRegionAsync();
 
         if (region is null)
         {
-            SetStatus("Виділення області скасовано");
+            SetStatus(Text("capture.status.regionCancelled", "Виділення області скасовано"));
             return;
         }
 
@@ -86,7 +87,7 @@ public sealed class AppInteractionCoordinator(
 
     private async Task CaptureFullScreenCoreAsync(CancellationToken cancellationToken)
     {
-        SetStatus("Створюю скріншот всього екрана...");
+        SetStatus(Text("capture.status.creatingFullScreen", "Створюю скріншот всього екрана..."));
         await HandleScreenshotAsync(await screenshotService.CaptureFullScreenAsync(cancellationToken), cancellationToken);
     }
 
@@ -97,7 +98,7 @@ public sealed class AppInteractionCoordinator(
 
     private async Task CaptureActiveWindowCoreAsync(CancellationToken cancellationToken)
     {
-        SetStatus("Створюю скріншот активного вікна...");
+        SetStatus(Text("capture.status.creatingActiveWindow", "Створюю скріншот активного вікна..."));
         await HandleScreenshotAsync(await screenshotService.CaptureActiveWindowAsync(cancellationToken), cancellationToken);
     }
 
@@ -109,7 +110,10 @@ public sealed class AppInteractionCoordinator(
     private async Task CaptureMonitorCoreAsync(CancellationToken cancellationToken)
     {
         var settings = await settingsService.LoadAsync(cancellationToken);
-        SetStatus($"Створюю скріншот монітора #{settings.Screenshots.MonitorIndex + 1}...");
+        SetStatus(FormatText(
+            "capture.status.creatingMonitor",
+            "Створюю скріншот монітора #{0}...",
+            settings.Screenshots.MonitorIndex + 1));
         await HandleScreenshotAsync(
             await screenshotService.CaptureMonitorAsync(settings.Screenshots.MonitorIndex, cancellationToken),
             cancellationToken);
@@ -124,7 +128,10 @@ public sealed class AppInteractionCoordinator(
     {
         var settings = await settingsService.LoadAsync(cancellationToken);
         var delaySeconds = Math.Clamp(settings.Screenshots.DelaySeconds, 1, 60);
-        SetStatus($"Скріншот через {delaySeconds} сек...");
+        SetStatus(FormatText(
+            "capture.status.delayCountdown",
+            "Скріншот через {0} сек...",
+            delaySeconds));
         await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
         await HandleScreenshotAsync(await screenshotService.CaptureFullScreenAsync(cancellationToken), cancellationToken);
     }
@@ -135,7 +142,7 @@ public sealed class AppInteractionCoordinator(
     {
         if (!await _captureGate.WaitAsync(0, cancellationToken))
         {
-            SetStatus("Сценарій скріншота вже виконується");
+            SetStatus(Text("capture.status.alreadyRunning", "Сценарій скріншота вже виконується"));
             return;
         }
 
@@ -153,7 +160,7 @@ public sealed class AppInteractionCoordinator(
     {
         if (CurrentScreenshot is null)
         {
-            SetStatus("Спочатку зроби скріншот");
+            SetStatus(Text("main.status.captureFirst", "Спочатку зроби скріншот"));
             return;
         }
 
@@ -211,7 +218,7 @@ public sealed class AppInteractionCoordinator(
         catch (Exception exception)
         {
             loggingService.Error(exception, "Interaction scenario failed.");
-            SetStatus("Не вдалося виконати дію. Деталі записано в logs/app.log.");
+            SetStatus(Text("capture.status.actionFailedWithLogs", "Не вдалося виконати дію. Деталі записано в logs/app.log."));
         }
     }
 
@@ -229,12 +236,12 @@ public sealed class AppInteractionCoordinator(
             try
             {
                 await clipboardService.CopyImageAsync(screenshot, cancellationToken);
-                completedActions.Add("буфер");
+                completedActions.Add(Text("capture.completed.clipboard", "буфер"));
             }
             catch (Exception exception)
             {
                 loggingService.Error(exception, "Could not copy screenshot to clipboard. Continuing after-capture workflow.");
-                completedActions.Add("буфер недоступний");
+                completedActions.Add(Text("capture.completed.clipboardUnavailable", "буфер недоступний"));
             }
         }
 
@@ -246,12 +253,17 @@ public sealed class AppInteractionCoordinator(
                 settings.Screenshots.DefaultFormat,
                 settings.Screenshots.JpegQuality,
                 cancellationToken);
-            completedActions.Add($"файл {Path.GetFileName(path)}");
+            completedActions.Add(FormatText("capture.completed.file", "файл {0}", Path.GetFileName(path)));
         }
 
         SetStatus(completedActions.Count == 0
-            ? $"Скріншот готовий: {screenshot.Width}x{screenshot.Height}"
-            : $"Скріншот готовий: {screenshot.Width}x{screenshot.Height}; {string.Join(", ", completedActions)}");
+            ? FormatText("capture.status.ready", "Скріншот готовий: {0}x{1}", screenshot.Width, screenshot.Height)
+            : FormatText(
+                "capture.status.readyWithActions",
+                "Скріншот готовий: {0}x{1}; {2}",
+                screenshot.Width,
+                screenshot.Height,
+                string.Join(", ", completedActions)));
 
         if (actions.Contains(AfterCaptureAction.ShowQuickActions) ||
             actions.Contains(AfterCaptureAction.OpenEditor) ||
@@ -271,4 +283,10 @@ public sealed class AppInteractionCoordinator(
     }
 
     private void SetStatus(string status) => StatusChanged?.Invoke(this, status);
+
+    private static string Text(string key, string fallback) =>
+        LocalizationResourceService.GetString(key, fallback);
+
+    private static string FormatText(string key, string fallback, params object[] args) =>
+        string.Format(CultureInfo.CurrentCulture, Text(key, fallback), args);
 }

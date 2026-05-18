@@ -24,7 +24,8 @@
                 Padding="18,10">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="SmartScreen" FontWeight="SemiBold" Foreground="#1E2430" />
-                <TextBlock Text="  Виділи область мишкою. Esc — скасувати."
+                <TextBlock Text="{DynamicResource Loc.overlay.selectRegionHint}"
+                           Margin="8,0,0,0"
                            Foreground="#657084" />
             </StackPanel>
         </Border>

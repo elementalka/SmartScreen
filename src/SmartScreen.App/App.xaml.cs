@@ -33,7 +33,9 @@ public partial class App : System.Windows.Application
         if (!_ownsSingleInstanceMutex)
         {
             System.Windows.MessageBox.Show(
-                "SmartScreen вже запущено. Перевір іконку в системному треї або закрий попередній екземпляр.",
+                LocalizationResourceService.GetString(
+                    "app.alreadyRunning",
+                    "SmartScreen вже запущено. Перевір іконку в системному треї або закрий попередній екземпляр."),
                 "SmartScreen",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -124,6 +126,7 @@ public partial class App : System.Windows.Application
         var trayService = new WpfTrayService();
         _trayService = trayService;
         trayService.Initialize();
+        LocalizationResourceService.ResourcesChanged += (_, _) => trayService.RefreshLocalization();
         trayService.CaptureRegionRequested += async (_, _) => await coordinator.CaptureRegionAsync();
         trayService.CaptureFullScreenRequested += async (_, _) => await coordinator.CaptureFullScreenAsync();
         trayService.CaptureActiveWindowRequested += async (_, _) => await coordinator.CaptureActiveWindowAsync();
@@ -186,7 +189,9 @@ public partial class App : System.Windows.Application
     {
         _loggingService?.Error(e.Exception, "Unhandled UI exception.");
         System.Windows.MessageBox.Show(
-            "Сталася неочікувана помилка. Деталі записано в logs/app.log.",
+            LocalizationResourceService.GetString(
+                "app.unexpectedError",
+                "Сталася неочікувана помилка. Деталі записано в logs/app.log."),
             "SmartScreen",
             MessageBoxButton.OK,
             MessageBoxImage.Error);

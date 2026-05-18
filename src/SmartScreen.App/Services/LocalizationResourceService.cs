@@ -11,6 +11,18 @@ public static class LocalizationResourceService
     {
         ["app.title"] = "SmartScreen",
         ["app.subtitle"] = "центр захоплень",
+        ["app.alreadyRunning"] = "SmartScreen вже запущено. Перевір іконку в системному треї або закрий попередній екземпляр.",
+        ["app.unexpectedError"] = "Сталася неочікувана помилка. Деталі записано в logs/app.log.",
+        ["action.captureRegion"] = "Скріншот області",
+        ["action.captureFullScreen"] = "Скріншот всього екрана",
+        ["action.captureActiveWindow"] = "Скріншот активного вікна",
+        ["action.captureMonitor"] = "Скріншот монітора",
+        ["action.captureDelayed"] = "Скріншот із затримкою",
+        ["action.askAi"] = "Запитати AI",
+        ["tray.openSmartScreen"] = "Відкрити SmartScreen",
+        ["tray.exit"] = "Вийти",
+        ["tray.readyTitle"] = "SmartScreen працює",
+        ["tray.readyMessage"] = "Натисни Ctrl+Shift+S або відкрий меню іконки в треї.",
         ["main.captureSection"] = "Захоплення",
         ["main.region"] = "Область",
         ["main.fullScreen"] = "Весь екран",
@@ -43,6 +55,45 @@ public static class LocalizationResourceService
         ["main.workflowStepCapture"] = "1. Захоплення",
         ["main.workflowStepOutput"] = "2. Буфер або файл",
         ["main.workflowStepTools"] = "3. Редактор, AI, папка",
+        ["main.aiNotConfigured"] = "AI не налаштовано",
+        ["main.openSettingsHint"] = "Відкрий налаштування",
+        ["main.noActiveRoute"] = "Немає активного маршруту",
+        ["main.error.captureFullScreen"] = "Не вдалося зробити скріншот всього екрана",
+        ["main.error.captureRegion"] = "Не вдалося зробити скріншот області",
+        ["main.error.captureActiveWindow"] = "Не вдалося зробити скріншот активного вікна",
+        ["main.error.captureMonitor"] = "Не вдалося зробити скріншот монітора",
+        ["main.error.captureDelayed"] = "Не вдалося зробити скріншот із затримкою",
+        ["main.status.actionCancelled"] = "Дію скасовано",
+        ["main.status.errorWithLogs"] = "{0}. Деталі записано в logs/app.log.",
+        ["main.status.captureFirst"] = "Спочатку зроби скріншот",
+        ["main.status.openScreenshotsFolderFailed"] = "Не вдалося відкрити папку скріншотів",
+        ["main.workflowAction.manual"] = "manual",
+        ["main.workflowAction.clipboard"] = "clipboard",
+        ["main.workflowAction.file"] = "file",
+        ["main.workflowAction.quickMenu"] = "quick menu",
+        ["main.workflowAction.editor"] = "editor",
+        ["overlay.selectRegionHint"] = "Виділи область мишкою. Esc — скасувати.",
+        ["capture.source.fullScreen"] = "Весь екран",
+        ["capture.source.activeWindow"] = "Активне вікно",
+        ["capture.source.primaryMonitor"] = "Основний монітор",
+        ["capture.source.monitor"] = "Монітор {0}",
+        ["capture.source.selectedRegion"] = "Вибрана область",
+        ["capture.source.savedScreenshot"] = "Збережений скріншот",
+        ["capture.source.editedScreenshot"] = "Відредагований скріншот",
+        ["capture.source.editedCroppedScreenshot"] = "Відредагований обрізаний скріншот",
+        ["capture.status.waitingRegion"] = "Очікую виділення області...",
+        ["capture.status.regionCancelled"] = "Виділення області скасовано",
+        ["capture.status.creatingFullScreen"] = "Створюю скріншот всього екрана...",
+        ["capture.status.creatingActiveWindow"] = "Створюю скріншот активного вікна...",
+        ["capture.status.creatingMonitor"] = "Створюю скріншот монітора #{0}...",
+        ["capture.status.delayCountdown"] = "Скріншот через {0} сек...",
+        ["capture.status.alreadyRunning"] = "Сценарій скріншота вже виконується",
+        ["capture.status.actionFailedWithLogs"] = "Не вдалося виконати дію. Деталі записано в logs/app.log.",
+        ["capture.status.ready"] = "Скріншот готовий: {0}x{1}",
+        ["capture.status.readyWithActions"] = "Скріншот готовий: {0}x{1}; {2}",
+        ["capture.completed.clipboard"] = "буфер",
+        ["capture.completed.clipboardUnavailable"] = "буфер недоступний",
+        ["capture.completed.file"] = "файл {0}",
         ["settings.title"] = "Налаштування",
         ["settings.subtitle"] = "Керування скріншотами, AI-маршрутами, prompt-шаблонами та глобальними клавішами",
         ["settings.save"] = "Зберегти",
@@ -287,6 +338,8 @@ public static class LocalizationResourceService
 
     public static IReadOnlyCollection<string> BuiltInKeys { get; } = BuiltInFallback.Keys.ToArray();
 
+    public static event EventHandler? ResourcesChanged;
+
     public static async Task ApplyAsync(
         ILocalizationService localizationService,
         string cultureName,
@@ -312,6 +365,8 @@ public static class LocalizationResourceService
         {
             System.Windows.Application.Current.Resources[ToResourceKey(pair.Key)] = pair.Value;
         }
+
+        ResourcesChanged?.Invoke(null, EventArgs.Empty);
     }
 
     public static string GetString(string key, string fallback)

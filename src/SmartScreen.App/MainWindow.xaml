@@ -170,7 +170,7 @@
 
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Loc.main.currentScreenshot}" Style="{StaticResource SectionTitleText}" />
-                                <TextBlock Text="{Binding SelectedCapture.Summary, TargetNullValue=Очікує захоплення}"
+                                <TextBlock Text="{Binding SelectedCaptureSummary}"
                                            Style="{StaticResource MutedText}"
                                            TextTrimming="CharacterEllipsis"
                                            Margin="0,4,0,0" />
@@ -253,9 +253,12 @@
 
                                 <StackPanel Margin="0,0,0,12">
                                     <TextBlock Text="{DynamicResource Loc.main.recentScreenshots}" Style="{StaticResource SectionTitleText}" />
-                                    <TextBlock Text="{Binding RecentCaptures.Count, StringFormat={}{0} у сесії}"
-                                               Style="{StaticResource MutedText}"
-                                               Margin="0,4,0,0" />
+                                    <TextBlock Style="{StaticResource MutedText}"
+                                               Margin="0,4,0,0">
+                                        <Run Text="{Binding RecentCaptures.Count, Mode=OneWay}" />
+                                        <Run Text=" " />
+                                        <Run Text="{DynamicResource Loc.main.sessionSuffix}" />
+                                    </TextBlock>
                                 </StackPanel>
 
                                 <Grid Grid.Row="1">

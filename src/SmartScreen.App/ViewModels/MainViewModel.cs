@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -20,9 +21,9 @@ public sealed class MainViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
     private readonly ILoggingService _loggingService;
-    private string _status = "Готово до роботи";
-    private string _activeProviderName = "AI не налаштовано";
-    private string _activeProviderModel = "Відкрий налаштування";
+    private string _status = Text("status.ready", "Готово до роботи");
+    private string _activeProviderName = Text("main.aiNotConfigured", "AI не налаштовано");
+    private string _activeProviderModel = Text("main.openSettingsHint", "Відкрий налаштування");
     private string _storageSummary = "screenshots";
     private string _workflowSummary = "Ctrl+Shift+S · clipboard · quick menu";
     private ScreenshotResult? _currentScreenshot;
@@ -58,6 +59,7 @@ public sealed class MainViewModel : ObservableObject
                 AddRecentCapture(screenshot);
             }
         };
+        LocalizationResourceService.ResourcesChanged += OnLocalizationResourcesChanged;
 
         _ = InitializeDashboardAsync();
     }
@@ -106,6 +108,9 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
+    public string SelectedCaptureSummary =>
+        SelectedCapture?.Summary ?? Text("main.waitingCapture", "Очікує захоплення");
+
     public CaptureHistoryItemViewModel? SelectedCapture
     {
         get => _selectedCapture;
@@ -113,6 +118,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedCapture, value))
             {
+                OnPropertyChanged(nameof(SelectedCaptureSummary));
                 OnPropertyChanged(nameof(SelectedCapturePreviewVisibility));
                 OnPropertyChanged(nameof(EmptyPreviewVisibility));
             }
@@ -143,6 +149,7 @@ public sealed class MainViewModel : ObservableObject
         await RunCaptureActionAsync(
             _coordinator.CaptureFullScreenAsync,
             "Could not capture full screen from main window.",
+            "main.error.captureFullScreen",
             "Не вдалося зробити скріншот всього екрана",
             cancellationToken);
     }
@@ -152,6 +159,7 @@ public sealed class MainViewModel : ObservableObject
         await RunCaptureActionAsync(
             _coordinator.CaptureRegionAsync,
             "Could not capture region from main window.",
+            "main.error.captureRegion",
             "Не вдалося зробити скріншот області",
             cancellationToken);
     }
@@ -161,6 +169,7 @@ public sealed class MainViewModel : ObservableObject
         await RunCaptureActionAsync(
             _coordinator.CaptureActiveWindowAsync,
             "Could not capture active window from main window.",
+            "main.error.captureActiveWindow",
             "Не вдалося зробити скріншот активного вікна",
             cancellationToken);
     }
@@ -170,6 +179,7 @@ public sealed class MainViewModel : ObservableObject
         await RunCaptureActionAsync(
             _coordinator.CaptureMonitorAsync,
             "Could not capture monitor from main window.",
+            "main.error.captureMonitor",
             "Не вдалося зробити скріншот монітора",
             cancellationToken);
     }
@@ -179,6 +189,7 @@ public sealed class MainViewModel : ObservableObject
         await RunCaptureActionAsync(
             _coordinator.CaptureDelayedAsync,
             "Could not capture delayed screenshot from main window.",
+            "main.error.captureDelayed",
             "Не вдалося зробити скріншот із затримкою",
             cancellationToken);
     }
@@ -186,6 +197,7 @@ public sealed class MainViewModel : ObservableObject
     private async Task RunCaptureActionAsync(
         Func<CancellationToken, Task> action,
         string logMessage,
+        string userMessageKey,
         string userMessage,
         CancellationToken cancellationToken)
     {
@@ -195,12 +207,15 @@ public sealed class MainViewModel : ObservableObject
         }
         catch (OperationCanceledException)
         {
-            Status = "Дію скасовано";
+            Status = Text("main.status.actionCancelled", "Дію скасовано");
         }
         catch (Exception exception)
         {
             _loggingService.Error(exception, logMessage);
-            Status = $"{userMessage}. Деталі записано в logs/app.log.";
+            Status = FormatText(
+                "main.status.errorWithLogs",
+                "{0}. Деталі записано в logs/app.log.",
+                Text(userMessageKey, userMessage));
         }
     }
 
@@ -208,7 +223,7 @@ public sealed class MainViewModel : ObservableObject
     {
         if (CurrentScreenshot is null)
         {
-            Status = "Спочатку зроби скріншот";
+            Status = Text("main.status.captureFirst", "Спочатку зроби скріншот");
             return;
         }
 
@@ -231,7 +246,7 @@ public sealed class MainViewModel : ObservableObject
         catch (Exception exception)
         {
             _loggingService.Error(exception, "Could not open screenshots folder from main window.");
-            Status = "Не вдалося відкрити папку скріншотів";
+            Status = Text("main.status.openScreenshotsFolderFailed", "Не вдалося відкрити папку скріншотів");
         }
     }
 
@@ -339,7 +354,7 @@ public sealed class MainViewModel : ObservableObject
             Height = frame.PixelHeight,
             CreatedAt = new DateTimeOffset(file.LastWriteTime),
             SuggestedFileName = file.Name,
-            SourceName = "Збережений скріншот"
+            SourceName = "Saved screenshot"
         };
     }
 
@@ -365,8 +380,8 @@ public sealed class MainViewModel : ObservableObject
             var provider = settings.Ai.Providers.FirstOrDefault(item => item.Id == settings.Ai.ActiveProviderId)
                 ?? settings.Ai.Providers.FirstOrDefault(item => item.IsEnabled);
 
-            ActiveProviderName = provider?.DisplayName ?? "AI не налаштовано";
-            ActiveProviderModel = provider?.Model ?? "Немає активного маршруту";
+            ActiveProviderName = provider?.DisplayName ?? Text("main.aiNotConfigured", "AI не налаштовано");
+            ActiveProviderModel = provider?.Model ?? Text("main.noActiveRoute", "Немає активного маршруту");
             StorageSummary = string.IsNullOrWhiteSpace(settings.Screenshots.SaveDirectory)
                 ? "screenshots"
                 : settings.Screenshots.SaveDirectory;
@@ -379,23 +394,45 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
+    private void OnLocalizationResourcesChanged(object? sender, EventArgs args)
+    {
+        if (CurrentScreenshot is null)
+        {
+            Status = Text("status.ready", "Готово до роботи");
+        }
+
+        foreach (var capture in RecentCaptures)
+        {
+            capture.RefreshLocalization();
+        }
+
+        OnPropertyChanged(nameof(SelectedCaptureSummary));
+        _ = LoadSettingsSummaryAsync();
+    }
+
     private static string FormatWorkflow(IReadOnlyCollection<AfterCaptureAction> actions)
     {
         if (actions.Count == 0)
         {
-            return "manual";
+            return Text("main.workflowAction.manual", "manual");
         }
 
         var labels = actions.Select(action => action switch
         {
-            AfterCaptureAction.CopyImageToClipboard => "clipboard",
-            AfterCaptureAction.SaveImageToFile => "file",
-            AfterCaptureAction.ShowQuickActions => "quick menu",
-            AfterCaptureAction.OpenEditor => "editor",
+            AfterCaptureAction.CopyImageToClipboard => Text("main.workflowAction.clipboard", "clipboard"),
+            AfterCaptureAction.SaveImageToFile => Text("main.workflowAction.file", "file"),
+            AfterCaptureAction.ShowQuickActions => Text("main.workflowAction.quickMenu", "quick menu"),
+            AfterCaptureAction.OpenEditor => Text("main.workflowAction.editor", "editor"),
             AfterCaptureAction.AskAi => "AI",
             _ => action.ToString()
         });
 
         return string.Join(" · ", labels);
     }
+
+    private static string Text(string key, string fallback) =>
+        LocalizationResourceService.GetString(key, fallback);
+
+    private static string FormatText(string key, string fallback, params object[] args) =>
+        string.Format(CultureInfo.CurrentCulture, Text(key, fallback), args);
 }

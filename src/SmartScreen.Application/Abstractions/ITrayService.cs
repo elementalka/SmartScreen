@@ -12,5 +12,6 @@ public interface ITrayService : IDisposable
     event EventHandler? ExitRequested;
 
     void Initialize();
+    void RefreshLocalization();
     void ShowReadyNotification();
 }
