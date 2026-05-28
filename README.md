@@ -160,7 +160,5 @@ This runs the automated tests, builds the portable artifact, verifies checksums,
 Course documents are stored in `docs/`:
 
 - `ТЗ.md`
-- `Інструкція для Codex.md`
-- `План звіту.md`
 - `Статус реалізації.md`
 - `Приймальне тестування.md`
